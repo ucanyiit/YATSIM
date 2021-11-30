@@ -1,6 +1,6 @@
 # This class contains the cell elements edited by the user.
 
-class GamerGrid:
+class GameGrid:
   
   # Creates a grid
   def __init__(height, width):
