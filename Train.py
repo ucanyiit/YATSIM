@@ -5,19 +5,21 @@
 class Train:
 
   # Creates a train at given cell with given number of cars behind. The total size of train is ncars+1 including the engine.
-  def __init__(type, ncars, cell):
-    pass
+  def __init__(self, type, ncars, cell):
+    self.type = type
+    self.ncars = ncars
+    self.cell = cell
 
   # Get the train engine the given cell
-  def enterCell(cell):
+  def enterCell(self, cell):
     pass
 
   # The train status can be moving/moving reverse/stopped.
-  def getStatus():
+  def getStatus(self):
     pass
 
   # Gets the geometry of the train path, engine and cars. Implemented in later phases where full train needs to be displayed on a curve during simulation
-  def getGeometry():
+  def getGeometry(self):
     pass
 
 
