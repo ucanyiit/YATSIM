@@ -1,0 +1,32 @@
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "myproject.settings"
+
+[tool.pydocstyle]
+convention = "google"
+
+[tool.poetry]
+name = "445"
+version = "0.1.0"
+description = "An open-source train simulation game."
+authors = ["Deniz Koluaçık <koluacik@disroot.org>", "Yiğitcan Uçan <ucanyiit@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.12.1"
+mypy = "^0.910"
+black = "^21.11b1"
+isort = "^5.10.1"
+pydocstyle = "^6.1.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
