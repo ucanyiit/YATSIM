@@ -1,21 +1,10 @@
-[tool.isort]
-profile = "black"
-
-[tool.mypy]
-plugins = ["mypy_django_plugin.main"]
-
-[tool.django-stubs]
-django_settings_module = "myproject.settings"
-
-[tool.pydocstyle]
-convention = "google"
-
 [tool.poetry]
 name = "445"
 version = "0.1.0"
 description = "An open-source train simulation game."
 authors = ["Deniz Koluaçık <koluacik@disroot.org>", "Yiğitcan Uçan <ucanyiit@gmail.com>"]
 license = "MIT"
+packages = [ { include = "locolib", from = "src" } ]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -26,6 +15,20 @@ mypy = "^0.910"
 black = "^21.11b1"
 isort = "^5.10.1"
 pydocstyle = "^6.1.1"
+pre-commit = "^2.16.0"
+
+[tool.isort]
+profile = "black"
+
+[tool.pydocstyle]
+convention = "google"
+# Ignore __init__.py files and test files.
+match = '(?!test_)(?!__init__).*\.py'
+
+[tool.mypy]
+pretty = "True"
+show_error_codes = "True"
+files = "src/lib"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
