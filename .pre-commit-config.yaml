@@ -28,7 +28,7 @@ repos:
     hooks:
       - id: system
         name: Pylint
-        entry: poetry run pylint src/lib
+        entry: poetry run pylint src/yatsim
         pass_filenames: false
         language: system
 
@@ -36,6 +36,6 @@ repos:
     hooks:
       - id: system
         name: Pydocstyle
-        entry: poetry run pydocstyle src/lib
+        entry: poetry run pydocstyle src/yatsim
         pass_filenames: false
         language: system

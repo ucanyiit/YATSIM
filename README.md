@@ -1,3 +1,6 @@
-### A Train Simulator Game for Kids
+# Yet Another Train Simulator!
 
-Assume a direction is defined as NORTH=0, EAST=1, SOUTH=2, WEST=3 in modulo 4.
+**See CONTRIBUTING.md for setting up the development environment.**
+
+## Design
+**TODO:**

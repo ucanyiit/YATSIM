@@ -2,7 +2,7 @@
 
 from typing import Any, List
 
-from lib.cell_element import CellElement
+from yatsim.cell_element import CellElement
 
 
 # TODO: Discuss cell factory, view visitor, observers, undo-redo.

@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "445"
+name = "YATSIM"
 version = "0.1.0"
 description = "An open-source train simulation game."
 authors = ["Deniz Koluaçık <koluacik@disroot.org>", "Yiğitcan Uçan <ucanyiit@gmail.com>"]
 license = "MIT"
-packages = [ { include = "lib", from = "src" } ]
+packages = [ { include = "yatsim", from = "src" } ]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -28,7 +28,7 @@ match = '(?!test_)(?!__init__).*\.py'
 [tool.mypy]
 pretty = "True"
 show_error_codes = "True"
-files = "src/lib"
+files = "src/yatsim"
 
 [tool.pylint.master]
 # Files or directories to be skipped. They should be base names, not paths.

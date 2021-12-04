@@ -2,7 +2,7 @@
 
 from enum import Enum, auto
 
-from lib.cell_element import CellElement
+from yatsim.cell_element import CellElement
 
 
 class TrainStatus(Enum):
