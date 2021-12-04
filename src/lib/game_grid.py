@@ -44,6 +44,8 @@ class GameGrid:
             for i in range(self.height)
         ]
 
+    # TODO: gui display
+
     # TODO: Discuss display method.
     def display(self) -> str:
         """Displays the current state of the grid."""
