@@ -1,0 +1,41 @@
+fail_fast: true
+repos:
+  - repo: local
+    hooks:
+      - id: system
+        name: Black
+        entry: poetry run black --check .
+        pass_filenames: false
+        language: system
+
+  - repo: local
+    hooks:
+      - id: system
+        name: isort
+        entry: poetry run isort --check .
+        pass_filenames: false
+        language: system
+
+  - repo: local
+    hooks:
+      - id: system
+        name: MyPy
+        entry: poetry run mypy
+        pass_filenames: false
+        language: system
+
+  - repo: local
+    hooks:
+      - id: system
+        name: Pylint
+        entry: poetry run pylint src/yatsim
+        pass_filenames: false
+        language: system
+
+  - repo: local
+    hooks:
+      - id: system
+        name: Pydocstyle
+        entry: poetry run pydocstyle src/yatsim
+        pass_filenames: false
+        language: system
