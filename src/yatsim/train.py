@@ -1,17 +1,9 @@
 """Train class is defined here."""
 
-from enum import Enum, auto
 from typing import List, Tuple
 
 from yatsim.cell_element import CellElement, Direction
-
-
-class TrainStatus(Enum):
-    """Enumeration representing the state of a train."""
-
-    STOPPED = auto()
-    MOVING = auto()
-    REVERSE = auto()
+from yatsim.interfaces import TrainStatus
 
 
 class Train:

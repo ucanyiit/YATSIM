@@ -3,11 +3,9 @@
 from typing import List
 
 from yatsim.cell_element import BackgroundCellElement, CellElement, Direction
+from yatsim.interfaces import OutOfGridException
 from yatsim.train import Train
 from yatsim.utils import move_to_next_cell
-
-# TODO: OutOfGridException(Exception)
-_out_of_grid_exception = "The given x and y should not exceed boundries. X:{}, Y:{}"
 
 
 class GameGrid:
@@ -37,7 +35,9 @@ class GameGrid:
     def add_element(self, cellel: CellElement, x: int, y: int) -> None:
         """Updates the cell with a new one, overwriting the existing one."""
         if self._check_boundries(x, y):
-            raise Exception(_out_of_grid_exception.format(x, y))
+            raise OutOfGridException(
+                f"The given x and y should not exceed boundries. X:{x}, Y:{y}"
+            )
 
         self.elements[y][x] = cellel
 
@@ -45,7 +45,9 @@ class GameGrid:
     def remove_element(self, x, y) -> None:
         """Replace the cell with the default cell."""
         if self._check_boundries(x, y):
-            raise Exception(_out_of_grid_exception.format(x, y))
+            raise OutOfGridException(
+                f"The given x and y should not exceed boundries. X:{x}, Y:{y}"
+            )
 
         self.elements[y][x] = BackgroundCellElement(x, y)
 
