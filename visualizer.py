@@ -41,7 +41,7 @@ def load_image(category: str, category_type: int, orientation: Direction):
     path = f"assets/{category}s/type{category_type}.png"
     cell = pygame.image.load(path).convert_alpha()
     cell = pygame.transform.scale(cell, (BLOCK_SIZE, BLOCK_SIZE))
-    cell = pygame.transform.rotate(cell, 90 * orientation)
+    cell = pygame.transform.rotate(cell, -90 * orientation)
     return cell
 
 

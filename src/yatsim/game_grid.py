@@ -93,8 +93,11 @@ class GameGridWithTrains(GameGrid):
 
     def move_trains(self):
         """Moves trains."""
+        # TODO: We should check if the train can enter the next cell.
+        # TODO: We should check the train status.
+
         for train in self.trains:
-            direction: Direction = (train.cell.next_cell((train.orientation + 2) % 4))
+            direction: Direction = train.cell.next_cell((train.orientation + 2) % 4)
             (x, y) = move_to_next_cell(train.cell.x, train.cell.y, direction)
             if not self._check_boundries(x, y):
                 new_cell: CellElement = self.elements[y][x]
