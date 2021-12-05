@@ -95,9 +95,7 @@ class GameGridWithTrains(GameGrid):
 
     def move_trains(self):
         """Moves trains."""
-        # TODO: We should check if the train can enter the next cell.
-        # TODO: We should check the train status.
-        # TODO: Test this with a circuit shaped track
+        # TODO: We should check the reverse train status.
         #   /- - -\
         #  |       |  <- like this.
         #   \- - -/
