@@ -20,4 +20,4 @@ train_2: Train = Train(1, 2, StatefulCell(3, 4))
 grid.add_train(train_1)
 grid.add_train(train_2)
 
-start_visualizer(grid)
+start_visualizer(grid, 0.5)

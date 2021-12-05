@@ -14,7 +14,7 @@ SCREEN = None
 CLOCK = None
 
 
-def start_visualizer(game_grid: GameGridWithTrains):
+def start_visualizer(game_grid: GameGridWithTrains, speed: float):
     """Visualizes the game grid using an endless loop."""
     global SCREEN, CLOCK, GAME_GRID, WINDOW_HEIGHT, WINDOW_WIDTH
     pygame.init()
@@ -31,7 +31,7 @@ def start_visualizer(game_grid: GameGridWithTrains):
                 pygame.quit()
                 sys.exit()
         pygame.display.update()
-        time.sleep(2)
+        time.sleep(speed)
 
         GAME_GRID.move_trains()
 
