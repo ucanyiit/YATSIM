@@ -2,15 +2,15 @@
 
 from enum import Enum, auto
 
-from yatsim.cell_element import CellElement
+from yatsim.cell import CellElement
 
 
 class TrainStatus(Enum):
     """Enumeration representing the state of a train."""
 
-    STOPPED = auto
-    MOVING = auto
-    REVERSE = auto
+    STOPPED = auto()
+    MOVING = auto()
+    REVERSE = auto()
 
 
 class Train:
