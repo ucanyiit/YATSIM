@@ -2,12 +2,7 @@
 
 from typing import List
 
-from yatsim.cell import (
-    CellElement,
-    Direction,
-    ImpossiblePathError,
-    SimpleTimedCellFactory,
-)
+from yatsim.cell import CellElement, ImpossiblePathError, SimpleTimedCellFactory
 from yatsim.interfaces import OutOfGridException, TrainStatus
 from yatsim.train import Train
 from yatsim.utils import move_to_next_cell
@@ -110,15 +105,19 @@ class GameGridWithTrains(GameGrid):
         for train in self.trains:
             if train.status == TrainStatus.STOPPED:
                 continue
-            next_cell_direction: Direction = train.cell.next_cell(-train.orientation)
+
             new_x, new_y = move_to_next_cell(
-                train.cell.x, train.cell.y, next_cell_direction
+                train.cell.x, train.cell.y, train.orientation
             )
-            if not self._check_boundries(new_x, new_y):
-                new_cell: CellElement = self.elements[new_y][new_x]
-                # Check if we can enter the next cell.
-                try:
-                    _ = new_cell.next_cell(next_cell_direction)
-                    train.enter_cell(new_cell)
-                except ImpossiblePathError:
-                    train.status = TrainStatus.STOPPED
+
+            if self._check_boundries(new_x, new_y):
+                train.status = TrainStatus.STOPPED
+                continue
+
+            new_cell: CellElement = self.elements[new_y][new_x]
+            # Check if we can enter the next cell.
+            try:
+                _ = new_cell.next_cell(-train.orientation)
+                train.enter_cell(new_cell)
+            except ImpossiblePathError:
+                train.status = TrainStatus.STOPPED

@@ -26,12 +26,12 @@ class Train:
         self.train_type = train_type
         self.car_count = car_count
         self.cell = cell
-        self.status: TrainStatus = TrainStatus.STOPPED
-        self.orientation = cell.direction
+        self.status: TrainStatus = TrainStatus.MOVING
+        self.orientation = cell.next_cell(cell.direction)
 
     def enter_cell(self, cell: CellElement) -> None:
         """Moves the train engine to the given cell."""
-        self.orientation = Direction(-self.cell.next_cell(self.orientation))
+        self.orientation = Direction(cell.next_cell(-self.orientation))
         self.cell = cell
 
     def get_status(self) -> TrainStatus:
