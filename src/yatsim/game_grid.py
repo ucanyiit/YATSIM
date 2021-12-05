@@ -94,7 +94,7 @@ class GameGridWithTrains(GameGrid):
     def move_trains(self):
         """Moves trains."""
         for train in self.trains:
-            direction: Direction = (train.cell.next_cell(train.orientation) + 2) % 4
+            direction: Direction = (train.cell.next_cell((train.orientation + 2) % 4))
             (x, y) = move_to_next_cell(train.cell.x, train.cell.y, direction)
             if not self._check_boundries(x, y):
                 new_cell: CellElement = self.elements[y][x]
