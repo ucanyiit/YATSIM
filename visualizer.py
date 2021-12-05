@@ -3,9 +3,8 @@ import time
 
 import pygame
 
-from yatsim.cell_element import Direction, StatefulCell
+from yatsim.cell_element import Direction
 from yatsim.game_grid import GameGridWithTrains
-from yatsim.train import Train
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
@@ -17,7 +16,7 @@ SCREEN = None
 CLOCK = None
 
 
-def main(game_grid: GameGridWithTrains):
+def start_visualizer(game_grid: GameGridWithTrains):
     global SCREEN, CLOCK, GAME_GRID, WINDOW_HEIGHT, WINDOW_WIDTH
     pygame.init()
     GAME_GRID = game_grid
@@ -62,23 +61,3 @@ def draw_grid():
         for (x, y, train_type, orientation) in wagoons:
             image = load_image("train", train_type, orientation)
             SCREEN.blit(image, (x * BLOCK_SIZE, y * BLOCK_SIZE))
-
-
-test_grid_1 = GameGridWithTrains(5, 5)
-
-test_grid_1.add_element(StatefulCell(1, 1), 1, 1)
-test_grid_1.add_element(StatefulCell(1, 2), 1, 2)
-test_grid_1.add_element(StatefulCell(1, 3), 1, 3)
-test_grid_1.add_element(StatefulCell(1, 4), 1, 4)
-test_grid_1.add_element(StatefulCell(3, 1), 3, 1)
-test_grid_1.add_element(StatefulCell(3, 2), 3, 2)
-test_grid_1.add_element(StatefulCell(3, 3), 3, 3)
-test_grid_1.add_element(StatefulCell(3, 4), 3, 4)
-
-train_1: Train = Train(0, 2, StatefulCell(1, 4))
-train_2: Train = Train(1, 2, StatefulCell(3, 4))
-
-test_grid_1.add_train(train_1)
-test_grid_1.add_train(train_2)
-
-main(test_grid_1)
