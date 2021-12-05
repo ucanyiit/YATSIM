@@ -2,8 +2,13 @@
 
 from typing import List
 
-from yatsim.cell_element import BackgroundCellElement, CellElement, Direction
-from yatsim.interfaces import OutOfGridException
+from yatsim.cell import (
+    CellElement,
+    Direction,
+    ImpossiblePathError,
+    SimpleTimedCellFactory,
+)
+from yatsim.interfaces import OutOfGridException, TrainStatus
 from yatsim.train import Train
 from yatsim.utils import move_to_next_cell
 
@@ -21,10 +26,12 @@ class GameGrid:
 
     def __init__(self, height: int, width: int) -> None:
         """Init GameGrid with height and width."""
+        self._cell_factory = SimpleTimedCellFactory()
         self.height = height
         self.width = width
         self.elements: List[List[CellElement]] = [
-            [BackgroundCellElement(x, y) for x in range(width)] for y in range(height)
+            [self._cell_factory.new(x, y, "bg") for x in range(width)]
+            for y in range(height)
         ]
         self.update_view()
 
@@ -49,7 +56,7 @@ class GameGrid:
                 f"The given x and y should not exceed boundries. X:{x}, Y:{y}"
             )
 
-        self.elements[y][x] = BackgroundCellElement(x, y)
+        self.elements[y][x] = self._cell_factory.new(x, y, "bg")
 
     def update_view(self):
         """Updates the view."""
@@ -95,10 +102,23 @@ class GameGridWithTrains(GameGrid):
         """Moves trains."""
         # TODO: We should check if the train can enter the next cell.
         # TODO: We should check the train status.
+        # TODO: Test this with a circuit shaped track
+        #   /- - -\
+        #  |       |  <- like this.
+        #   \- - -/
 
         for train in self.trains:
-            direction: Direction = train.cell.next_cell((train.orientation + 2) % 4)
-            (x, y) = move_to_next_cell(train.cell.x, train.cell.y, direction)
-            if not self._check_boundries(x, y):
-                new_cell: CellElement = self.elements[y][x]
-                train.enter_cell(new_cell)
+            if train.status == TrainStatus.STOPPED:
+                continue
+            next_cell_direction: Direction = train.cell.next_cell(-train.orientation)
+            new_x, new_y = move_to_next_cell(
+                train.cell.x, train.cell.y, next_cell_direction
+            )
+            if not self._check_boundries(new_x, new_y):
+                new_cell: CellElement = self.elements[new_y][new_x]
+                # Check if we can enter the next cell.
+                try:
+                    _ = new_cell.next_cell(next_cell_direction)
+                    train.enter_cell(new_cell)
+                except ImpossiblePathError:
+                    train.status = TrainStatus.STOPPED

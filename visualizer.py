@@ -3,7 +3,7 @@ import time
 
 import pygame
 
-from yatsim.cell_element import Direction
+from yatsim.cell import Direction
 from yatsim.game_grid import GameGridWithTrains
 
 BLOCK_SIZE = 64

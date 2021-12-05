@@ -2,7 +2,7 @@
 
 from typing import List, Tuple
 
-from yatsim.cell_element import CellElement, Direction
+from yatsim.cell import CellElement, Direction
 from yatsim.interfaces import TrainStatus
 
 
@@ -27,12 +27,11 @@ class Train:
         self.car_count = car_count
         self.cell = cell
         self.status: TrainStatus = TrainStatus.STOPPED
-        self.orientation = cell.orientation
+        self.orientation = cell.direction
 
     def enter_cell(self, cell: CellElement) -> None:
         """Moves the train engine to the given cell."""
-        # TODO: Negation can be used here
-        self.orientation = Direction((self.cell.next_cell(self.orientation) + 2) % 4)
+        self.orientation = Direction(-self.cell.next_cell(self.orientation))
         self.cell = cell
 
     def get_status(self) -> TrainStatus:
@@ -45,7 +44,7 @@ class Train:
         cur_cell = self.cell
         # TODO: Commented, because cell.previous(orientation: int) isn't implemented yet
         geometry: List[Tuple[int, int, int, int]] = [
-            (cur_cell.x, cur_cell.y, self.train_type, self.orientation)
+            (cur_cell.x, cur_cell.y, self.train_type, self.orientation.value)
         ]
 
         # for _ in range(self.car_count):
