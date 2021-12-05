@@ -1,6 +1,6 @@
 """Cell elements of game grid are defined here."""
 
-from typing import Dict, NewType
+from typing import Dict, NewType, Tuple
 
 # From 0 to 3 N E S W, respectively.
 Direction = NewType("Direction", int)
@@ -93,7 +93,7 @@ class CellElement:
         return self._paths[entdir]
 
     # TODO: fill me.
-    def get_view(self) -> str:
+    def get_view(self) -> Tuple[int, int]:
         """TODO: fill me."""
 
 
@@ -106,6 +106,10 @@ class BackgroundCellElement(CellElement):
         """Does nothing."""
         pass
 
+    def get_view(self) -> Tuple[int, int]:
+        """TODO: fill me."""
+        return (0, 0)
+
 
 class StatefulCell(CellElement):
     """Abstract subclass of CellElement with stateful behavior."""
@@ -114,6 +118,16 @@ class StatefulCell(CellElement):
         """Inits the stateful cell with the default state (0)."""
         super().__init__(x, y)
         self._state: int = 0
+        self._paths = {
+            Direction(1): Direction(3),
+            Direction(0): Direction(2),
+            Direction(3): Direction(1),
+            Direction(2): Direction(0),
+        }
+
+    def get_view(self) -> Tuple[int, int]:
+        """TODO: fill me."""
+        return (1, self.orientation)
 
 
 class SimpleCellElement(StatefulCell):
