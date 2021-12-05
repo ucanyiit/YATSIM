@@ -141,6 +141,8 @@ class SimpleTimedCellElement(CellElement):
 class SimpleTimedBackgroundCellElement(SimpleTimedCellElement):
     """Background cell. Trains can not pass through this cell."""
 
+    _view = 0
+
     def next_cell(self, _entdir: Direction) -> Direction:
         """Raises ImpossiblePathError."""
         raise ImpossiblePathError("Background cells can not have successor cells.")
@@ -350,5 +352,5 @@ class SimpleTimedYJunctionCellElement(SimpleTimedXJunctionCellElement):
     def get_view(self):
         """Returns view depending on the emplacement of the curved path."""
         if self._curve == self.JunctionState.CW:
-            return 3, self.direction
-        return 4, self.direction
+            return 3, self.direction.value
+        return 4, self.direction.value

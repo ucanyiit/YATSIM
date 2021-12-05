@@ -4,6 +4,7 @@ from typing import Any, overload
 
 from .cell_element import (
     CellElement,
+    Direction,
     SimpleTimedBackgroundCellElement,
     SimpleTimedCellElement,
     SimpleTimedCrossBridgeCellElement,
@@ -59,6 +60,9 @@ class SimpleTimedCellFactory(CellFactory):
                 return SimpleTimedYJunctionCellElement(x, y, kwargs["curve_dir"])
             raise ValueError('cell_type must be one of "bg", "strt", "curv", "x", "y"')
         if isinstance(cell_type, int):
+            if cell_type == 0:
+                return SimpleTimedBackgroundCellElement(x, y)
+
             if cell_type == 1:
                 return SimpleTimedStraightCellElement(x, y)
 
@@ -84,3 +88,13 @@ class SimpleTimedCellFactory(CellFactory):
                 return SimpleTimedStation(x, y)
             raise ValueError("cell_type must be a int from 1 to 8.")
         raise TypeError("cell_type must be an int or str.")
+
+    def rotated_new(
+        self, x: int, y: int, cell_type: Any, direction: int
+    ) -> CellElement:
+        """Creates a new CellElement and rotates it in the given direction."""
+        cell: CellElement = self.new(x, y, cell_type)
+
+        cell.direction = Direction(direction)
+
+        return cell
