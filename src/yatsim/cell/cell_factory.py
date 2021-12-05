@@ -6,8 +6,10 @@ from .cell_element import (
     CellElement,
     SimpleTimedBackgroundCellElement,
     SimpleTimedCellElement,
+    SimpleTimedCrossBridgeCellElement,
     SimpleTimedCrossCellElement,
     SimpleTimedCurvedCellElement,
+    SimpleTimedStation,
     SimpleTimedStraightCellElement,
     SimpleTimedXJunctionCellElement,
     SimpleTimedYJunctionCellElement,
@@ -61,24 +63,24 @@ class SimpleTimedCellFactory(CellFactory):
                 return SimpleTimedStraightCellElement(x, y)
 
             if cell_type == 2:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedCurvedCellElement(x, y)
 
             if cell_type == 3:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedYJunctionCellElement(x, y, "cw")
 
             if cell_type == 4:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedYJunctionCellElement(x, y, "ccw")
 
             if cell_type == 5:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedXJunctionCellElement(x, y)
 
             if cell_type == 6:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedCrossCellElement(x, y)
 
             if cell_type == 7:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedCrossBridgeCellElement(x, y)
 
             if cell_type == 8:
-                return SimpleTimedStraightCellElement(x, y)
+                return SimpleTimedStation(x, y)
             raise ValueError("cell_type must be a int from 1 to 8.")
         raise TypeError("cell_type must be an int or str.")

@@ -30,7 +30,7 @@ class Direction(Enum):
         """Implements self + value."""
         return Direction((self.value + value) % 4)
 
-    def __neg__(self) -> Direction:
+    def __neg__(self) -> "Direction":
         """Implements -self."""
         return Direction(self + 2)
 
@@ -149,6 +149,8 @@ class SimpleTimedBackgroundCellElement(SimpleTimedCellElement):
 class SimpleTimedStraightCellElement(SimpleTimedCellElement):
     """Straight cell with a path oriented vertically upon init."""
 
+    _view = 1
+
     def next_cell(self, entdir: Direction) -> Direction:
         """Returns the next cell the train will visit.
 
@@ -163,12 +165,16 @@ class SimpleTimedStraightCellElement(SimpleTimedCellElement):
 class SimpleTimedStation(SimpleTimedStraightCellElement):
     """Straight cell with station view. Currently has no additional functionality."""
 
+    _view = 8
+
 
 class SimpleTimedCurvedCellElement(SimpleTimedCellElement):
     """Curved cell with a path from NORTH to EAST.
 
     Rotate the cell for achieving different paths.
     """
+
+    _view = 2
 
     def next_cell(self, entdir: Direction) -> Direction:
         """Return the next cell the train will visit.
@@ -190,12 +196,20 @@ class SimpleTimedCurvedCellElement(SimpleTimedCellElement):
 class SimpleTimedCrossCellElement(SimpleTimedCellElement):
     """Cell element with a paths in NS orientation, and WE orientation."""
 
+    _view = 6
+
     def next_cell(self, entdir: Direction) -> Direction:
         """Returns the next cell the train will visit.
 
         Returns the opposite direction of the entry direction.
         """
         return -entdir
+
+
+class SimpleTimedCrossBridgeCellElement(SimpleTimedCrossCellElement):
+    """Overrides cross cell's view."""
+
+    _view = 7
 
 
 class SimpleTimedXJunctionCellElement(SimpleTimedCellElement):
@@ -218,6 +232,8 @@ class SimpleTimedXJunctionCellElement(SimpleTimedCellElement):
           DIRECT
 
     """
+
+    _view = 5
 
     class JunctionState(Enum):
         """Junction state enumeration."""
@@ -330,3 +346,9 @@ class SimpleTimedYJunctionCellElement(SimpleTimedXJunctionCellElement):
             return self.direction
         # coming from the direction with no path
         raise ImpossiblePathError(f"The train could not have entered from {entdir}.")
+
+    def get_view(self):
+        """Returns view depending on the emplacement of the curved path."""
+        if self._curve == self.JunctionState.CW:
+            return 3, self.direction
+        return 4, self.direction
