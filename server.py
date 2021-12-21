@@ -25,10 +25,14 @@ class Connection(Thread):
                         self.handle_login(req_json)
                     else:
                         self.send_message("Log in before sending different requests.")
+                elif req_json["command"] == "LOGOUT":
+                    self.handle_logout()
                 elif req_json["command"] == "LIST":
                     self.handle_list(req_json)
                 elif req_json["command"] == "ATTACH":
                     self.handle_attach(req_json)
+                else:
+                    self.send_message("Please use a valid command type")
 
             except:
                 self.send_message("Send your request in JSON format")
@@ -43,12 +47,19 @@ class Connection(Thread):
                 "Please add 'username' and 'password' to your 'LOGIN' request"
             )
             return
-        # Check login
+        # Check login and assign self.user if user with given credentials exists
+
+    def handle_logout(self):
+        """Forget the user."""
+        self.user = None
 
     def handle_attach(self, request):
+        # Check if self.user has the room with given name or id
+        # If it has, then self.room = (that room)
         pass
 
     def handle_list(self, request):
+        # Get the list from self.user
         pass
 
     def send_message(self, message):
