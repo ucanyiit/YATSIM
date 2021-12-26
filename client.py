@@ -9,12 +9,11 @@ messages = [
 
 
 def incoming_message_printer(sock):
-    reply = sock.recv(1024)
     while True:
+        reply = sock.recv(1024)
         msg = json.loads(reply.decode())
         if msg["type"] == "MSG":
             print(msg["message"])
-        reply = sock.recv(1024)
 
 
 def client(port):
@@ -22,11 +21,15 @@ def client(port):
     sock.connect(("127.0.0.1", port))
     incoming_messages = Thread(target=incoming_message_printer, args=(sock,))
     incoming_messages.start()
-    inp = ""
-    while inp != "exit":
+
+    while True:
         inp = input()
+        if inp == "exit":
+            break
         sock.send(inp.encode())
+
     sock.close()
+    incoming_messages.wait()
 
 
 if __name__ == "__main__":

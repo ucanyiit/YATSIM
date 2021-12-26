@@ -1,4 +1,5 @@
 import json
+from json.decoder import JSONDecodeError
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
@@ -16,30 +17,41 @@ class Connection(Thread):
         req = self.sock.recv(1024)
         while req and req != "":
             try:
-                req_json = json.loads(req.decode())
-
-                if "command" not in req_json:
-                    self.send_message("Send your request with a command")
-                elif self.user is None:
-                    if req_json["command"] == "LOGIN":
-                        self.handle_login(req_json)
-                    else:
-                        self.send_message("Log in before sending different requests.")
-                elif req_json["command"] == "LOGOUT":
-                    self.handle_logout()
-                elif req_json["command"] == "LIST":
-                    self.handle_list(req_json)
-                elif req_json["command"] == "ATTACH":
-                    self.handle_attach(req_json)
-                else:
-                    self.send_message("Please use a valid command type")
-
-            except:
+                self.handle_request(json.loads(req.decode()))
+            except JSONDecodeError:
                 self.send_message("Send your request in JSON format")
 
             req = self.sock.recv(1024)
 
         print(self.sock.getpeername(), " closing")
+
+    def handle_request(self, request):
+        if "command" not in request:
+            self.send_message("Send your request with a command")
+        elif self.user is None:
+            if request["command"] == "LOGIN":
+                self.handle_login(request)
+            else:
+                self.send_message("Log in before sending different requests.")
+        elif request["command"] == "LOGOUT":
+            self.handle_logout()
+        elif request["command"] == "LIST":
+            self.handle_list(request)
+        elif request["command"] == "ATTACH":
+            self.handle_attach(request)
+        elif request["command"] == "CREATE":
+            pass
+        elif self.room is not None:
+            if request["command"] == "REPLACE":
+                pass
+            elif request["command"] == "SWITCH":
+                pass
+            elif request["command"] == "START":
+                pass
+            elif request["command"] == "STOP":
+                pass
+        else:
+            self.send_message("Please use a valid command type")
 
     def handle_login(self, request):
         if "username" not in request or "password" not in request:
