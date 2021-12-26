@@ -78,6 +78,9 @@ class Connection(Thread):
         msg = {"type": "MSG", "message": message}
         self.sock.send(json.dumps(msg).encode())
 
+    def send_update(self, update):
+        self.sock.send(json.dumps(update).encode())
+
 
 if __name__ == "__main__":
     s = socket(AF_INET, SOCK_STREAM)
