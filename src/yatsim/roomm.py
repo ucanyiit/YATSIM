@@ -13,6 +13,7 @@ class Room:
     """The class that manages connections/requests for GameGrid.
 
     Attributes:
+        identifier: The unique identifier for the room
         connections: A list that stores connection information. (Includes
         user and socket info)
         game_grid: The game grid object that is shared between players.
@@ -20,19 +21,20 @@ class Room:
         handled in order.
     """
 
-    # Creates a train at given cell with given number of cars behind. The total size of
-    # train is ncars+1 including the engine.
-    def __init__(self, game_grid: GameGrid) -> None:
-        """Inits train with type, number of cars and the initial cell."""
+    def __init__(self, game_grid: GameGrid, identifier: str) -> None:
+        """Inits Room with the given game grid object."""
+        self.identifier = identifier
         self.connections: Dict[str, Connection] = {}
         self.game_grid: GameGrid = game_grid
         self.lock: Lock = Lock()
 
-    def connect(self, username: str, s: Connection):
+    def connect(self, username: str, connection: Connection):
         """Connect a new user to the room."""
         with self.lock:
-            self.connections[username] = s
-            return self.game_grid.view
+            self.connections[username] = connection
+            self.connections[username].send_message(
+                {"type": "VIEW", "view": self.game_grid.view}
+            )
 
     def disconnect(self, username: str) -> int:
         """Disconnect a user from the room."""

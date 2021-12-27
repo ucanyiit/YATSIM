@@ -3,12 +3,17 @@ from json.decoder import JSONDecodeError
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
+from yatsim.room_manager import RoomManager
+from yatsim.roomm import Room
+
+room_manager = RoomManager()
+
 
 class Connection(Thread):
     def __init__(self, sock):
         self.sock = sock
-        self.user = None
-        self.room = None
+        self.username: str = None
+        self.room: Room = None
         super().__init__()
 
     def run(self):
@@ -28,7 +33,7 @@ class Connection(Thread):
     def handle_request(self, request):
         if "command" not in request:
             self.send_message("Send your request with a command")
-        elif self.user is None:
+        elif self.username is None:
             if request["command"] == "LOGIN":
                 self.handle_login(request)
             else:
@@ -42,7 +47,9 @@ class Connection(Thread):
         elif request["command"] == "CREATE":
             pass
         elif self.room is not None:
-            if request["command"] == "REPLACE":
+            if request["command"] == "DETACH":
+                self.handle_detach()
+            elif request["command"] == "REPLACE":
                 pass
             elif request["command"] == "SWITCH":
                 pass
@@ -63,12 +70,18 @@ class Connection(Thread):
 
     def handle_logout(self):
         """Forget the user."""
-        self.user = None
+        if self.room is not None:
+            room_manager.disconnect(self.username, self.room.identifier)
+            self.room = None
+        self.username = None
+
+    def handle_detach(self):
+        room_manager.disconnect(self.username, self.room.identifier)
 
     def handle_attach(self, request):
+        room_id = request.room_id
         # Check if self.user has the room with given name or id
-        # If it has, then self.room = (that room)
-        pass
+        self.room = room_manager.connect(self.username, self, room_id)
 
     def handle_list(self, request):
         # Get the list from self.user
