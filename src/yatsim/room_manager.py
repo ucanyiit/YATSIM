@@ -4,6 +4,7 @@ from threading import Lock
 from typing import Dict
 
 from server import Connection
+from yatsim.game_grid import GameGrid
 
 # from yatsim.game_grid import GameGrid
 from yatsim.roomm import Room
@@ -45,8 +46,11 @@ class RoomManager:
             if remaining_user_count == 0:
                 del self.rooms[room_id]
 
-    # def create_game_grid(self, room_id: str, game_grid: GameGrid):
-    #     """Initializes a room by saving it into the DB."""
-    #     with self.lock:
-    #         # saveGameGridToDB(room_id, game_grid)
-    #         pass
+    def create_game_grid(self, height: int, width: int):
+        """Initializes a room by saving it into the DB."""
+        with self.lock:
+            # game_grid =
+            GameGrid(height, width)
+            room_id = "asd"
+            # saveGameGridToDB(room_id, game_grid)
+            return room_id

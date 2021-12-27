@@ -59,6 +59,21 @@ class Room:
             }
         )
 
+    def handle_start_simulation(self) -> None:
+        """Handles start operation on a simulation."""
+        with self.lock:
+            self.game_grid.start_simulation()
+
+    def handle_stop_simulation(self) -> None:
+        """Handles stop operation on a simulation."""
+        with self.lock:
+            self.game_grid.stop_simulation()
+
+    def handle_toggle_simulation(self) -> None:
+        """Handles toggle operation on a simulation."""
+        with self.lock:
+            self.game_grid.set_pause_resume()
+
     def handle_switch(self, x: int, y: int) -> None:
         """Handles switch operation on a cell."""
         with self.lock:

@@ -3,10 +3,13 @@ from json.decoder import JSONDecodeError
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
+from yatsim.cell.cell_element import Direction
 from yatsim.room_manager import RoomManager
 from yatsim.roomm import Room
+from yatsim.user import UserManager
 
 room_manager = RoomManager()
+user_manager = UserManager()
 
 
 class Connection(Thread):
@@ -41,22 +44,28 @@ class Connection(Thread):
         elif request["command"] == "LOGOUT":
             self.handle_logout()
         elif request["command"] == "LIST":
-            self.handle_list(request)
+            self.handle_list()
         elif request["command"] == "ATTACH":
             self.handle_attach(request)
         elif request["command"] == "CREATE":
-            pass
+            self.handle_create(request)
         elif self.room is not None:
             if request["command"] == "DETACH":
                 self.handle_detach()
-            elif request["command"] == "REPLACE":
-                pass
+            elif request["command"] == "PLACE":
+                self.room.handle_place(request["x"], request["y"], request["cell_type"])
             elif request["command"] == "SWITCH":
-                pass
+                self.room.handle_switch(request["x"], request["y"])
+            elif request["command"] == "ROTATE":
+                self.room.handle_rotate(
+                    request["x"], request["y"], Direction(request["direction"])
+                )
             elif request["command"] == "START":
-                pass
+                self.room.handle_start_simulation()
             elif request["command"] == "STOP":
-                pass
+                self.room.handle_stop_simulation()
+            elif request["command"] == "TOGGLE":
+                self.room.handle_toggle_simulation()
         else:
             self.send_message("Please use a valid command type")
 
@@ -66,7 +75,11 @@ class Connection(Thread):
                 "Please add 'username' and 'password' to your 'LOGIN' request"
             )
             return
-        # Check login and assign self.user if user with given credentials exists
+        if user_manager.login(request["username"], request["password"]):
+            self.username = request["username"]
+            self.send_message("OK")
+        else:
+            self.send_message("Wrong password.")
 
     def handle_logout(self):
         """Forget the user."""
@@ -74,18 +87,25 @@ class Connection(Thread):
             room_manager.disconnect(self.username, self.room.identifier)
             self.room = None
         self.username = None
+        self.send_message("OK")
 
     def handle_detach(self):
         room_manager.disconnect(self.username, self.room.identifier)
+        self.room = None
+        self.send_message("OK")
 
     def handle_attach(self, request):
-        room_id = request.room_id
-        # Check if self.user has the room with given name or id
-        self.room = room_manager.connect(self.username, self, room_id)
+        if user_manager.check_room_id(self.username, request["room_id"]):
+            self.room = room_manager.connect(self.username, self, request["room_id"])
 
-    def handle_list(self, request):
-        # Get the list from self.user
-        pass
+    def handle_list(self):
+        l = user_manager.get_game_grid_list(self.username)
+        msg = {"type": "MSG", "message": l}
+        self.sock.send(json.dumps(msg).encode())
+
+    def handle_create(self, request):
+        room_id = room_manager.create_game_grid(request["height"], request["width"])
+        self.send_message(f"New room created with identifier: {room_id}")
 
     def send_message(self, message):
         msg = {"type": "MSG", "message": message}
