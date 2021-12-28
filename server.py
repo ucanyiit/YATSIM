@@ -4,8 +4,8 @@ from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
 from yatsim.cell.cell_element import Direction
+from yatsim.room import Room
 from yatsim.room_manager import RoomManager
-from yatsim.roomm import Room
 from yatsim.user import UserManager
 
 room_manager = RoomManager()

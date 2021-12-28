@@ -7,7 +7,7 @@ from server import Connection
 from yatsim.game_grid import GameGrid
 
 # from yatsim.game_grid import GameGrid
-from yatsim.roomm import Room
+from yatsim.room import Room
 
 
 class RoomManager:
@@ -41,8 +41,9 @@ class RoomManager:
             if room_id not in self.rooms:
                 raise Exception("Room is not available")
 
-            remaining_user_count = self.rooms[room_id].disconnect(username)
+        remaining_user_count = self.rooms[room_id].disconnect(username)
 
+        with self.lock:
             if remaining_user_count == 0:
                 del self.rooms[room_id]
 
