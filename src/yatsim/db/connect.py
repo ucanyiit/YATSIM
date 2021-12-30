@@ -4,7 +4,6 @@ import os
 import shutil
 import sqlite3
 import subprocess
-from sqlite3 import Connection
 from typing import Optional, Union, cast
 
 from .models import ModelRoom, ModelUser
@@ -24,10 +23,6 @@ class DB:
 
     Use this class for interfacing with the database.
     """
-
-    def connect(self) -> Connection:
-        """Creates a new Connection object."""
-        return self.connect()
 
     def __init__(self, db_path: Optional[str] = None, create_new: bool = True) -> None:
         """Makes necessary checks and initializes a DB util object.
@@ -72,7 +67,7 @@ class DB:
                 f"with executable {SQL_EXECUTABLE}: db_chk."
             )
         self._db_path = db_path_str
-        conn = self._connect()
+        conn = self.connect()
         DBSchema.check_tables(conn)
         conn.commit()
         conn.close()
@@ -84,7 +79,8 @@ class DB:
         env_db_path = os.getenv("DB_PATH")
         return db_path if db_path is not None else env_db_path
 
-    def _connect(self):
+    def connect(self):
+        """Creates a new connection to a db."""
         conn = sqlite3.connect(self._db_path)
         cur = conn.cursor()
         cur.execute("PRAGMA foreign_keys=ON;")
