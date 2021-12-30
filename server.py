@@ -77,7 +77,7 @@ class Connection(Thread):
             return
         if user_manager.login(request["username"], request["password"]):
             self.username = request["username"]
-            self.send_message("OK")
+            self.send_update({"type": "LOGIN", "username": self.username})
         else:
             self.send_message("Wrong password.")
 
@@ -87,7 +87,7 @@ class Connection(Thread):
             room_manager.disconnect(self.username, self.room.identifier)
             self.room = None
         self.username = None
-        self.send_message("OK")
+        self.send_update({"type": "LOGOUT"})
 
     def handle_detach(self):
         room_manager.disconnect(self.username, self.room.identifier)

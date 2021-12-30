@@ -61,7 +61,12 @@ class Room:
         with self.lock:
             self.connections[username] = connection
             self.connections[username].send_message(
-                {"type": "VIEW", "view": self.game_grid.display()}
+                {
+                    "type": "VIEW",
+                    "view": self.game_grid.display(),
+                    "height": self.game_grid.height,
+                    "width": self.game_grid.width,
+                }
             )
 
     def disconnect(self, username: str) -> int:
