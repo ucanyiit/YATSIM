@@ -66,7 +66,7 @@ class GameGrid:
             for i in range(self.height)
         ]
 
-    def display(self) -> List[List[str]]:
+    def display(self) -> List[List[Tuple[int, int]]]:
         """Displays the current state of the grid."""
         return self.view
 
