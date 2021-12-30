@@ -7,7 +7,7 @@ import subprocess
 from sqlite3 import Connection
 from typing import Optional, Union, cast
 
-from .models import ModelRoom
+from .models import ModelRoom, ModelUser
 from .schema import DBSchema
 
 if shutil.which("sqlite3") is None:
@@ -75,6 +75,7 @@ class DB:
         DBSchema.check_tables(conn)
         conn.commit()
         self.room = ModelRoom(conn)
+        self.user = ModelUser(conn)
         self._db_path = db_path_str
 
     @staticmethod

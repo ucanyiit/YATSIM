@@ -7,12 +7,16 @@ from typing import List, Optional, Tuple
 from yatsim.room import Room
 
 
-class ModelRoom:
-    """Model API for Rooms."""
+class Model:
+    """Model base class."""
 
     def __init__(self, conn: sqlite3.Connection) -> None:
         """Inits the model api with a connection."""
         self.conn = conn
+
+
+class ModelRoom(Model):
+    """Model API for Rooms."""
 
     def create_room(self, room: Room, user_id: int) -> None:
         """Stores a new room in the DB.
@@ -28,7 +32,7 @@ class ModelRoom:
         (?, ?, ?)
         """,
             (room.room_name, pickle.dumps(room.game_grid), user_id),
-        ).fetchall()
+        )
         res = cur.execute(
             """
         SELECT room.id FROM room
@@ -39,6 +43,7 @@ class ModelRoom:
         ).fetchone()
         room.room_id = res
         cur.close()
+        self.conn.commit()
 
     def retrieve_room_names(self, user_id: int) -> List[Tuple[int, str]]:
         """Fetches room id - name - owner name tuples accessible by a user."""
@@ -83,6 +88,7 @@ class ModelRoom:
             (pickle.dumps(room.game_grid), room.room_id),
         )
         cur.close()
+        self.conn.commit()
 
     def remove_room(self, room: Room):
         """Removes the room from DB."""
@@ -92,8 +98,9 @@ class ModelRoom:
             DELETE FROM room WHERE id = (?)
             """,
             (room.room_id,),
-        ).fetchall()
+        )
         cur.close()
+        self.conn.commit()
 
     def add_player(self, room: Room, user_id: int):
         """Allows a user to play in a room as a player."""
@@ -104,8 +111,9 @@ class ModelRoom:
             VALUES (?, ?)
             """,
             (user_id, room.room_id),
-        ).fetchall()
+        )
         cur.close()
+        self.conn.commit()
 
     def remove_player(self, room: Room, user_id: int):
         """Disallows a user from a room."""
@@ -117,10 +125,50 @@ class ModelRoom:
             AND roomId = (?)
             """,
             (user_id, room.room_id),
-        ).fetchall()
+        )
         cur.close()
+        self.conn.commit()
 
     def clone_room(self, room: Room, user_id: int):
         """Clones a room owned by someone else."""
         clone_room = deepcopy(room)
         self.create_room(clone_room, user_id)
+
+
+class ModelUser(Model):
+    """Model for user registry and authentication operations."""
+
+    def create_user(self, username: str, password: str) -> int:
+        """Creates a new user and returns its id."""
+        cur = self.conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO user (username, password)
+            VALUES (?, ?)
+            """,
+            (username, password),
+        )
+        res = cur.execute(
+            """
+            SELECT id FROM user
+            WHERE username = (?)
+            """,
+            (username,),
+        ).fetchone()
+        cur.close()
+        self.conn.commit()
+        return res
+
+    def auth_user(self, username: str, password: str) -> Optional[int]:
+        """Authenticates the user and returns the user id."""
+        cur = self.conn.cursor()
+        res: Optional[int] = cur.execute(
+            """
+            SELECT id FROM user
+            WHERE username = (?)
+            AND password = (?)
+            """,
+            (username, password),
+        ).fetchone()
+        cur.close()
+        return res
