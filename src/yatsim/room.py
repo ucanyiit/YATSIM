@@ -75,7 +75,7 @@ class Room:
         """Connect a new user to the room."""
         with self.lock:
             self.connections[username] = connection
-            self.connections[username].send_message(
+            self.connections[username].send_update(
                 {
                     "type": "VIEW",
                     "view": self.game_grid.display(),
