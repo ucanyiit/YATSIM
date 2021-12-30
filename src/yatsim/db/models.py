@@ -69,6 +69,7 @@ class ModelRoom:
         if not res:
             return None
         res_data = res[0]
+        cur.close()
         return Room(pickle.loads(res_data[1]), res_data[0], room_id)
 
     def save_room(self, room: Room):
@@ -82,3 +83,4 @@ class ModelRoom:
             """,
             (pickle.dumps(room.game_grid), room.room_id),
         )
+        cur.close()
