@@ -34,6 +34,11 @@ class Room:
         for connection in self.connections.values():
             connection.send_update(update)
 
+    def _send_message(self, msg: str) -> None:
+        """Send a message to all users in the room."""
+        for connection in self.connections.values():
+            connection.send_message(msg)
+
     def _send_updated_cell(self, x: int, y: int) -> None:
         """Send the information related to a cell which is recently updated."""
         view = self.game_grid.elements[y][x].get_view()
@@ -79,16 +84,19 @@ class Room:
         """Handles start operation on a simulation."""
         with self.lock:
             self.game_grid.start_simulation()
+            self._send_message("Started simulation.")
 
     def handle_stop_simulation(self) -> None:
         """Handles stop operation on a simulation."""
         with self.lock:
             self.game_grid.stop_simulation()
+            self._send_message("Stopped simulation.")
 
     def handle_toggle_simulation(self) -> None:
         """Handles toggle operation on a simulation."""
         with self.lock:
             self.game_grid.set_pause_resume()
+            self._send_message("Simulation is toggled.")
 
     def handle_switch(self, x: int, y: int) -> None:
         """Handles switch operation on a cell."""
