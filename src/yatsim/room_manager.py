@@ -74,11 +74,11 @@ class RoomManager:
             self.db.room.create_room(clone_room, user_id)
             return clone_room.room_id
 
-    def add_player(self, room_id: int, user_id: int):
+    def add_player(self, room_id: int, user_id: int) -> int:
         """Adds a person to a room by saving it into the DB."""
-        self.db.room.add_player(room_id, user_id)
+        return self.db.room.add_player(room_id, user_id)
 
-    def remove_player(self, room_id: int, user_id: int):
+    def remove_player(self, room_id: int, user_id: int) -> int:
         """Removes a person from the room by removing it into the DB."""
-        self.db.room.remove_player(room_id, user_id)
+        return self.db.room.remove_player(room_id, user_id)
         # TODO: Can also be removed from the room if the user is attached to it.
