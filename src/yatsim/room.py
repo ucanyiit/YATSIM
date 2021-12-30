@@ -13,7 +13,6 @@ class Room:
     """The class that manages connections/requests for GameGrid.
 
     Attributes:
-        identifier: The unique identifier for the room
         connections: A list that stores connection information. (Includes
         user and socket info)
         game_grid: The game grid object that is shared between players.
@@ -21,12 +20,28 @@ class Room:
         handled in order.
     """
 
-    def __init__(self, game_grid: GameGrid, identifier: str) -> None:
+    def __init__(self, game_grid: GameGrid) -> None:
         """Inits Room with the given game grid object."""
-        self.identifier = identifier
         self.connections: Dict[str, Connection] = {}
         self.game_grid: GameGrid = game_grid
         self.lock: Lock = Lock()
+
+    def _send_update(self, update: Dict) -> None:
+        """Send an update to all users in the room."""
+        for connection in self.connections.values():
+            connection.send_update(update)
+
+    def _send_updated_cell(self, x: int, y: int) -> None:
+        """Send the information related to a cell which is recently updated."""
+        view = self.game_grid.elements[y][x].get_view()
+        self._send_update(
+            {
+                "type": "UPDATE",
+                "x": x,
+                "y": y,
+                "view": view,
+            }
+        )
 
     def connect(self, username: str, connection: Connection):
         """Connect a new user to the room."""
@@ -41,23 +56,6 @@ class Room:
         with self.lock:
             del self.connections[username]
             return len(self.connections)
-
-    def send_update(self, update: Dict) -> None:
-        """Send an update to all users in the room."""
-        for connection in self.connections.values():
-            connection.send_update(update)
-
-    def send_updated_cell(self, x: int, y: int) -> None:
-        """Send the information related to a cell which is recently updated."""
-        view = self.game_grid.elements[y][x].get_view()
-        self.send_update(
-            {
-                "type": "UPDATE",
-                "x": x,
-                "y": y,
-                "view": view,
-            }
-        )
 
     def handle_start_simulation(self) -> None:
         """Handles start operation on a simulation."""
@@ -78,13 +76,13 @@ class Room:
         """Handles switch operation on a cell."""
         with self.lock:
             self.game_grid.elements[y][x].switch_state()
-            self.send_updated_cell(x, y)
+            self._send_updated_cell(x, y)
 
     def handle_rotate(self, x: int, y: int, direction: Direction) -> None:
         """Handles rotate operation on a cell."""
         with self.lock:
             self.game_grid.elements[y][x].set_direction(direction)
-            self.send_updated_cell(x, y)
+            self._send_updated_cell(x, y)
 
     def handle_place(self, x: int, y: int, cell_type: int) -> None:
         """Handles a place operation."""
@@ -92,7 +90,7 @@ class Room:
             self.game_grid.elements[y][x] = SimpleTimedCellFactory().new(
                 x, y, cell_type
             )
-            self.send_updated_cell(x, y)
+            self._send_updated_cell(x, y)
 
     def handle_place_rotated(
         self, x: int, y: int, cell_type: int, direction: int
@@ -102,4 +100,4 @@ class Room:
             self.game_grid.elements[y][x] = SimpleTimedCellFactory().rotated_new(
                 x, y, cell_type, direction
             )
-            self.send_updated_cell(x, y)
+            self._send_updated_cell(x, y)
