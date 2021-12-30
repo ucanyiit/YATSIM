@@ -1,12 +1,15 @@
 """The class that manages connections/requests for GameGrid."""
 
-from threading import Lock
-from typing import Dict
+from __future__ import annotations
 
-from server import Connection
+from threading import Lock
+from typing import TYPE_CHECKING, Dict
+
+if TYPE_CHECKING:
+    from yatsim.connection import Connection
+    from yatsim.room import Room
 
 # from yatsim.game_grid import GameGrid
-from yatsim.room import Room
 
 
 class RoomManager:

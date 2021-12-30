@@ -1,12 +1,16 @@
 """The class that manages connections/requests for GameGrid."""
 
-from threading import Lock
-from typing import Dict, List, Tuple
+from __future__ import annotations
 
-from server import Connection
+from threading import Lock
+from typing import TYPE_CHECKING, Dict, List, Tuple
+
 from yatsim.cell.cell_element import Direction
 from yatsim.cell.cell_factory import SimpleTimedCellFactory
-from yatsim.game_grid import GameGrid
+
+if TYPE_CHECKING:
+    from yatsim.connection import Connection
+    from yatsim.game_grid import GameGrid
 
 
 class Room:
@@ -34,6 +38,11 @@ class Room:
         """Send an update to all users in the room."""
         for connection in self.connections.values():
             connection.send_update(update)
+
+    def _send_message(self, msg: str) -> None:
+        """Send a message to all users in the room."""
+        for connection in self.connections.values():
+            connection.send_message(msg)
 
     def _send_updated_cell(self, x: int, y: int) -> None:
         """Send the information related to a cell which is recently updated."""
@@ -80,16 +89,19 @@ class Room:
         """Handles start operation on a simulation."""
         with self.lock:
             self.game_grid.start_simulation()
+            self._send_message("Started simulation.")
 
     def handle_stop_simulation(self) -> None:
         """Handles stop operation on a simulation."""
         with self.lock:
             self.game_grid.stop_simulation()
+            self._send_message("Stopped simulation.")
 
     def handle_toggle_simulation(self) -> None:
         """Handles toggle operation on a simulation."""
         with self.lock:
             self.game_grid.set_pause_resume()
+            self._send_message("Simulation is toggled.")
 
     def handle_switch(self, x: int, y: int) -> None:
         """Handles switch operation on a cell."""
