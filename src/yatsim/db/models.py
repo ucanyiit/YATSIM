@@ -5,9 +5,10 @@ import pickle
 from copy import deepcopy
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
+from yatsim.room import Room
+
 if TYPE_CHECKING:
     from yatsim.db.connect import DB
-    from yatsim.room import Room
 
 
 class Model:

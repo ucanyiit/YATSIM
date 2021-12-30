@@ -36,7 +36,7 @@ class RoomManager:
                 room = self.db.room.retrieve_room(room_id, self.db)
                 if not room:
                     raise Exception("No such room in database.")
-                self.rooms[room.room_id] = room
+                self.rooms[room_id] = room
 
         self.rooms[room_id].connect(username, connection)
         return self.rooms[room_id]
