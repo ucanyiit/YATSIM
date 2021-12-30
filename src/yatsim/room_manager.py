@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from threading import Lock
 from typing import TYPE_CHECKING, Dict
 
@@ -61,3 +62,23 @@ class RoomManager:
 
             self.db.room.create_room(room, user_id)
             return room.room_id
+
+    def clone_game_grid(self, room_id: int, user_id: int, room_name: str):
+        """Initializes a room by saving it into the DB."""
+        with self.lock:
+            room = self.db.room.retrieve_room(room_id, self.db)
+            if room is None:
+                return None
+            clone_room = deepcopy(room)
+            clone_room.room_name = room_name
+            self.db.room.create_room(clone_room, user_id)
+            return clone_room.room_id
+
+    def add_player(self, room_id: int, user_id: int):
+        """Adds a person to a room by saving it into the DB."""
+        self.db.room.add_player(room_id, user_id)
+
+    def remove_player(self, room_id: int, user_id: int):
+        """Removes a person from the room by removing it into the DB."""
+        self.db.room.remove_player(room_id, user_id)
+        # TODO: Can also be removed from the room if the user is attached to it.

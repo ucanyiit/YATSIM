@@ -28,11 +28,3 @@ class UserManager:
         """Checks if this user can enter a such room."""
         room_list = self.get_game_grid_list(user_id)
         return room_id in [r[0] for r in room_list]
-
-    def add_grid(self, user_id: int, room_id: int):
-        """Adds given room to a user's list."""
-        self.db.room.add_player(user_id, room_id)
-
-    def remove_grid(self, user_id: int, room_id: int):
-        """Adds given room to a user's list."""
-        self.db.room.remove_player(user_id, room_id)

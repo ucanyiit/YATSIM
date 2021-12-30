@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import pickle
-from copy import deepcopy
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from yatsim.room import Room
@@ -149,11 +148,6 @@ class ModelRoom(Model):
             )
             cur.close()
         conn.close()
-
-    def clone_room(self, room: Room, user_id: int):
-        """Clones a room owned by someone else."""
-        clone_room = deepcopy(room)
-        self.create_room(clone_room, user_id)
 
 
 class ModelUser(Model):

@@ -81,6 +81,12 @@ class Connection(Thread):
             self.handle_attach(request)
         elif request["command"] == "CREATE":
             self.handle_create(request)
+        elif request["command"] == "CLONE":
+            self.handle_clone(request)
+        elif request["command"] == "ADD_PLAYER":
+            self.handle_add_player(request)
+        elif request["command"] == "REMOVE_PLAYER":
+            self.handle_remove_player(request)
         elif self.room is not None:
             if request["command"] == "DETACH":
                 self.handle_detach()
@@ -149,6 +155,25 @@ class Connection(Thread):
             request["height"], request["width"], request["name"], self.user_id
         )
         self.send_message(f"New room created with identifier: {room_id}")
+
+    def handle_clone(self, request):
+        """Handles create request, clones the given room."""
+        room_id = self.room_manager.clone_game_grid(
+            request["room_id"], self.user_id, request["name"]
+        )
+        self.send_message(
+            f"Room cloned, new room is created with identifier: {room_id}"
+        )
+
+    def handle_add_player(self, request):
+        """Handles remove player request."""
+        self.room_manager.add_player(request["user_id"], request["room_id"])
+        self.send_message("User is added to the room.")
+
+    def handle_remove_player(self, request):
+        """Handles add player request."""
+        self.room_manager.remove_player(request["user_id"], request["room_id"])
+        self.send_message("User is removed from the room.")
 
     def send_message(self, message):
         """Sends a simple message to the user."""
