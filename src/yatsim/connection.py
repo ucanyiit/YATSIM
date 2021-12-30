@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from json.decoder import JSONDecodeError
 from socket import socket
 from threading import Thread
@@ -52,6 +53,9 @@ class Connection(Thread):
                 self.handle_request(json.loads(req.decode()))
             except JSONDecodeError:
                 self.send_message("Send your request in JSON format")
+            except Exception:
+                e_type, value, traceback = sys.exc_info()
+                print("EXCEPTION ON SERVER: ", e_type, value, traceback)
 
             req = self.sock.recv(1024)
 
