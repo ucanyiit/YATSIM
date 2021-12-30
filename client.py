@@ -1,4 +1,5 @@
 import json
+import pprint
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
@@ -42,20 +43,21 @@ class Client:
             print("Logged out.")
         elif msg["type"] == "VIEW":
             print("Room is attached.")
-            print(msg["view"])
+            pprint.pprint(msg["view"])
             self.view = msg["view"]
             # pygame.init()
             # self.visualizer = Visualizer(msg["height"], msg["width"], msg["view"])
         elif msg["type"] == "UPDATE":
             print("Cell updated")
-            print(msg["x"], msg["y"], msg["view"])
+            x, y, view = msg["x"], msg["y"], msg["view"]
+            print(f"X: {x}, Y: {y}, VIEW: {view}")
             self.view[msg["y"]][msg["x"]] = msg["view"]
             print("New view")
-            print(self.view)
+            pprint.pprint(self.view)
             # self.visualizer.update_cell(msg["x"], msg["y"], msg["view"])
         elif msg["type"] == "TRAINS":
             print("Trains moved...")
-            print(msg["trains"])
+            pprint.pprint(msg["trains"])
             # self.visualizer.update_trains(msg["trains"])
         elif msg["type"] == "DETACH":
             del self.visualizer
