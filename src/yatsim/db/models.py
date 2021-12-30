@@ -4,6 +4,7 @@ import sqlite3
 from copy import deepcopy
 from typing import List, Optional, Tuple
 
+from yatsim.db.connect import DB
 from yatsim.room import Room
 
 
@@ -60,7 +61,7 @@ class ModelRoom(Model):
         cur.close()
         return res
 
-    def retrieve_room(self, room_id: int) -> Optional[Room]:
+    def retrieve_room(self, room_id: int, db: DB) -> Optional[Room]:
         """Retrieves room given a room id."""
         cur = self.conn.cursor()
         res: List[Tuple[str, bytes]] = cur.execute(
@@ -74,7 +75,7 @@ class ModelRoom(Model):
             return None
         res_data = res[0]
         cur.close()
-        return Room(pickle.loads(res_data[1]), res_data[0], room_id)
+        return Room(pickle.loads(res_data[1]), res_data[0], db, room_id)
 
     def save_room(self, room: Room):
         """Updates the GameGrid data of a room."""
@@ -102,7 +103,7 @@ class ModelRoom(Model):
         cur.close()
         self.conn.commit()
 
-    def add_player(self, room: Room, user_id: int):
+    def add_player(self, room_id: int, user_id: int):
         """Allows a user to play in a room as a player."""
         cur = self.conn.cursor()
         cur.execute(
@@ -110,12 +111,12 @@ class ModelRoom(Model):
             INSERT OR IGNORE INTO guest (playerId, roomId)
             VALUES (?, ?)
             """,
-            (user_id, room.room_id),
+            (user_id, room_id),
         )
         cur.close()
         self.conn.commit()
 
-    def remove_player(self, room: Room, user_id: int):
+    def remove_player(self, room_id: int, user_id: int):
         """Disallows a user from a room."""
         cur = self.conn.cursor()
         cur.execute(
@@ -124,7 +125,7 @@ class ModelRoom(Model):
             WHERE playerId = (?)
             AND roomId = (?)
             """,
-            (user_id, room.room_id),
+            (user_id, room_id),
         )
         cur.close()
         self.conn.commit()

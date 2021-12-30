@@ -80,7 +80,7 @@ class DBSchema:
         cur = conn.cursor()
         cur.execute(
             """
-            CREATE VIEW players AS
+            CREATE VIEW player AS
                 SELECT roomId, playerId FROM guest
                 UNION
                 SELECT id, ownerId FROM room;

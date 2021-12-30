@@ -1,46 +1,38 @@
 """The class that stores data and functions for the user."""
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
+
+from yatsim.db.connect import DB
 
 
 class UserManager:
     """The class that stores functions related to user.
 
     Attributes:
-        none
+        db: Needed db connection.
     """
 
-    def __init__(self) -> None:
-        """Nothing rn."""
-        pass
+    def __init__(self, db: DB) -> None:
+        """Initializes db connection."""
+        self.db = db
 
     def login(self, username: str, password: str) -> Optional[int]:
         """Checks database and returns user_id if the entered password is correct."""
-        # actual_password = getPasswordFromDB(username)
-        username += "asd"  # remove this
-        return "passwordFromDB" == password
+        return self.db.user.auth_user(username, password)
 
-    def get_game_grid_list(self, username: str) -> List[str]:
-        """Gets all of the available grid names from database and returns them."""
-        # result = getPasswordFromDB(username)
-        username += "asd"  # remove this
-        return []
+    def get_game_grid_list(self, user_id: int) -> List[Tuple[int, str]]:
+        """Gets all of the available room [id, name] from database and returns them."""
+        return self.db.room.retrieve_room_names(user_id)
 
-    def check_room_id(self, username: str, room_id: str) -> bool:
-        """Checks if this user in a such room."""
-        # result = checkUserRoomList(username, room_id)
-        username += "asd"  # remove this
-        room_id += "asd"  # remove this
-        return True
+    def check_room_id(self, user_id: int, room_id: int) -> bool:
+        """Checks if this user can enter a such room."""
+        room_list = self.get_game_grid_list(user_id)
+        return room_id in [r[0] for r in room_list]
 
-    def add_grid(self, username: str, room_id: str):
+    def add_grid(self, user_id: int, room_id: int):
         """Adds given room to a user's list."""
-        # insertRoomIdToUserList(username, room_id)
-        username += "asd"  # remove this
-        room_id += "asd"  # remove this
+        self.db.room.add_player(user_id, room_id)
 
-    def remove_grid(self, username: str, room_id: str):
+    def remove_grid(self, user_id: int, room_id: int):
         """Adds given room to a user's list."""
-        # removeRoomIdToUserList(username, room_id)
-        username += "asd"  # remove this
-        room_id += "asd"  # remove this
+        self.db.room.remove_player(user_id, room_id)

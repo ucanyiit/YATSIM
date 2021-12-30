@@ -2,11 +2,13 @@ from socket import AF_INET, SOCK_STREAM, socket
 
 from yatsim import connection as c
 from yatsim import room_manager as rm
+from yatsim.db.connect import DB
 from yatsim.user import UserManager
 
 if __name__ == "__main__":
-    room_manager = rm.RoomManager()
-    user_manager = UserManager()
+    db = DB("./database.db")
+    room_manager = rm.RoomManager(db)
+    user_manager = UserManager(db)
     s = socket(AF_INET, SOCK_STREAM)
     s.bind(("", 20441))
     s.listen()

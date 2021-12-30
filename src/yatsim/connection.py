@@ -101,8 +101,10 @@ class Connection(Thread):
                 "Please add 'username' and 'password' to your 'LOGIN' request"
             )
             return
-        if self.user_manager.login(request["username"], request["password"]):
+        user_id = self.user_manager.login(request["username"], request["password"])
+        if user_id:
             self.username = request["username"]
+            self.user_id = user_id
             self.send_update({"type": "LOGIN", "username": self.username})
         else:
             self.send_message("Wrong password.")
@@ -123,21 +125,21 @@ class Connection(Thread):
 
     def handle_attach(self, request):
         """Handles attach request, connects the user to the requested room."""
-        if self.user_manager.check_room_id(self.username, request["room_id"]):
+        if self.user_manager.check_room_id(self.user_id, request["room_id"]):
             self.room = self.room_manager.connect(
                 self.username, self, request["room_id"]
             )
 
     def handle_list(self):
         """Handles list request, lists all of the available rooms to the user."""
-        l = self.user_manager.get_game_grid_list(self.username)
+        l = self.user_manager.get_game_grid_list(self.user_id)
         msg = {"type": "MSG", "message": l}
         self.sock.send(json.dumps(msg).encode())
 
     def handle_create(self, request):
         """Handles create request, creates a game grid with requested w and h."""
         room_id = self.room_manager.create_game_grid(
-            request["height"], request["width"]
+            request["height"], request["width"], request["name"]
         )
         self.send_message(f"New room created with identifier: {room_id}")
 

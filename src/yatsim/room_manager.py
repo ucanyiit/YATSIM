@@ -5,11 +5,12 @@ from __future__ import annotations
 from threading import Lock
 from typing import TYPE_CHECKING, Dict
 
+from yatsim.db.connect import DB
+from yatsim.game_grid import GameGrid
+
 if TYPE_CHECKING:
     from yatsim.connection import Connection
     from yatsim.room import Room
-
-# from yatsim.game_grid import GameGrid
 
 
 class RoomManager:
@@ -19,24 +20,28 @@ class RoomManager:
         rooms: The dictionary in which all active rooms are stored.
         lock: A simple lock for each room that ensures that requests are
         handled in order.
+        db: Needed db connection.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, db: DB) -> None:
         """Inits RoomManager with the empty dictionary."""
-        self.rooms: Dict[str, Room] = {}
+        self.rooms: Dict[int, Room] = {}
         self.lock: Lock = Lock()
+        self.db = db
 
-    def connect(self, username: str, connection: Connection, room_id: str):
+    def connect(self, username: str, connection: Connection, room_id: int):
         """Connect a new user to a room."""
         with self.lock:
             if room_id not in self.rooms:
-                # self.rooms[room_id] = Room(room_id)
-                pass
+                room = self.db.room.retrieve_room(room_id, self.db)
+                if not room:
+                    raise Exception("No such room in database.")
+                self.rooms[room.room_id] = room
 
         self.rooms[room_id].connect(username, connection)
         return self.rooms[room_id]
 
-    def disconnect(self, username: str, room_id: str) -> None:
+    def disconnect(self, username: str, room_id: int) -> None:
         """Disconnect a user from a room."""
         with self.lock:
             if room_id not in self.rooms:
@@ -48,11 +53,11 @@ class RoomManager:
             if remaining_user_count == 0:
                 del self.rooms[room_id]
 
-    def create_game_grid(self, height: int, width: int):
+    def create_game_grid(self, height: int, width: int, name: str, user_id: int):
         """Initializes a room by saving it into the DB."""
         with self.lock:
-            height += 1
-            width += 1
-            room_id = "asd"
-            # createGameGridOnDB(room_id, game_grid)
-            return room_id
+            game_grid = GameGrid(height, width)
+            room = Room(game_grid, name, self.db)
+
+            self.db.room.create_room(room, user_id)
+            return room.room_id

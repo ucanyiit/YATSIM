@@ -71,12 +71,12 @@ class DB:
                 f"Error executing '.databases' on {db_path} "
                 f"with executable {SQL_EXECUTABLE}: db_chk."
             )
+        self._db_path = db_path_str
         conn = self._connect()
         DBSchema.check_tables(conn)
         conn.commit()
         self.room = ModelRoom(conn)
         self.user = ModelUser(conn)
-        self._db_path = db_path_str
 
     @staticmethod
     def _determine_path(db_path: Union[str, bytes, None]) -> Union[str, bytes, None]:
@@ -87,7 +87,5 @@ class DB:
         conn = sqlite3.connect(self._db_path)
         cur = conn.cursor()
         cur.execute("PRAGMA foreign_keys=ON;")
-        with cur:
-            print("hi")
         cur.close()
         return sqlite3.connect(self._db_path)

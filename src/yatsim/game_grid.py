@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 from yatsim.cell import CellElement, ImpossiblePathError, SimpleTimedCellFactory
 from yatsim.interfaces import OutOfGridException, TrainStatus
@@ -27,7 +27,7 @@ class GameGrid:
         simulation: The simulation object if there is a running simulation.
     """
 
-    def __init__(self, height: int, width: int, room: Room) -> None:
+    def __init__(self, height: int, width: int) -> None:
         """Init GameGrid with height and width."""
         self._cell_factory = SimpleTimedCellFactory()
         self.height = height
@@ -37,7 +37,7 @@ class GameGrid:
             for y in range(height)
         ]
         self.trains: List[Train] = []
-        self.simulation: Simulation = Simulation(room)
+        self.simulation: Optional[Simulation] = None
         self.update_view()
 
     def _check_boundries(self, x: int, y: int) -> bool:
@@ -74,8 +74,10 @@ class GameGrid:
         """Displays the current state of the grid."""
         return self.view
 
-    def start_simulation(self):
+    def start_simulation(self, room: Room):
         """Start the simulation."""
+        self.simulation = Simulation(room)
+
         for cell_row in self.elements:
             for cell in cell_row:
                 if cell.get_view()[0] == 8:  # If the cell is a station
@@ -136,9 +138,9 @@ class GameGridWithTrains(GameGrid):
         trains: The train elements in the train.
     """
 
-    def __init__(self, height: int, width: int, room: "Room") -> None:
+    def __init__(self, height: int, width: int) -> None:
         """Init GameGrid with height and width."""
-        super().__init__(height, width, room)
+        super().__init__(height, width)
         self.trains: List[Train] = []
 
     def add_train(self, train: Train):

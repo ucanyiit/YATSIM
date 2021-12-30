@@ -10,6 +10,7 @@ from yatsim.cell.cell_factory import SimpleTimedCellFactory
 
 if TYPE_CHECKING:
     from yatsim.connection import Connection
+    from yatsim.db.connect import DB
     from yatsim.game_grid import GameGrid
 
 
@@ -26,13 +27,16 @@ class Room:
         room_id: Unique identifier of the room. Only used for DB operations.
     """
 
-    def __init__(self, game_grid: GameGrid, room_name: str, room_id: int = 0) -> None:
+    def __init__(
+        self, game_grid: GameGrid, room_name: str, db: DB, room_id: int = 0
+    ) -> None:
         """Inits Room with the given game grid object."""
         self.room_name = room_name
         self.connections: Dict[str, Connection] = {}
         self.game_grid = game_grid
         self.lock: Lock = Lock()
         self.room_id: int = room_id  # should be set by DB
+        self.db = db
 
     def _send_update(self, update: Dict) -> None:
         """Send an update to all users in the room."""
@@ -44,9 +48,10 @@ class Room:
         for connection in self.connections.values():
             connection.send_message(msg)
 
-    def _send_updated_cell(self, x: int, y: int) -> None:
+    def _save_and_send_updated_cell(self, x: int, y: int) -> None:
         """Send the information related to a cell which is recently updated."""
         view = self.game_grid.elements[y][x].get_view()
+        self.db.room.save_room(self)
         self._send_update(
             {
                 "type": "UPDATE",
@@ -88,7 +93,7 @@ class Room:
     def handle_start_simulation(self) -> None:
         """Handles start operation on a simulation."""
         with self.lock:
-            self.game_grid.start_simulation()
+            self.game_grid.start_simulation(self)
             self._send_message("Started simulation.")
 
     def handle_stop_simulation(self) -> None:
@@ -107,13 +112,13 @@ class Room:
         """Handles switch operation on a cell."""
         with self.lock:
             self.game_grid.elements[y][x].switch_state()
-            self._send_updated_cell(x, y)
+            self._save_and_send_updated_cell(x, y)
 
     def handle_rotate(self, x: int, y: int, direction: Direction) -> None:
         """Handles rotate operation on a cell."""
         with self.lock:
             self.game_grid.elements[y][x].set_direction(direction)
-            self._send_updated_cell(x, y)
+            self._save_and_send_updated_cell(x, y)
 
     def handle_place(self, x: int, y: int, cell_type: int) -> None:
         """Handles a place operation."""
@@ -121,7 +126,7 @@ class Room:
             self.game_grid.elements[y][x] = SimpleTimedCellFactory().new(
                 x, y, cell_type
             )
-            self._send_updated_cell(x, y)
+            self._save_and_send_updated_cell(x, y)
 
     def handle_place_rotated(
         self, x: int, y: int, cell_type: int, direction: int
@@ -131,7 +136,7 @@ class Room:
             self.game_grid.elements[y][x] = SimpleTimedCellFactory().rotated_new(
                 x, y, cell_type, direction
             )
-            self._send_updated_cell(x, y)
+            self._save_and_send_updated_cell(x, y)
 
     def step(self):
         """Steps the simulation once and notifies everyone."""
