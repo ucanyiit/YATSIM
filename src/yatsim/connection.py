@@ -1,3 +1,5 @@
+"""Connection class is defined in this module"""
+
 import json
 from json.decoder import JSONDecodeError
 from socket import socket
@@ -10,12 +12,23 @@ from yatsim.user import UserManager
 
 
 class Connection(Thread):
+    """The class that handles connection & requests of a client.
+
+    Attributes:
+        room_manager: The room manager class that Connection uses to handle
+        room related requests.
+        user_manager: The user manager class that Connection uses to handle
+        user related requests.
+        sock: Socket to communicate with the user.
+    """
+
     def __init__(
         self,
         sock: socket,
         room_manager: rm.RoomManager,
         user_manager: UserManager,
     ):
+        """Inits connection with socket, usermanager and room manager."""
         self.user_manager = user_manager
         self.room_manager = room_manager
         self.sock = sock
@@ -25,6 +38,7 @@ class Connection(Thread):
         super().__init__()
 
     def run(self):
+        """Starts connection to handle incoming requests."""
         self.send_message("Please enter a username and password.")
 
         req = self.sock.recv(1024)
@@ -39,6 +53,7 @@ class Connection(Thread):
         print(self.sock.getpeername(), " closing")
 
     def handle_request(self, request):
+        """Handle a single request thats incoming from a client."""
         if "command" not in request:
             self.send_message("Send your request with a command")
         elif self.username is None:
@@ -75,6 +90,7 @@ class Connection(Thread):
             self.send_message("Please use a valid command type")
 
     def handle_login(self, request):
+        """Handles login request, checks the username and passowrd."""
         if "username" not in request or "password" not in request:
             self.send_message(
                 "Please add 'username' and 'password' to your 'LOGIN' request"
@@ -87,7 +103,7 @@ class Connection(Thread):
             self.send_message("Wrong password.")
 
     def handle_logout(self):
-        """Forget the user."""
+        """Handles logout request, forgets the user."""
         if self.room is not None:
             self.room_manager.disconnect(self.username, self.room.room_name)
             self.room = None
@@ -95,30 +111,36 @@ class Connection(Thread):
         self.send_update({"type": "LOGOUT"})
 
     def handle_detach(self):
+        """Handles detach request, detachs user if they are connected to a room."""
         self.room_manager.disconnect(self.username, self.room.room_name)
         self.room = None
         self.send_message("OK")
 
     def handle_attach(self, request):
+        """Handles attach request, connects the user to the requested room."""
         if self.user_manager.check_room_id(self.username, request["room_id"]):
             self.room = self.room_manager.connect(
                 self.username, self, request["room_id"]
             )
 
     def handle_list(self):
+        """Handles list request, lists all of the available rooms to the user."""
         l = self.user_manager.get_game_grid_list(self.username)
         msg = {"type": "MSG", "message": l}
         self.sock.send(json.dumps(msg).encode())
 
     def handle_create(self, request):
+        """Handles create request, creates a game grid with requested w and h."""
         room_id = self.room_manager.create_game_grid(
             request["height"], request["width"]
         )
         self.send_message(f"New room created with identifier: {room_id}")
 
     def send_message(self, message):
+        """Sends a simple message to the user."""
         msg = {"type": "MSG", "message": message}
         self.sock.send(json.dumps(msg).encode())
 
     def send_update(self, update):
+        """Sends a raw message to the user."""
         self.sock.send(json.dumps(update).encode())
