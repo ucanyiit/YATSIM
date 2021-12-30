@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+import traceback
 from json.decoder import JSONDecodeError
 from socket import socket
 from threading import Thread
@@ -54,7 +55,7 @@ class Connection(Thread):
             except JSONDecodeError:
                 self.send_message("Send your request in JSON format")
             except Exception:
-                e_type, value, traceback = sys.exc_info()
+                e_type, value, _ = sys.exc_info()
                 print("EXCEPTION ON SERVER: ", e_type, value)
                 print(traceback.format_exc())
                 self.send_message(f"Server error: {value}")
@@ -145,7 +146,7 @@ class Connection(Thread):
     def handle_create(self, request):
         """Handles create request, creates a game grid with requested w and h."""
         room_id = self.room_manager.create_game_grid(
-            request["height"], request["width"], request["name"]
+            request["height"], request["width"], request["name"], self.user_id
         )
         self.send_message(f"New room created with identifier: {room_id}")
 

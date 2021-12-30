@@ -45,7 +45,7 @@ class ModelRoom(Model):
         """,
             (user_id, room.room_name),
         ).fetchone()
-        room.room_id = res
+        room.room_id = res[0] if res else None
         cur.close()
         conn.commit()
         conn.close()
@@ -176,13 +176,13 @@ class ModelUser(Model):
         cur.close()
         conn.commit()
         conn.close()
-        return res
+        return res[0] if res else None
 
     def auth_user(self, username: str, password: str) -> Optional[int]:
         """Authenticates the user and returns the user id."""
         conn = self.db.connect()
         cur = conn.cursor()
-        res: Optional[int] = cur.execute(
+        res: Optional[Tuple[int]] = cur.execute(
             """
             SELECT id FROM user
             WHERE username = (?)
@@ -192,4 +192,4 @@ class ModelUser(Model):
         ).fetchone()
         cur.close()
         conn.close()
-        return res
+        return res[0] if res else None

@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING, Dict
 
 from yatsim.db.connect import DB
 from yatsim.game_grid import GameGrid
+from yatsim.room import Room
 
 if TYPE_CHECKING:
     from yatsim.connection import Connection
-    from yatsim.room import Room
 
 
 class RoomManager:
