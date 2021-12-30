@@ -1,11 +1,14 @@
 """Model DB API for game objects."""
+from __future__ import annotations
+
 import pickle
 import sqlite3
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from yatsim.db.connect import DB
-from yatsim.room import Room
+if TYPE_CHECKING:
+    from yatsim.db.connect import DB
+    from yatsim.room import Room
 
 
 class Model:
