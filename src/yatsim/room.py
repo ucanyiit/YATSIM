@@ -1,11 +1,16 @@
 """The class that manages connections/requests for GameGrid."""
 
-from threading import Lock
-from typing import Dict, List, Tuple
+from __future__ import annotations
 
-from yatsim import connection as c
+from threading import Lock
+from typing import TYPE_CHECKING, Dict, List, Tuple
+
 from yatsim.cell.cell_element import Direction
 from yatsim.cell.cell_factory import SimpleTimedCellFactory
+
+if TYPE_CHECKING:
+    from yatsim.connection import Connection
+    from yatsim.game_grid import GameGrid
 
 
 class Room:
@@ -21,10 +26,10 @@ class Room:
         room_id: Unique identifier of the room. Only used for DB operations.
     """
 
-    def __init__(self, game_grid: "GameGrid", room_name: str, room_id: int = 0) -> None:
+    def __init__(self, game_grid: GameGrid, room_name: str, room_id: int = 0) -> None:
         """Inits Room with the given game grid object."""
         self.room_name = room_name
-        self.connections: Dict[str, c.Connection] = {}
+        self.connections: Dict[str, Connection] = {}
         self.game_grid = game_grid
         self.lock: Lock = Lock()
         self.room_id: int = room_id  # should be set by DB
@@ -61,7 +66,7 @@ class Room:
             }
         )
 
-    def connect(self, username: str, connection: c.Connection):
+    def connect(self, username: str, connection: Connection):
         """Connect a new user to the room."""
         with self.lock:
             self.connections[username] = connection

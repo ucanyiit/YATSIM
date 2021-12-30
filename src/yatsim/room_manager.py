@@ -1,9 +1,13 @@
 """The class that manages connections/requests for GameGrid."""
 
-from threading import Lock
-from typing import Dict
+from __future__ import annotations
 
-from yatsim import room as r
+from threading import Lock
+from typing import TYPE_CHECKING, Dict
+
+if TYPE_CHECKING:
+    from yatsim.connection import Connection
+    from yatsim.room import Room
 
 # from yatsim.game_grid import GameGrid
 
@@ -19,10 +23,10 @@ class RoomManager:
 
     def __init__(self) -> None:
         """Inits RoomManager with the empty dictionary."""
-        self.rooms: Dict[str, r.Room] = {}
+        self.rooms: Dict[str, Room] = {}
         self.lock: Lock = Lock()
 
-    def connect(self, username: str, connection: "Connection", room_id: str):
+    def connect(self, username: str, connection: Connection, room_id: str):
         """Connect a new user to a room."""
         with self.lock:
             if room_id not in self.rooms:

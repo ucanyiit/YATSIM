@@ -1,14 +1,19 @@
-"""Connection class is defined in this module"""
+"""Connection class is defined in this module."""
+
+from __future__ import annotations
 
 import json
 from json.decoder import JSONDecodeError
 from socket import socket
 from threading import Thread
+from typing import TYPE_CHECKING, Optional
 
-from yatsim import room as r
-from yatsim import room_manager as rm
 from yatsim.cell.cell_element import Direction
 from yatsim.user import UserManager
+
+if TYPE_CHECKING:
+    from yatsim.room import Room
+    from yatsim.room_manager import RoomManager
 
 
 class Connection(Thread):
@@ -25,15 +30,15 @@ class Connection(Thread):
     def __init__(
         self,
         sock: socket,
-        room_manager: rm.RoomManager,
+        room_manager: RoomManager,
         user_manager: UserManager,
     ):
         """Inits connection with socket, usermanager and room manager."""
         self.user_manager = user_manager
         self.room_manager = room_manager
         self.sock = sock
-        self.username: str = None
-        self.room: r.Room = None
+        self.username: Optional[str] = None
+        self.room: Optional[Room] = None
         self.user_id: int = 0
         super().__init__()
 
