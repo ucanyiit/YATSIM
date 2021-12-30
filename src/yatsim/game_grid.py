@@ -1,9 +1,11 @@
 """Game grid class is defined in this module."""
 
-from typing import List
+from typing import List, Tuple
 
 from yatsim.cell import CellElement, ImpossiblePathError, SimpleTimedCellFactory
 from yatsim.interfaces import OutOfGridException, TrainStatus
+from yatsim.room import Room
+from yatsim.simulation import Simulation
 from yatsim.train import Train
 from yatsim.utils import move_to_next_cell
 
@@ -17,9 +19,11 @@ class GameGrid:
         elements: The grid. This is a List of Lists
         that includes all of the cell elements.
         view: The view elements of the whole grid.
+        trains: The trains that are currently in the GameGrid.
+        simulation: The simulation object if there is a running simulation.
     """
 
-    def __init__(self, height: int, width: int) -> None:
+    def __init__(self, height: int, width: int, room: Room) -> None:
         """Init GameGrid with height and width."""
         self._cell_factory = SimpleTimedCellFactory()
         self.height = height
@@ -28,6 +32,8 @@ class GameGrid:
             [self._cell_factory.new(x, y, "bg") for x in range(width)]
             for y in range(height)
         ]
+        self.trains: List[Train] = []
+        self.simulation: Simulation = Simulation(room)
         self.update_view()
 
     def _check_boundries(self, x: int, y: int) -> bool:
@@ -64,17 +70,59 @@ class GameGrid:
         """Displays the current state of the grid."""
         return self.view
 
-    # TODO: Implement simulation in later phases.
     def start_simulation(self):
         """Start the simulation."""
+        for cell_row in self.elements:
+            for cell in cell_row:
+                if cell.get_view()[0] == 8:  # If the cell is a station
+                    self.trains.append(Train(1, 2, cell))
 
-    # TODO: Implement simulation in later phases.
+        self.simulation.run()
+
     def set_pause_resume(self):
         """Toggles resume/pause simulation."""
+        self.simulation.start_pause()
 
-    # TODO: Implement simulation in later phases.
     def stop_simulation(self):
         """Stops the simulation."""
+        del self.simulation
+        self.trains = []
+
+    def move_trains(self):
+        """Moves trains one step."""
+        # TODO: We should check the reverse train status.
+        #   /- - -\
+        #  |       |  <- like this.
+        #   \- - -/
+
+        for train in self.trains:
+            if train.status == TrainStatus.STOPPED:
+                continue
+
+            new_x, new_y = move_to_next_cell(
+                train.cell.x, train.cell.y, train.orientation
+            )
+
+            if self._check_boundries(new_x, new_y):
+                train.status = TrainStatus.STOPPED
+                continue
+
+            new_cell: CellElement = self.elements[new_y][new_x]
+            # Check if we can enter the next cell.
+            try:
+                _ = new_cell.next_cell(-train.orientation)
+                train.enter_cell(new_cell)
+            except ImpossiblePathError:
+                train.status = TrainStatus.STOPPED
+
+    def get_trains(self) -> List[Tuple[int, int, int, int]]:
+        """Get geometries of trains in the current simulation."""
+        geometries: List[Tuple[int, int, int, int]] = []
+
+        for train in self.trains:
+            geometries.append(train.get_geometry())
+
+        return geometries
 
 
 class GameGridWithTrains(GameGrid):
@@ -84,9 +132,9 @@ class GameGridWithTrains(GameGrid):
         trains: The train elements in the train.
     """
 
-    def __init__(self, height: int, width: int) -> None:
+    def __init__(self, height: int, width: int, room: Room) -> None:
         """Init GameGrid with height and width."""
-        super().__init__(height, width)
+        super().__init__(height, width, room)
         self.trains: List[Train] = []
 
     def add_train(self, train: Train):

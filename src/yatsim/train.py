@@ -1,6 +1,6 @@
 """Train class is defined here."""
 
-from typing import List, Tuple
+from typing import Tuple
 
 from yatsim.cell import CellElement, Direction
 from yatsim.interfaces import TrainStatus
@@ -39,13 +39,16 @@ class Train:
         return self.status
 
     # TODO: Implement in later phases. (Currently used for pygame)
-    def get_geometry(self) -> List[Tuple[int, int, int, int]]:
+    def get_geometry(self) -> Tuple[int, int, int, int]:
         """Returns the geometry of the train."""
         cur_cell = self.cell
         # TODO: Commented, because cell.previous(orientation: int) isn't implemented yet
-        geometry: List[Tuple[int, int, int, int]] = [
-            (cur_cell.x, cur_cell.y, self.train_type, self.orientation.value)
-        ]
+        geometry: Tuple[int, int, int, int] = (
+            cur_cell.x,
+            cur_cell.y,
+            self.train_type,
+            self.orientation.value,
+        )
 
         # for _ in range(self.car_count):
         #     prev_cell_orientation = cur_cell.previous(self.orientation)

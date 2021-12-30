@@ -4,7 +4,6 @@ from threading import Lock
 from typing import Dict
 
 from server import Connection
-from yatsim.game_grid import GameGrid
 
 # from yatsim.game_grid import GameGrid
 from yatsim.room import Room
@@ -28,8 +27,7 @@ class RoomManager:
         """Connect a new user to a room."""
         with self.lock:
             if room_id not in self.rooms:
-                # game_grid = getGameGridFromDB
-                # self.rooms[room_id] = Room(game_grid)
+                # self.rooms[room_id] = Room(room_id)
                 pass
 
         self.rooms[room_id].connect(username, connection)
@@ -50,8 +48,8 @@ class RoomManager:
     def create_game_grid(self, height: int, width: int):
         """Initializes a room by saving it into the DB."""
         with self.lock:
-            # game_grid =
-            GameGrid(height, width)
+            height += 1
+            width += 1
             room_id = "asd"
-            # saveGameGridToDB(room_id, game_grid)
+            # createGameGridOnDB(room_id, game_grid)
             return room_id
