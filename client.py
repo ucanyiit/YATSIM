@@ -2,13 +2,6 @@ import json
 from socket import AF_INET, SOCK_STREAM, socket
 from threading import Thread
 
-from visualizer2 import Visualizer
-
-messages = [
-    '{ "command": "LOGIN", "username": "12345", "password": "123"}',
-    '{ "command": "LOGOUT }',
-]
-
 
 class Client:
     def __init__(self, port):
@@ -16,26 +9,29 @@ class Client:
         sock.connect(("127.0.0.1", port))
         self.username = ""
         self.visualizer = None
+        self.running = True
+        self.view = None
 
-        incoming_messages = Thread(target=self.incoming_message_handler, args=(sock,))
+        incoming_messages = Thread(target=self.outgoing_message_handler, args=(sock,))
         incoming_messages.start()
 
-        while True:
-            inp = input()
-            if inp == "exit":
-                break
-            sock.send(inp.encode())
+        while self.running:
+            reply = sock.recv(1024)
+            msg = json.loads(reply.decode())
+            self.handle_message(msg)
 
         sock.close()
         incoming_messages.wait()
 
-    def incoming_message_handler(self, sock):
+    def outgoing_message_handler(self, sock):
         while True:
-            reply = sock.recv(1024)
-            msg = json.loads(reply.decode())
-            self.handle_nessage(msg)
+            inp = input()
+            if inp == "exit":
+                self.running = False
+                break
+            sock.send(inp.encode())
 
-    def handle_nessage(self, msg):
+    def handle_message(self, msg):
         if msg["type"] == "MSG":
             print(msg["message"])
         elif msg["type"] == "LOGIN":
@@ -45,11 +41,22 @@ class Client:
             self.username = ""
             print("Logged out.")
         elif msg["type"] == "VIEW":
-            self.visualizer = Visualizer(msg["height"], msg["width"], msg["view"])
+            print("Room is attached.")
+            print(msg["view"])
+            self.view = msg["view"]
+            # pygame.init()
+            # self.visualizer = Visualizer(msg["height"], msg["width"], msg["view"])
         elif msg["type"] == "UPDATE":
-            self.visualizer.update_cell(msg["x"], msg["y"], msg["view"])
+            print("Cell updated")
+            print(msg["x"], msg["y"], msg["view"])
+            self.view[msg["y"]][msg["x"]] = msg["view"]
+            print("New view")
+            print(self.view)
+            # self.visualizer.update_cell(msg["x"], msg["y"], msg["view"])
         elif msg["type"] == "TRAINS":
-            self.visualizer.update_trains(msg["trains"])
+            print("Trains moved...")
+            print(msg["trains"])
+            # self.visualizer.update_trains(msg["trains"])
         elif msg["type"] == "DETACH":
             del self.visualizer
 
