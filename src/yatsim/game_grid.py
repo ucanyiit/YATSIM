@@ -72,18 +72,18 @@ class GameGrid:
 
     def display(self) -> List[List[Tuple[int, int]]]:
         """Displays the current state of the grid."""
+        self.update_view()
         return self.view
 
     def start_simulation(self, room: Room):
         """Start the simulation."""
-        self.simulation = Simulation(room)
-
         for cell_row in self.elements:
             for cell in cell_row:
                 if cell.get_view()[0] == 8:  # If the cell is a station
                     self.trains.append(Train(1, 2, cell))
 
-        self.simulation.run()
+        self.simulation = Simulation(room)
+        self.simulation.start()
 
     def set_pause_resume(self):
         """Toggles resume/pause simulation."""
@@ -91,6 +91,8 @@ class GameGrid:
 
     def stop_simulation(self):
         """Stops the simulation."""
+        self.simulation.kill()
+        self.simulation.join()
         del self.simulation
         self.trains = []
 
