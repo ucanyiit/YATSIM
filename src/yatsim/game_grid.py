@@ -2,9 +2,9 @@
 
 from typing import List, Tuple
 
+from yatsim import room as r
 from yatsim.cell import CellElement, ImpossiblePathError, SimpleTimedCellFactory
 from yatsim.interfaces import OutOfGridException, TrainStatus
-from yatsim.room import Room
 from yatsim.simulation import Simulation
 from yatsim.train import Train
 from yatsim.utils import move_to_next_cell
@@ -23,7 +23,7 @@ class GameGrid:
         simulation: The simulation object if there is a running simulation.
     """
 
-    def __init__(self, height: int, width: int, room: Room) -> None:
+    def __init__(self, height: int, width: int, room: r.Room) -> None:
         """Init GameGrid with height and width."""
         self._cell_factory = SimpleTimedCellFactory()
         self.height = height
@@ -132,7 +132,7 @@ class GameGridWithTrains(GameGrid):
         trains: The train elements in the train.
     """
 
-    def __init__(self, height: int, width: int, room: Room) -> None:
+    def __init__(self, height: int, width: int, room: "Room") -> None:
         """Init GameGrid with height and width."""
         super().__init__(height, width, room)
         self.trains: List[Train] = []

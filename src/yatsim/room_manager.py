@@ -3,10 +3,9 @@
 from threading import Lock
 from typing import Dict
 
-from server import Connection
+from yatsim import room as r
 
 # from yatsim.game_grid import GameGrid
-from yatsim.room import Room
 
 
 class RoomManager:
@@ -20,10 +19,10 @@ class RoomManager:
 
     def __init__(self) -> None:
         """Inits RoomManager with the empty dictionary."""
-        self.rooms: Dict[str, Room] = {}
+        self.rooms: Dict[str, r.Room] = {}
         self.lock: Lock = Lock()
 
-    def connect(self, username: str, connection: Connection, room_id: str):
+    def connect(self, username: str, connection: "Connection", room_id: str):
         """Connect a new user to a room."""
         with self.lock:
             if room_id not in self.rooms:
