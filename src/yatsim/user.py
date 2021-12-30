@@ -1,6 +1,6 @@
 """The class that stores data and functions for the user."""
 
-from typing import List
+from typing import List, Optional
 
 
 class UserManager:
@@ -14,8 +14,8 @@ class UserManager:
         """Nothing rn."""
         pass
 
-    def login(self, username: str, password: str) -> bool:
-        """Checks database and return True if the entered password is correct."""
+    def login(self, username: str, password: str) -> Optional[int]:
+        """Checks database and returns user_id if the entered password is correct."""
         # actual_password = getPasswordFromDB(username)
         username += "asd"  # remove this
         return "passwordFromDB" == password

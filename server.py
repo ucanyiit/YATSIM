@@ -17,6 +17,7 @@ class Connection(Thread):
         self.sock = sock
         self.username: str = None
         self.room: Room = None
+        self.user_id: int = 0
         super().__init__()
 
     def run(self):
