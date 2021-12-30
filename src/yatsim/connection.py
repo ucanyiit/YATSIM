@@ -55,7 +55,9 @@ class Connection(Thread):
                 self.send_message("Send your request in JSON format")
             except Exception:
                 e_type, value, traceback = sys.exc_info()
-                print("EXCEPTION ON SERVER: ", e_type, value, traceback)
+                print("EXCEPTION ON SERVER: ", e_type, value)
+                print(traceback.format_exc())
+                self.send_message(f"Server error: {value}")
 
             req = self.sock.recv(1024)
 
