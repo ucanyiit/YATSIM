@@ -118,7 +118,7 @@ class ModelRoom(Model):
             cur.close()
         conn.close()
 
-    def add_player(self, room_id: int, user_id: int):
+    def add_player(self, room_id: int, user_id: int) -> int:
         """Allows a user to play in a room as a player."""
         conn = self.db.connect()
         with conn:
@@ -131,9 +131,11 @@ class ModelRoom(Model):
                 (user_id, room_id),
             )
             cur.close()
+        res = conn.total_changes
         conn.close()
+        return res
 
-    def remove_player(self, room_id: int, user_id: int):
+    def remove_player(self, room_id: int, user_id: int) -> int:
         """Disallows a user from a room."""
         conn = self.db.connect()
         with conn:
@@ -147,7 +149,9 @@ class ModelRoom(Model):
                 (user_id, room_id),
             )
             cur.close()
+        res = conn.total_changes
         conn.close()
+        return res
 
 
 class ModelUser(Model):
