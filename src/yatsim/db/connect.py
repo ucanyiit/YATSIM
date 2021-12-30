@@ -4,10 +4,10 @@ import os
 import shutil
 import sqlite3
 import subprocess
-from functools import cache
 from sqlite3 import Connection
 from typing import Optional, Union, cast
 
+from .models import ModelRoom
 from .schema import DBSchema
 
 if shutil.which("sqlite3") is None:
@@ -25,32 +25,12 @@ class DB:
     Use this class for interfacing with the database.
     """
 
-    configured: bool = False
-    db_path: str = ""
+    def connect(self) -> Connection:
+        """Creates a new Connection object."""
+        return self._connect()
 
-    @classmethod
-    def connect(cls) -> Connection:
-        """Creates a new Connection object.
-
-        You need to call DB.initial_connect for initial setup before using this method.
-
-        Returns:
-            Connection
-
-        Raises:
-            DatabaseError if initial_connect has not been called yet.
-        """
-        if cls.configured:
-            return sqlite3.connect(cls.db_path)
-        raise sqlite3.DatabaseError(
-            "DB class should be configured with DB.initial_connect() first."
-        )
-
-    @classmethod
-    def initial_connect(
-        cls, db_path: Optional[str] = None, create_new: bool = True
-    ) -> Connection:
-        """Makes necessary checks and returns a connection.
+    def __init__(self, db_path: Optional[str] = None, create_new: bool = True) -> None:
+        """Makes necessary checks and initializes a DB util object.
 
         This method should be used for connecting to the database for the first time.
         - Checks whether `sqlite3` is in PATH
@@ -66,9 +46,6 @@ class DB:
         Arguments:
             db_path: path of the db
             create_new: whether to create a new db if path does not exist
-
-        Returns:
-            A new connection
 
         Raises:
             ValueError: if both db_path arg is None and DB_PATH environment variable
@@ -94,15 +71,22 @@ class DB:
                 f"Error executing '.databases' on {db_path} "
                 f"with executable {SQL_EXECUTABLE}: db_chk."
             )
-        conn = sqlite3.connect(db_path_str)
+        conn = self._connect()
         DBSchema.check_tables(conn)
         conn.commit()
-        cls.db_path = db_path_str
-        cls.configured = True
-        return conn
+        self.room = ModelRoom(conn)
+        self._db_path = db_path_str
 
     @staticmethod
-    @cache
     def _determine_path(db_path: Union[str, bytes, None]) -> Union[str, bytes, None]:
         env_db_path = os.getenv("DB_PATH")
         return db_path if db_path is not None else env_db_path
+
+    def _connect(self):
+        conn = sqlite3.connect(self._db_path)
+        cur = conn.cursor()
+        cur.execute("PRAGMA foreign_keys=ON;")
+        with cur:
+            print("hi")
+        cur.close()
+        return sqlite3.connect(self._db_path)

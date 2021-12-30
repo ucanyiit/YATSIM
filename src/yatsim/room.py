@@ -13,7 +13,7 @@ class Room:
     """The class that manages connections/requests for GameGrid.
 
     Attributes:
-        identifier: The unique identifier for the room
+        room_name: The unique identifier for the room
         connections: A list that stores connection information. (Includes
         user and socket info)
         game_grid: The game grid object that is shared between players.
@@ -21,12 +21,13 @@ class Room:
         handled in order.
     """
 
-    def __init__(self, game_grid: GameGrid, identifier: str) -> None:
+    def __init__(self, game_grid: GameGrid, room_name: str, room_id: int) -> None:
         """Inits Room with the given game grid object."""
-        self.identifier = identifier
+        self.room_name = room_name
         self.connections: Dict[str, Connection] = {}
         self.game_grid: GameGrid = game_grid
         self.lock: Lock = Lock()
+        self.room_id = room_id
 
     def connect(self, username: str, connection: Connection):
         """Connect a new user to the room."""

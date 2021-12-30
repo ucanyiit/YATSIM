@@ -84,13 +84,13 @@ class Connection(Thread):
     def handle_logout(self):
         """Forget the user."""
         if self.room is not None:
-            room_manager.disconnect(self.username, self.room.identifier)
+            room_manager.disconnect(self.username, self.room.room_name)
             self.room = None
         self.username = None
         self.send_message("OK")
 
     def handle_detach(self):
-        room_manager.disconnect(self.username, self.room.identifier)
+        room_manager.disconnect(self.username, self.room.room_name)
         self.room = None
         self.send_message("OK")
 
