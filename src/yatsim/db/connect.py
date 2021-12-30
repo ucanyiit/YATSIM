@@ -27,7 +27,7 @@ class DB:
 
     def connect(self) -> Connection:
         """Creates a new Connection object."""
-        return self._connect()
+        return self.connect()
 
     def __init__(self, db_path: Optional[str] = None, create_new: bool = True) -> None:
         """Makes necessary checks and initializes a DB util object.
@@ -75,8 +75,9 @@ class DB:
         conn = self._connect()
         DBSchema.check_tables(conn)
         conn.commit()
-        self.room = ModelRoom(conn)
-        self.user = ModelUser(conn)
+        conn.close()
+        self.room = ModelRoom(self)
+        self.user = ModelUser(self)
 
     @staticmethod
     def _determine_path(db_path: Union[str, bytes, None]) -> Union[str, bytes, None]:
