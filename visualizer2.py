@@ -47,7 +47,7 @@ class Visualizer:
             self.screen.blit(image, (x * self.block_size, y * self.block_size))
 
     def update_cell(self, x: int, y: int, view: Tuple[int, int]):
-        self.block_sizeview[y][x] = view
+        self.view[y][x] = view
         self._draw()
 
     def update_trains(self, trains: List[Tuple[int, int, int, int]]):
