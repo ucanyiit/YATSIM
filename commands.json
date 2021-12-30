@@ -12,5 +12,8 @@
   {"command": "SWITCH", "x": 2, "y": 3},
   {"command": "START"},
   {"command": "STOP"},
-  {"command": "TOGGLE"}
+  {"command": "TOGGLE"},
+  {"command": "ADD_PLAYER", "room_id": 1, "user_id": 2},
+  {"command": "REMOVE_PLAYER", "room_id": 1, "user_id": 2},
+  {"command": "CLONE", "room_id": 1, "name": "weweowoeowe"}
 ]
