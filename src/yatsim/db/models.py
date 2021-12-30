@@ -23,11 +23,21 @@ class ModelRoom:
         cur = self.conn.cursor()
         cur.execute(
             """
-        INSERT INTO ROOM (roomName, gridData, ownerId) VALUES
+        INSERT INTO room (roomName, gridData, ownerId) VALUES
         (?, ?, (SELECT username FROM user where username = ?))
         """,
             (room.room_name, pickle.dumps(room.game_grid), username),
         ).fetchall()
+        res = cur.execute(
+            """
+        SELECT room.id FROM room
+        JOIN user on room.ownerId = user.id
+        WHERE user.username = (?)
+        AND room.roomName = (?)
+        """,
+            (username, room.room_name),
+        ).fetchone()
+        room.room_id = res
         cur.close()
 
     def retrieve_room_names(self, username: str) -> List[Tuple[int, str]]:
