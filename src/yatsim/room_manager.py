@@ -69,8 +69,7 @@ class RoomManager:
             room = self.db.room.retrieve_room(room_id, self.db)
             if room is None:
                 return None
-            clone_room = deepcopy(room)
-            clone_room.room_name = room_name
+            clone_room = Room(deepcopy(room.game_grid), room_name, self.db)
             self.db.room.create_room(clone_room, user_id)
             return clone_room.room_id
 

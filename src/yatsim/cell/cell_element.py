@@ -248,9 +248,9 @@ class SimpleTimedXJunctionCellElement(SimpleTimedCellElement):
     def __init__(self, x: int, y: int) -> None:
         """Inits the cell with position and the default state (STRAIGHT)."""
         super().__init__(x, y)
-        self._state_iterator = iter(self.JunctionState)
-        self._state: "SimpleTimedXJunctionCellElement.JunctionState"
-        self.switch_state()
+        _e = SimpleTimedXJunctionCellElement.JunctionState
+        self._state_next = {_e.STRAIGHT: _e.CCW, _e.CCW: _e.CW, _e.CW: _e.STRAIGHT}
+        self._state = _e.STRAIGHT
 
     def switch_state(self) -> None:
         """Switches the state of the X junction.
@@ -258,11 +258,7 @@ class SimpleTimedXJunctionCellElement(SimpleTimedCellElement):
         The junction directs the train coming from the cell's direction depending on
         the state. The state follows the pattern STRAIGHT -> CCW -> CW -> STRAIGHT...
         """
-        try:
-            self._state = next(self._state_iterator)
-        except StopIteration:
-            self._state_iterator = iter(self.JunctionState)
-            self._state = next(self._state_iterator)
+        self._state = self._state_next[self._state]
 
     def next_cell(self, entdir: Direction) -> Direction:
         """Returns the direction the train will exit from.
@@ -308,21 +304,11 @@ class SimpleTimedYJunctionCellElement(SimpleTimedXJunctionCellElement):
         else:
             raise ValueError('Argument curve must be either "cw" or "ccw"')
 
-        # Hacky solution, super().__init__ sets _state to STRAIGHT this way.
-        self._state = self.JunctionState.CW
         super().__init__(x, y)
-
-    def switch_state(self) -> None:
-        """Switches state.
-
-        The direction of the trains coming from the cell's direction are toggled.
-        Trains coming from the other end of the straight or the curved path are not
-        affected.
-        """
-        if self._state != self.JunctionState.STRAIGHT:
-            self._state = self.JunctionState.STRAIGHT
-        else:
-            self._state = self._curve
+        self._state_next = {
+            self._curve: self.JunctionState.STRAIGHT,
+            self.JunctionState.STRAIGHT: self._curve,
+        }
 
     def next_cell(self, entdir: Direction) -> Direction:
         """Returns the direction the train will exit from.

@@ -167,7 +167,7 @@ class Connection(Thread):
 
     def handle_add_player(self, request):
         """Handles remove player request."""
-        res = self.room_manager.add_player(request["user_id"], request["room_id"])
+        res = self.room_manager.add_player(request["room_id"], request["user_id"])
         if res:
             self.send_message("User is added to the room.")
         else:
@@ -175,7 +175,7 @@ class Connection(Thread):
 
     def handle_remove_player(self, request):
         """Handles add player request."""
-        res = self.room_manager.remove_player(request["user_id"], request["room_id"])
+        res = self.room_manager.remove_player(request["room_id"], request["user_id"])
         if res:
             self.send_message("User is removed from the room.")
         else:
