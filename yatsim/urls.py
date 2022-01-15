@@ -44,4 +44,7 @@ urlpatterns = [
     ),
     path("room/<int:room_id>/", views.index, name="room_page"),
     path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
+    path(
+        "room/clone/<int:room_id>/", views.clone_room, name="clone_room"
+    ),
 ]

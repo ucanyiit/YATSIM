@@ -13,3 +13,9 @@ class RoomDeletionForm(ModelForm):
     class Meta:
         model = Room
         fields = ["id"]
+
+
+class RoomCloneForm(ModelForm):
+    class Meta:
+        model = Room
+        fields = ["id", "room_name"]
