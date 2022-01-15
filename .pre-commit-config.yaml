@@ -28,6 +28,6 @@ repos:
     hooks:
       - id: system
         name: Pylint
-        entry: poetry run pylint yatsim
+        entry: poetry run pylint yatsim yatsim_dashboard
         pass_filenames: false
         language: system
