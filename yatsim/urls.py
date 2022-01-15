@@ -44,7 +44,12 @@ urlpatterns = [
     ),
     path("room/<int:room_id>/", views.index, name="room_page"),
     path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
+    path("room/clone/<int:room_id>/", views.clone_room, name="clone_room"),
+    path("room/<int:room_id>", views.room_view, name="room"),
+    path("room/add/<int:room_id>/", views.add_user_to_room, name="add_user_to_room"),
     path(
-        "room/clone/<int:room_id>/", views.clone_room, name="clone_room"
+        "room/remove/<int:room_id>/",
+        views.remove_user_from_room,
+        name="remove_user_from_room",
     ),
 ]

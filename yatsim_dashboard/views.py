@@ -1,10 +1,17 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 # Create your views here.
 from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView
 
-from .forms import RoomCloneForm, RoomCreationForm, RoomDeletionForm
+from .forms import (
+    RoomCloneForm,
+    RoomCreationForm,
+    RoomDeletionForm,
+    RoomIdForm,
+    UserIdForm,
+)
 from .models import Room
 
 # Create your views here.
@@ -18,7 +25,29 @@ def index(request):
     return render(
         request,
         "dashboard/index.html",
-        {"user": user, "owned_rooms": owned_rooms, "guest_rooms": guest_rooms},
+        {
+            "user": user,
+            "owned_rooms": owned_rooms,
+            "guest_rooms": guest_rooms,
+        },
+    )
+
+
+@login_required
+def room_view(request, room_id):
+    user = request.user
+    room = Room.objects.get(id=room_id)
+    users = User.objects.exclude(id__exact=user.id).exclude(
+        id__in=[room.id for room in room.guests.all()]
+    )
+    return render(
+        request,
+        "dashboard/room.html",
+        {
+            "user": user,
+            "room": room,
+            "users": users,
+        },
     )
 
 
@@ -60,8 +89,6 @@ def clone_room(request, room_id):
         if form.is_valid():
             try:
                 room = Room.objects.get(id=room_id)
-                print(room.owner)
-                print(user)
                 if room.owner == user:
                     new_room = Room.objects.create(
                         owner=user,
@@ -93,10 +120,39 @@ def rotate_cell(request):
 
 
 @login_required
-def add_user_to_room(request):
-    pass
+def add_user_to_room(request, room_id):
+    if request.method == "POST":
+        request_user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        user_form = UserIdForm(request.POST, request.FILES)
+        if room_form.is_valid() and user_form.is_valid():
+            try:
+                room = Room.objects.get(id=room_id)
+                user = User.objects.get(id=request.POST["user_id"])
+                print(user, room)
+                if room.owner == request_user:
+                    room.guests.add(user)
+            except:
+                pass
+        else:
+            pass
+    return redirect(f"/room/{room_id}")
 
 
 @login_required
-def remove_user_to_room(request):
-    pass
+def remove_user_from_room(request, room_id):
+    if request.method == "POST":
+        request_user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        user_form = UserIdForm(request.POST, request.FILES)
+        if room_form.is_valid() and user_form.is_valid():
+            try:
+                room = Room.objects.get(id=room_id)
+                user = User.objects.get(id=request.POST["user_id"])
+                if room.owner == request_user:
+                    room.guests.remove(user)
+            except:
+                pass
+        else:
+            pass
+    return redirect(f"/room/{room_id}")

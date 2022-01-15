@@ -1,0 +1,60 @@
+{% extends "../base.html" %}
+
+{% block header_text %}Dashboard{% endblock %}
+
+{% block content %}
+
+Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a> 
+
+<br>
+{{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}
+<br>
+{{room.height}}, {{room.width}} 
+<form action="/room/delete/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <button type="submit" >del</button>
+</form>
+<form action="/room/clone/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="room_name">Room name:</label><br>
+    <input type="text" id="room_name" name="room_name">
+    
+    <button type="submit" >clone</button>
+</form>
+
+<form action="/room/add/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="user_id">Choose user:</label><br>
+    <input type="text" name="user_id" list="add_username">
+    <datalist id="add_username">
+        {% for u in users %}
+            <option value="{{u.id}}">{{u.username}}</option>
+        {% endfor %}
+    </datalist>
+
+    <button type="submit" >add</button>
+</form>
+
+<form action="/room/remove/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="user_id">Choose user:</label><br>
+    <input type="text" name="user_id" list="rem_username">
+    <datalist id="rem_username">
+        {% for u in room.guests.all %}
+            <option value="{{u.id}}">{{u.username}}</option>
+        {% endfor %}
+    </datalist>
+
+    <button type="submit" >remove</button>
+</form>
+
+Guests:
+<ol>
+    {% for u in room.guests.all %}
+        <li>{{u.username}}</li>
+    {% empty %}
+        No guests :(
+    {% endfor %}
+</ol>
+
+{% endblock %}
