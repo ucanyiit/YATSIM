@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}YATSIM{% endblock title %}</title>
+</head>
+
+<body>
+    {% block body %}
+
+    {% block header %}
+    <h1>{% block header_text %}header{% endblock %}</h1>
+    {% endblock %}
+
+    {% block content %}
+    <p>body<br>
+
+    paragraph</p>
+    {% endblock %}
+
+    {% endblock body %}
+</body>
+</html>

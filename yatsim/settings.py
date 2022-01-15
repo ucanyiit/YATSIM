@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "yatsim_dashboard",
+    "yatsim",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +54,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "yatsim.urls"
+
+LOGIN_URL = "auth/login"
+LOGIN_REDIRECT_URL = "dashboard"
 
 TEMPLATES = [
     {

@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: system
         name: MyPy
-        entry: poetry run mypy
+        entry: poetry run mypy .
         pass_filenames: false
         language: system
 
@@ -28,14 +28,6 @@ repos:
     hooks:
       - id: system
         name: Pylint
-        entry: poetry run pylint yatsim/yatsim
-        pass_filenames: false
-        language: system
-
-  - repo: local
-    hooks:
-      - id: system
-        name: Pydocstyle
-        entry: poetry run pydocstyle yatsim
+        entry: poetry run pylint yatsim
         pass_filenames: false
         language: system
