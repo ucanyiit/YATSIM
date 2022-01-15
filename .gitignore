@@ -3,3 +3,5 @@ __pycache__
 /src/*.egg-info
 .DS_STORE
 .vscode
+.idea
+*.sqlite3
