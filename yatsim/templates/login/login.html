@@ -1,11 +1,13 @@
 {% extends "../base.html" %}
 
 
-{% block header_text %}Login Page{% endblock %}
+{% block header_text %}Dashboard{% endblock %}
 
 {% block content %}
 
-{% if form.errors %}
+Hello {% user.username %},
+
+{% comment %}
 <p>Incorrect username password combination.</p>
 {% endif %}
 
@@ -26,5 +28,6 @@
     <input type="hidden" name="next" value="{{ next }}">
 </form>
 <br>
+{% endcomment %}
 {% endblock %}
 
