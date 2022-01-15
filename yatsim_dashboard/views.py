@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
-from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView
 
@@ -14,8 +13,13 @@ from .models import Room
 @login_required
 def index(request):
     user = request.user
-    rooms = Room.objects.filter(Q(owner__exact=user) | Q(guests__exact=user))
-    return render(request, "dashboard/index.html", {"user": user, "rooms": rooms})
+    owned_rooms = Room.objects.filter(owner=user)
+    guest_rooms = Room.objects.filter(guests=user)
+    return render(
+        request,
+        "dashboard/index.html",
+        {"user": user, "owned_rooms": owned_rooms, "guest_rooms": guest_rooms},
+    )
 
 
 class CreateRoomView(FormView):
