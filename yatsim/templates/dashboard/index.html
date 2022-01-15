@@ -11,6 +11,10 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <ol>
     {% for room in rooms %}
     <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }} </li>
+    <form action="/room/delete/{{room.id}}/" method="post">
+        {% csrf_token %}
+        <button type="submit" >del</button>
+    </form>
     {% endfor %}
 </ol>
 <!-- list rooms here --!>

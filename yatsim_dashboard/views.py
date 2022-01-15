@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
+
+# Create your views here.
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView
 
 from .forms import RoomCreationForm
@@ -32,3 +34,10 @@ class CreateRoomView(FormView):
         )
         new_room.save()
         return super().form_valid(form)
+
+
+@login_required
+def delete_room(request, room_id):
+    user = request.user
+    Room.objects.filter(id__exact=room_id).filter(owner__exact=user).delete()
+    return redirect("/dashboard")
