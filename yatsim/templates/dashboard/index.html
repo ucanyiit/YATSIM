@@ -8,6 +8,11 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 
 <br>
 
+<ol>
+    {% for room in rooms %}
+    <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }} </li>
+    {% endfor %}
+</ol>
 <!-- list rooms here --!>
 
 {% endblock %}

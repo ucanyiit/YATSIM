@@ -8,7 +8,6 @@ from django.db import models
 
 
 class Room(models.Model):
-    # noqa
     room_name = models.CharField(max_length=32, blank=False, null=False)
     owner = models.ForeignKey(
         User,
@@ -30,7 +29,10 @@ class Room(models.Model):
     )
 
     guests = models.ManyToManyField(
-        User, related_name="accessible_rooms", related_query_name="accessible_room"
+        User,
+        related_name="accessible_rooms",
+        related_query_name="accessible_room",
+        blank=True,
     )
 
     active_players = models.PositiveSmallIntegerField(
@@ -39,3 +41,6 @@ class Room(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"<Room: ({self.pk}) - {self.owner.username}/{self.room_name}>"

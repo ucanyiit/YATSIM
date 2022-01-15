@@ -36,5 +36,6 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("dashboard/", views.index, name="dashboard"),
-    path("create_room/", views.index, name="create_room"),
+    path("create_room/", views.CreateRoomView.as_view(), name="create_room"),
+    path("room/<int:room_id>/", views.index, name="room_page"),
 ]
