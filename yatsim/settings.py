@@ -55,7 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "yatsim.urls"
 
-LOGIN_URL = "auth/login"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 
 TEMPLATES = [

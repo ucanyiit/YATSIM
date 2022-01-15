@@ -4,7 +4,9 @@
 
 {% block content %}
 
-Hello {{ user.username }},
+Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "create_room" %}>create room</a>
+
+<br>
 
 <!-- list rooms here --!>
 

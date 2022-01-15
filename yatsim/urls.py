@@ -21,15 +21,20 @@ from django.urls import path
 
 from yatsim_dashboard import views
 
-# from django.views.generic.base import TemplateView
-
-
 urlpatterns = [
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="login/login.html"),
+        auth_views.LoginView.as_view(
+            template_name="auth/login.html", redirect_authenticated_user=True
+        ),
         name="login",
+    ),
+    path(
+        "logout/",
+        auth_views.LogoutView.as_view(template_name="auth/logout.html"),
+        name="logout",
     ),
     path("admin/", admin.site.urls),
     path("dashboard/", views.index, name="dashboard"),
+    path("create_room/", views.index, name="create_room"),
 ]
