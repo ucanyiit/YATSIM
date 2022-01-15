@@ -8,6 +8,7 @@ class RoomCreationForm(ModelForm):
         model = Room
         fields = ["room_name", "height", "width"]
 
+
 class RoomDeletionForm(ModelForm):
     class Meta:
         model = Room

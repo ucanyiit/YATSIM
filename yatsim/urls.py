@@ -43,9 +43,5 @@ urlpatterns = [
         name="create_room",
     ),
     path("room/<int:room_id>/", views.index, name="room_page"),
-    path(
-        "room/delete/<int:room_id>/",
-        views.delete_room,
-        name="delete_room"
-    ),
+    path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
 ]
