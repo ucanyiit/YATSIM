@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render
 from django.views.generic.edit import FormView
 
@@ -11,7 +12,7 @@ from .models import Room
 @login_required
 def index(request):
     user = request.user
-    rooms = Room.objects.filter(owner__exact=user)
+    rooms = Room.objects.filter(Q(owner__exact=user) | Q(guests__exact=user))
     return render(request, "dashboard/index.html", {"user": user, "rooms": rooms})
 
 
