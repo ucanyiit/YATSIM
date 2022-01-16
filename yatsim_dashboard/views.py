@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
-# Create your views here.
 from django.shortcuts import redirect, render
 from django.views.generic.edit import FormView
 
@@ -14,7 +13,12 @@ from .forms import (
 )
 from .models import Room
 
-# Create your views here.
+# TODO: There are some empty control flow branches (else: pass). Let's have
+# a look at them.
+
+# pylint:disable=w0702
+# TODO: Bare exceptions. What are possible exceptions and how to resolve them?
+# Implement a robusts checking mechanism.
 
 
 @login_required
@@ -33,6 +37,10 @@ def index(request):
     )
 
 
+# TODO: add check to see whether user can access room
+# TODO: some actions are owner only. We can pass a boolean is_owner context
+# variable and use conditionals in the room.html to enable/disable user owner
+# actions.
 @login_required
 def room_view(request, room_id):
     user = request.user
@@ -69,6 +77,8 @@ class CreateRoomView(FormView):
         return super().form_valid(form)
 
 
+# TODO: check ownership
+# Second filter does this, nvm.
 @login_required
 def delete_room(request, room_id):
     if request.method == "POST":
@@ -81,6 +91,7 @@ def delete_room(request, room_id):
     return redirect("/dashboard")
 
 
+# TODO: Can guests clone rooms?
 @login_required
 def clone_room(request, room_id):
     if request.method == "POST":
@@ -97,11 +108,19 @@ def clone_room(request, room_id):
                         width=room.width,
                     )
                     new_room.save()
-            except:
+            except:  # TODO: Bare except.
                 pass
-        else:
+        else:  # TODO: Empty control flow.
             pass
     return redirect("/dashboard")
+
+
+# TODO:
+# - user should have access to room here.
+# - boundary checking
+# - refresh
+# - step
+# - reset
 
 
 @login_required
@@ -129,16 +148,20 @@ def add_user_to_room(request, room_id):
             try:
                 room = Room.objects.get(id=room_id)
                 user = User.objects.get(id=request.POST["user_id"])
+                # TODO: we can use an actual logger if it will help.
                 print(user, room)
+                # TODO: Move higher? vvv
                 if room.owner == request_user:
                     room.guests.add(user)
-            except:
+            except:  # TODO: Bare except.
                 pass
-        else:
+        else:  # TODO: Empty control flow.
             pass
     return redirect(f"/room/{room_id}")
 
 
+# TODO:Both the owner and the guest should have permission to add/remove a guest
+# from the room.
 @login_required
 def remove_user_from_room(request, room_id):
     if request.method == "POST":
@@ -149,10 +172,13 @@ def remove_user_from_room(request, room_id):
             try:
                 room = Room.objects.get(id=room_id)
                 user = User.objects.get(id=request.POST["user_id"])
+
+                # TODO: This is a cheap operation. Maybe check this before
+                # DB accesses? vvv
                 if room.owner == request_user:
                     room.guests.remove(user)
-            except:
+            except:  # TODO: Bare except.
                 pass
-        else:
+        else:  # TODO: Empty control flow.
             pass
     return redirect(f"/room/{room_id}")
