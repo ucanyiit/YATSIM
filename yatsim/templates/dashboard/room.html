@@ -46,9 +46,8 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 
 <br>
 
-<form action="/room/rotate/" method="post">
+<form action="/room/rotate/{{room.id}}/" method="post">
     {% csrf_token %}
-    <input type="hidden" name="room_id" value="{{room.id}}">
     <label for="x">X:</label><br>
     <input type="number" id="x" name="x"><br>
     <label for="y">Y:</label><br>
