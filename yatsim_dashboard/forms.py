@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 
-from .models import Room
+from .models import Cell, Room
 
 
 class RoomCreationForm(ModelForm):
@@ -30,17 +30,17 @@ class UserIdForm(ModelForm):
 
 class PlaceCellForm(ModelForm):
     class Meta:
-        model = ...
+        model = Cell
         fields = ["x", "y", "type"]
 
 
 class SwitchCellForm(ModelForm):
     class Meta:
-        model = ...
+        model = Cell
         fields = ["x", "y"]
 
 
 class RotateCellForm(ModelForm):
     class Meta:
-        model = ...
+        model = Cell
         fields = ["x", "y", "direction"]

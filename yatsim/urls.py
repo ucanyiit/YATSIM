@@ -57,4 +57,19 @@ urlpatterns = [
         views.leave_from_room,
         name="leave_from_room",
     ),
+    path(
+        "room/place/<int:room_id>/",
+        views.place_cell,
+        name="place_cell",
+    ),
+    path(
+        "room/switch/<int:room_id>/",
+        views.switch_cell,
+        name="switch_cell",
+    ),
+    path(
+        "room/rotate/<int:room_id>/",
+        views.rotate_cell,
+        name="rotate_cell",
+    ),
 ]

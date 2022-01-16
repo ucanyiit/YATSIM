@@ -1,4 +1,5 @@
 {% extends "../base.html" %}
+{% load static %}
 
 {% block header_text %}Dashboard{% endblock %}
 
@@ -15,7 +16,64 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <br>
 <br>
 
-Guests:
+<table>
+{% for cell_row in cells %}
+    <tr>
+    {% for cell in cell_row %}
+        <td>
+            <img class="direction{{cell.direction}}" width="32" height="32" src="{% static 'cells/' %}type{{cell.type}}.png"/>
+        </td>    
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+
+<h3>
+    Cell Operations:
+</h3>
+
+<form action="/room/place/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="x">X:</label><br>
+    <input type="number" id="x" name="x"><br>
+    <label for="y">Y:</label><br>
+    <input type="number" id="y" name="y"><br>
+    <label for="type">Cell Type:</label><br>
+    <input type="number" id="type" name="type"><br>
+
+    <button type="submit" >Place Cell</button>
+</form>
+
+<br>
+
+<form action="/room/rotate/" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="room_id" value="{{room.id}}">
+    <label for="x">X:</label><br>
+    <input type="number" id="x" name="x"><br>
+    <label for="y">Y:</label><br>
+    <input type="number" id="y" name="y"><br>
+    <label for="direction">Direction:</label><br>
+    <input type="number" id="direction" name="direction"><br>
+
+    <button type="submit" >Rotate Cell</button>
+</form>
+
+<br>
+
+<form action="/room/switch/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="x">X:</label><br>
+    <input type="number" id="x" name="x"><br>
+    <label for="y">Y:</label><br>
+    <input type="number" id="y" name="y"><br>
+
+    <button type="submit" >Switch Cell</button>
+</form>
+
+<h3>
+    Guests:
+</h3>
 <ol>
     {% for u in room.guests.all %}
         <li>{{u.username}}</li>
@@ -31,12 +89,14 @@ Guests:
 
     <button type="submit" >Clone</button>
 </form>
+<br/>
 
 {% if is_owner %}
 <form action="/room/delete/{{room.id}}/" method="post">
     {% csrf_token %}
     <button type="submit" >Delete Room</button>
 </form>
+<br/>
 
 <form action="/room/add/{{room.id}}/" method="post">
     {% csrf_token %}
@@ -49,6 +109,7 @@ Guests:
 
     <button type="submit" >Add</button>
 </form>
+<br/>
 
 <form action="/room/remove/{{room.id}}/" method="post">
     {% csrf_token %}

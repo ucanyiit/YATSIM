@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
 
 from .forms import (
@@ -13,7 +13,7 @@ from .forms import (
     SwitchCellForm,
     UserIdForm,
 )
-from .models import Room
+from .models import Cell, Room
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
@@ -46,8 +46,15 @@ def room_view(request, room_id):
     users = User.objects.exclude(id__exact=user.id).exclude(
         id__in=[room.id for room in room.guests.all()]
     )
+
     if user not in room.guests.all() and user != room.owner:
         raise PermissionDenied
+
+    cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+    cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
+    for cell in cell_objects:
+        cells[cell.y][cell.x] = cell
+
     return render(
         request,
         "dashboard/room.html",
@@ -56,6 +63,7 @@ def room_view(request, room_id):
             "room": room,
             "users": users,
             "is_owner": room.owner == user,
+            "cells": cells,
         },
     )
 
@@ -181,11 +189,17 @@ def place_cell(request, room_id):
     if request.method == "POST":
         user = request.user
         room_form = RoomIdForm(request.POST, request.FILES)
-        cell_form = PlaceCellForm(request.POST, request.FILES)
-        if room_form.is_valid() and cell_form.is_valid():
+        # cell_form = PlaceCellForm(request.POST, request.FILES)
+        if room_form.is_valid():
             room = get_object_or_404(Room, pk=room_id)
-            if user not in room.guests and user != room.owner:
-                pass
+            if user in room.guests.all() or user == room.owner:
+                data = request.POST
+                x = data["x"]
+                y = data["y"]
+                cell_type = data["type"]
+                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                cell.type = cell_type
+                cell.save()
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.
@@ -198,11 +212,15 @@ def switch_cell(request, room_id):
     if request.method == "POST":
         user = request.user
         room_form = RoomIdForm(request.POST, request.FILES)
-        cell_form = SwitchCellForm(request.POST, request.FILES)
-        if room_form.is_valid() and cell_form.is_valid():
+        # cell_form = SwitchCellForm(request.POST, request.FILES)
+        if room_form.is_valid():
             room = get_object_or_404(Room, pk=room_id)
-            if user not in room.guests and user != room.owner:
-                pass
+            if user in room.guests.all() or user == room.owner:
+                data = request.POST
+                x = data["x"]
+                y = data["y"]
+                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                cell.switch_state()
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.
@@ -215,11 +233,16 @@ def rotate_cell(request, room_id):
     if request.method == "POST":
         user = request.user
         room_form = RoomIdForm(request.POST, request.FILES)
-        cell_form = RotateCellForm(request.POST, request.FILES)
-        if room_form.is_valid() and cell_form.is_valid():
+        # cell_form = RotateCellForm(request.POST, request.FILES)
+        if room_form.is_valid():
             room = get_object_or_404(Room, pk=room_id)
-            if user not in room.guests and user != room.owner:
-                pass
+            if user in room.guests.all() or user == room.owner:
+                data = request.POST
+                x = data["x"]
+                y = data["y"]
+                direction = data["direction"]
+                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                cell.rotate(str(direction))
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.
