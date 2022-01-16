@@ -10,16 +10,32 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 {{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}
 <br>
 {{room.height}}, {{room.width}}
-<form action="/room/delete/{{room.id}}/" method="post">
-    {% csrf_token %}
-    <button type="submit" >del</button>
-</form>
+
+<br>
+<br>
+<br>
+
+Guests:
+<ol>
+    {% for u in room.guests.all %}
+        <li>{{u.username}}</li>
+    {% empty %}
+        No guests :(
+    {% endfor %}
+</ol>
+
 <form action="/room/clone/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="room_name">Room name:</label><br>
     <input type="text" id="room_name" name="room_name">
 
-    <button type="submit" >clone</button>
+    <button type="submit" >Clone</button>
+</form>
+
+{% if is_owner %}
+<form action="/room/delete/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <button type="submit" >Delete Room</button>
 </form>
 
 <form action="/room/add/{{room.id}}/" method="post">
@@ -32,7 +48,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </datalist>
 
-    <button type="submit" >add</button>
+    <button type="submit" >Add</button>
 </form>
 
 <form action="/room/remove/{{room.id}}/" method="post">
@@ -45,16 +61,12 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </datalist>
 
-    <button type="submit" >remove</button>
+    <button type="submit" >Remove</button>
 </form>
-
-Guests:
-<ol>
-    {% for u in room.guests.all %}
-        <li>{{u.username}}</li>
-    {% empty %}
-        No guests :(
-    {% endfor %}
-</ol>
-
+{% else %}
+<form action="/room/leave/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <button type="submit" >Leave</button>
+</form>
+{% endif %}
 {% endblock %}

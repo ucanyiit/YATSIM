@@ -52,4 +52,9 @@ urlpatterns = [
         views.remove_user_from_room,
         name="remove_user_from_room",
     ),
+    path(
+        "room/leave/<int:room_id>/",
+        views.leave_from_room,
+        name="leave_from_room",
+    ),
 ]

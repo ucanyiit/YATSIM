@@ -16,7 +16,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 
 <ol>
     {% for room in guest_rooms %}
-    <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }} </li>
+    <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }}, <a href={% url "room" room.id %}>go</a> </li> 
     {% endfor %}
 </ol>
 
