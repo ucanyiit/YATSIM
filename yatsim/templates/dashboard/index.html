@@ -12,11 +12,11 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% for room in owned_rooms %}
     <li> {{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}, <a href={% url "room" room.id %}>go</a> </li>
     {% endfor %}
-</ol><br> 
+</ol><br>
 
 <ol>
     {% for room in guest_rooms %}
-    <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }}, <a href={% url "room" room.id %}>go</a> </li> 
+    <li> {{room.id}}: {{room.owner.username}}/{{ room.room_name }}, <a href={% url "room" room.id %}>go</a> </li>
     {% endfor %}
 </ol>
 
