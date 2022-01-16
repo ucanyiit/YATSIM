@@ -5,10 +5,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
 
 from .forms import (
+    PlaceCellForm,
     RoomCloneForm,
     RoomCreationForm,
-    RoomDeletionForm,
     RoomIdForm,
+    RotateCellForm,
+    SwitchCellForm,
     UserIdForm,
 )
 from .models import Room
@@ -80,7 +82,7 @@ class CreateRoomView(FormView):
 def delete_room(request, room_id):
     if request.method == "POST":
         user = request.user
-        form = RoomDeletionForm(request.POST, request.FILES)
+        form = RoomIdForm(request.POST, request.FILES)
         if form.is_valid():
             room = get_object_or_404(Room, pk=room_id)
             if user != room.owner:
@@ -112,29 +114,6 @@ def clone_room(request, room_id):
         else:  # TODO: Empty control flow.
             pass
     return redirect("/dashboard")
-
-
-# TODO:
-# - user should have access to room here.
-# - boundary checking
-# - refresh
-# - step
-# - reset
-
-
-@login_required
-def place_cell(request):
-    pass
-
-
-@login_required
-def switch_cell(request):
-    pass
-
-
-@login_required
-def rotate_cell(request):
-    pass
 
 
 @login_required
@@ -187,3 +166,62 @@ def leave_from_room(request, room_id):
         else:  # TODO: Empty control flow.
             pass
     return redirect("/dashboard")
+
+
+# TODO:
+# - user should have access to room here.
+# - boundary checking
+# - refresh
+# - step
+# - reset
+
+
+@login_required
+def place_cell(request, room_id):
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        cell_form = PlaceCellForm(request.POST, request.FILES)
+        if room_form.is_valid() and cell_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user not in room.guests and user != room.owner:
+                pass
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")
+
+
+@login_required
+def switch_cell(request, room_id):
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        cell_form = SwitchCellForm(request.POST, request.FILES)
+        if room_form.is_valid() and cell_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user not in room.guests and user != room.owner:
+                pass
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")
+
+
+@login_required
+def rotate_cell(request, room_id):
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        cell_form = RotateCellForm(request.POST, request.FILES)
+        if room_form.is_valid() and cell_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user not in room.guests and user != room.owner:
+                pass
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")

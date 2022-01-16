@@ -10,12 +10,6 @@ class RoomCreationForm(ModelForm):
         fields = ["room_name", "height", "width"]
 
 
-class RoomDeletionForm(ModelForm):
-    class Meta:
-        model = Room
-        fields = ["id"]
-
-
 class RoomCloneForm(ModelForm):
     class Meta:
         model = Room
@@ -32,3 +26,21 @@ class UserIdForm(ModelForm):
     class Meta:
         model = User
         fields = ["id"]
+
+
+class PlaceCellForm(ModelForm):
+    class Meta:
+        model = ...
+        fields = ["x", "y", "type"]
+
+
+class SwitchCellForm(ModelForm):
+    class Meta:
+        model = ...
+        fields = ["x", "y"]
+
+
+class RotateCellForm(ModelForm):
+    class Meta:
+        model = ...
+        fields = ["x", "y", "direction"]
