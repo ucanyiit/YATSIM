@@ -41,12 +41,11 @@ Guests:
 <form action="/room/add/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="user_id">Choose user:</label><br>
-    <input type="text" name="user_id" list="add_username">
-    <datalist id="add_username">
+    <select name="user_id" id="add_username">
         {% for u in users %}
             <option value="{{u.id}}">{{u.username}}</option>
         {% endfor %}
-    </datalist>
+    </select>
 
     <button type="submit" >Add</button>
 </form>
@@ -54,12 +53,11 @@ Guests:
 <form action="/room/remove/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="user_id">Choose user:</label><br>
-    <input type="text" name="user_id" list="rem_username">
-    <datalist id="rem_username">
+    <select name="user_id" id="rem_username">
         {% for u in room.guests.all %}
             <option value="{{u.id}}">{{u.username}}</option>
         {% endfor %}
-    </datalist>
+    </select>
 
     <button type="submit" >Remove</button>
 </form>

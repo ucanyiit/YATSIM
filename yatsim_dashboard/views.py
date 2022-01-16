@@ -44,7 +44,7 @@ def room_view(request, room_id):
     users = User.objects.exclude(id__exact=user.id).exclude(
         id__in=[room.id for room in room.guests.all()]
     )
-    if user not in users and user != room.owner:
+    if user not in room.guests.all() and user != room.owner:
         raise PermissionDenied
     return render(
         request,
