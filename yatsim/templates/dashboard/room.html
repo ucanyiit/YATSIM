@@ -4,12 +4,12 @@
 
 {% block content %}
 
-Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a> 
+Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a>
 
 <br>
 {{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}
 <br>
-{{room.height}}, {{room.width}} 
+{{room.height}}, {{room.width}}
 <form action="/room/delete/{{room.id}}/" method="post">
     {% csrf_token %}
     <button type="submit" >del</button>
@@ -18,7 +18,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% csrf_token %}
     <label for="room_name">Room name:</label><br>
     <input type="text" id="room_name" name="room_name">
-    
+
     <button type="submit" >clone</button>
 </form>
 
