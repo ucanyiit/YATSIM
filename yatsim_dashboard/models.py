@@ -1,6 +1,7 @@
 """Models displayed in main page."""
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -41,11 +42,9 @@ class Room(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"<Room: ({self.pk}) - {self.owner.username}/{self.room_name}>"
+        return f"({self.pk}) - {self.owner.username}/{self.room_name}"
 
 
-# TODO: save()
-# TODO: __str__()
 class Cell(models.Model):
 
     CELL_TYPES = [
@@ -82,6 +81,21 @@ class Cell(models.Model):
     )
 
     state = models.CharField(max_length=1, choices=State.choices, null=True)
+
+    def __str__(self):
+
+        return (
+            f"Cell({self.pk}) at room: {self.room_id} - ({self.x},{self.y}) type: "
+            f"{self.type} state: {self.state} direction: {self.direction}"
+        )
+
+    def clean(self):
+        room = Room.objects.get(pk=self.room_id)
+        if 0 <= self.x < room.width and 0 <= self.y < room.height:
+            raise ValidationError(
+                f"Cell ({self.x},{self.y}):Grid geometry width={room.width}"
+                f"height={room.height} does not permit this placement"
+            )
 
     class Meta:
         unique_together = (("room_id", "x", "y"),)
@@ -162,3 +176,23 @@ class Cell(models.Model):
             return str((int(self.direction) + 2) % 4)
 
         raise Exception("Impossible control flow")
+
+
+# Called after Room.save()
+def create_grid_cells(instance: Room, created: bool, raw: bool, **kwargs) -> None:
+    """Creates new cells if the room is newly created.
+
+    Used by models.signals.post_save signal.
+    """
+    if not created or raw:
+        return
+    # import pdb; pdb.set_trace()
+    # width and height are IntegerFields but their values' types are str.
+    for x in range(int(instance.width)):
+        for y in range(int(instance.height)):
+            Cell.objects.create(room_id=instance, x=x, y=y, type="0", direction="1")
+
+
+models.signals.post_save.connect(
+    create_grid_cells, sender=Room, dispatch_uid="initialize_grid"
+)
