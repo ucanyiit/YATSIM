@@ -196,3 +196,39 @@ def create_grid_cells(instance: Room, created: bool, raw: bool, **kwargs) -> Non
 models.signals.post_save.connect(
     create_grid_cells, sender=Room, dispatch_uid="initialize_grid"
 )
+
+
+class Train(models.Model):
+    type = models.CharField(max_length=32, blank=False, null=False)
+    length = models.PositiveSmallIntegerField(blank=False, null=False)
+    source = models.ForeignKey(Cell, on_delete=models.CASCADE, blank=False, null=False)
+
+
+class Wagon(models.Model):
+    class Direction(models.TextChoices):
+        NORTH = ("0", "NORTH")
+        EAST = ("1", "EAST")
+        SOUTH = ("2", "SOUTH")
+        WEST = ("3", "WEST")
+
+    x = models.PositiveSmallIntegerField(blank=False, null=False)
+    y = models.PositiveSmallIntegerField(blank=False, null=False)
+    train = models.ForeignKey(Train, on_delete=models.CASCADE, blank=False, null=False)
+    direction = models.CharField(
+        max_length=1, choices=Direction.choices, blank=False, null=False
+    )
+
+    sequence_id = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.sequence_id = (
+                Wagon.objects.filter(train=self.train)
+                .aggregate(max_id=models.Max("sequence_id"))
+                .get("max_id", 0)
+                or 0
+            ) + 1
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ("-sequence_id",)

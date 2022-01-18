@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
 
@@ -189,8 +190,10 @@ def place_cell(request, room_id):
                 if int(cell_type) > 8 or int(cell_type) < 0:
                     raise Exception("Cell type is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-                cell.type = cell_type
-                cell.save()
+                with transaction.atomic():
+                    cell.delete()
+                    cell = Cell(x=x, y=y, room_id=room.id, type=cell_type)
+                    cell.save()
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.
@@ -241,3 +244,31 @@ def rotate_cell(request, room_id):
         else:  # TODO: Empty control flow.
             pass
     return redirect(f"/room/{room_id}")
+
+
+# pylint:disable=w0613
+
+
+@login_required
+def add_train(request, room_id):
+    pass
+
+
+@login_required
+def remove_train(request, room_id):
+    pass
+
+
+@login_required
+def start_simulation(request, room_id):
+    pass
+
+
+@login_required
+def stop_simulation(request, room_id):
+    pass
+
+
+@login_required
+def run_simulation(request, room_id):
+    pass
