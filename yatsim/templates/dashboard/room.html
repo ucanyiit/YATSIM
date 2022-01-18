@@ -22,7 +22,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% for cell in cell_row %}
         <td>
             <img class="direction{{cell.direction}}" width="32" height="32" src="{% static 'cells/' %}type{{cell.type}}.png"/>
-        </td>    
+        </td>
     {% endfor %}
     </tr>
 {% endfor %}
@@ -106,7 +106,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </select>
 
-    <button type="submit" >Add</button>
+    <button type="submit" >Add User</button>
 </form>
 <br/>
 
@@ -119,12 +119,44 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </select>
 
-    <button type="submit" >Remove</button>
+    <button type="submit" >Remove User</button>
 </form>
 {% else %}
 <form action="/room/leave/{{room.id}}/" method="post">
     {% csrf_token %}
     <button type="submit" >Leave</button>
 </form>
+<br/>
 {% endif %}
+
+<br/>
+<form action="/room/remove_train/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <label for="train_id">Choose train:</label><br>
+    <select name="train_id" id="train_id">
+        {% for train in trains %}
+            <option value="{{train.id}}">{{train}}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" >Remove Train</button>
+</form>
+<br/>
+
+<form action="/room/add_train/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <input type="text" id="train_type" name="train_type">
+    <label for="train_type">train type:</label><br>
+
+    <input type="number" id="train_length" name="train_length">
+    <label for="train_length">train length:</label><br>
+
+    <label for="station_id">Choose station:</label><br>
+    <select name="station_id" id="station_id">
+        {% for station in stations %}
+            <option value="{{station.id}}">{{station}}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" >Add Train</button>
+</form>
+
 {% endblock %}

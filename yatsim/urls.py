@@ -72,4 +72,14 @@ urlpatterns = [
         views.rotate_cell,
         name="rotate_cell",
     ),
+    path(
+        "room/add_train/<int:room_id>/",
+        views.add_train,
+        name="add_train",
+    ),
+    path(
+        "room/remove_train/<int:room_id>/",
+        views.remove_train,
+        name="remove_train",
+    ),
 ]
