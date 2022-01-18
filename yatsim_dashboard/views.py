@@ -173,14 +173,6 @@ def leave_from_room(request, room_id):
     return redirect("/dashboard")
 
 
-# TODO:
-# - user should have access to room here.
-# - boundary checking
-# - refresh
-# - step
-# - reset
-
-
 @login_required
 def place_cell(request, room_id):
     if request.method == "POST":
@@ -194,7 +186,7 @@ def place_cell(request, room_id):
                 x = data["x"]
                 y = data["y"]
                 cell_type = data["type"]
-                if cell_type > "8" or cell_type < "0":
+                if int(cell_type) > 8 or int(cell_type) < 0:
                     raise Exception("Cell type is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
                 cell.type = cell_type
@@ -240,7 +232,7 @@ def rotate_cell(request, room_id):
                 x = data["x"]
                 y = data["y"]
                 direction = data["direction"]
-                if direction < "0" or direction > "3":
+                if int(direction) > 3 or int(direction) < 0:
                     raise Exception("Direction is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
                 cell.rotate(str(direction))
