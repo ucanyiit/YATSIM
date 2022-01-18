@@ -194,6 +194,8 @@ def place_cell(request, room_id):
                 x = data["x"]
                 y = data["y"]
                 cell_type = data["type"]
+                if cell_type > "8" or cell_type < "0":
+                    raise Exception("Cell type is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
                 cell.type = cell_type
                 cell.save()
@@ -238,6 +240,8 @@ def rotate_cell(request, room_id):
                 x = data["x"]
                 y = data["y"]
                 direction = data["direction"]
+                if direction < "0" or direction > "3":
+                    raise Exception("Direction is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
                 cell.rotate(str(direction))
             else:
