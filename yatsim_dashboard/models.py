@@ -190,7 +190,7 @@ def create_grid_cells(instance: Room, created: bool, raw: bool, **kwargs) -> Non
     # width and height are IntegerFields but their values' types are str.
     for x in range(int(instance.width)):
         for y in range(int(instance.height)):
-            Cell.objects.create(room_id=instance, x=x, y=y, type="0", direction="1")
+            Cell.objects.create(room_id=instance, x=x, y=y, type="0", direction="0")
 
 
 models.signals.post_save.connect(

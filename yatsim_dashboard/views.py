@@ -4,13 +4,10 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
 
-from .forms import (
-    PlaceCellForm,
+from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     RoomCloneForm,
     RoomCreationForm,
     RoomIdForm,
-    RotateCellForm,
-    SwitchCellForm,
     UserIdForm,
 )
 from .models import Cell, Room
