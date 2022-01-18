@@ -21,7 +21,12 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <tr>
     {% for cell in cell_row %}
         <td>
-            <img class="direction{{cell.direction}}" width="32" height="32" src="{% static 'cells/' %}type{{cell.type}}.png"/>
+            <div class="cell">
+                <img class="direction{{cell.0.direction}}" width="32" height="32" src="{% static 'cells/' %}type{{cell.0.type}}.png"/>
+                {% if cell.1 %}
+                <img class="train direction{{cell.1.1}}" width="32" height="32" src="{% static 'trains/' %}type{{cell.1.0}}.png"/>
+                {% endif %}
+            </div>
         </td>
     {% endfor %}
     </tr>
@@ -32,42 +37,42 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     Cell Operations:
 </h3>
 
-<form action="/room/place/{{room.id}}/" method="post">
+<form class="form-group" action="/room/place/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="x">X:</label><br>
-    <input type="number" id="x" name="x"><br>
+    <input  class="form-control" type="number" id="x" name="x"><br>
     <label for="y">Y:</label><br>
-    <input type="number" id="y" name="y"><br>
+    <input  class="form-control" type="number" id="y" name="y"><br>
     <label for="type">Cell Type:</label><br>
-    <input type="number" id="type" name="type"><br>
+    <input  class="form-control" type="number" id="type" name="type"><br>
 
-    <button type="submit" >Place Cell</button>
+    <button class="btn btn-default" type="submit" >Place Cell</button>
 </form>
 
 <br>
 
-<form action="/room/rotate/{{room.id}}/" method="post">
+<form class="form-group" action="/room/rotate/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="x">X:</label><br>
-    <input type="number" id="x" name="x"><br>
+    <input  class="form-control" type="number" id="x" name="x"><br>
     <label for="y">Y:</label><br>
-    <input type="number" id="y" name="y"><br>
+    <input  class="form-control" type="number" id="y" name="y"><br>
     <label for="direction">Direction:</label><br>
-    <input type="number" id="direction" name="direction"><br>
+    <input  class="form-control" type="number" id="direction" name="direction"><br>
 
-    <button type="submit" >Rotate Cell</button>
+    <button class="btn btn-default" type="submit" >Rotate Cell</button>
 </form>
 
 <br>
 
-<form action="/room/switch/{{room.id}}/" method="post">
+<form class="form-group" action="/room/switch/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="x">X:</label><br>
-    <input type="number" id="x" name="x"><br>
+    <input  class="form-control" type="number" id="x" name="x"><br>
     <label for="y">Y:</label><br>
-    <input type="number" id="y" name="y"><br>
+    <input  class="form-control" type="number" id="y" name="y"><br>
 
-    <button type="submit" >Switch Cell</button>
+    <button class="btn btn-default" type="submit" >Switch Cell</button>
 </form>
 
 <h3>
@@ -81,23 +86,23 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% endfor %}
 </ol>
 
-<form action="/room/clone/{{room.id}}/" method="post">
+<form class="form-group" action="/room/clone/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="room_name">Room name:</label><br>
-    <input type="text" id="room_name" name="room_name">
+    <input  class="form-control" type="text" id="room_name" name="room_name">
 
-    <button type="submit" >Clone</button>
+    <button class="btn btn-default" type="submit" >Clone</button>
 </form>
 <br/>
 
 {% if is_owner %}
-<form action="/room/delete/{{room.id}}/" method="post">
+<form class="form-group" action="/room/delete/{{room.id}}/" method="post">
     {% csrf_token %}
-    <button type="submit" >Delete Room</button>
+    <button class="btn btn-default" type="submit" >Delete Room</button>
 </form>
 <br/>
 
-<form action="/room/add/{{room.id}}/" method="post">
+<form class="form-group" action="/room/add/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="user_id">Choose user:</label><br>
     <select name="user_id" id="add_username">
@@ -106,11 +111,11 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </select>
 
-    <button type="submit" >Add User</button>
+    <button class="btn btn-default" type="submit" >Add User</button>
 </form>
 <br/>
 
-<form action="/room/remove/{{room.id}}/" method="post">
+<form class="form-group" action="/room/remove/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="user_id">Choose user:</label><br>
     <select name="user_id" id="rem_username">
@@ -119,18 +124,18 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
         {% endfor %}
     </select>
 
-    <button type="submit" >Remove User</button>
+    <button class="btn btn-default" type="submit" >Remove User</button>
 </form>
 {% else %}
-<form action="/room/leave/{{room.id}}/" method="post">
+<form class="form-group" action="/room/leave/{{room.id}}/" method="post">
     {% csrf_token %}
-    <button type="submit" >Leave</button>
+    <button class="btn btn-default" type="submit" >Leave</button>
 </form>
 <br/>
 {% endif %}
 
 <br/>
-<form action="/room/remove_train/{{room.id}}/" method="post">
+<form class="form-group" action="/room/remove_train/{{room.id}}/" method="post">
     {% csrf_token %}
     <label for="train_id">Choose train:</label><br>
     <select name="train_id" id="train_id">
@@ -138,16 +143,16 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
             <option value="{{train.id}}">{{train}}</option>
         {% endfor %}
     </select>
-    <button type="submit" >Remove Train</button>
+    <button class="btn btn-default" type="submit" >Remove Train</button>
 </form>
 <br/>
 
-<form action="/room/add_train/{{room.id}}/" method="post">
+<form class="form-group" action="/room/add_train/{{room.id}}/" method="post">
     {% csrf_token %}
-    <input type="text" id="train_type" name="train_type">
+    <input  class="form-control" type="text" id="train_type" name="train_type">
     <label for="train_type">train type:</label><br>
 
-    <input type="number" id="train_length" name="train_length">
+    <input  class="form-control" type="number" id="train_length" name="train_length">
     <label for="train_length">train length:</label><br>
 
     <label for="station_id">Choose station:</label><br>
@@ -156,7 +161,17 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
             <option value="{{station.id}}">{{station}}</option>
         {% endfor %}
     </select>
-    <button type="submit" >Add Train</button>
+    <button class="btn btn-default" type="submit" >Add Train</button>
+</form>
+
+<form class="form-group" action="/room/start/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <button class="btn btn-default" type="submit" >START</button>
+</form>
+
+<form class="form-group" action="/room/stop/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <button class="btn btn-default" type="submit" >STOP</button>
 </form>
 
 {% endblock %}

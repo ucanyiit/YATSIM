@@ -77,7 +77,7 @@ class Cell(models.Model):
     y = models.PositiveSmallIntegerField(blank=False, null=False)
     type = models.CharField(max_length=1, choices=CELL_TYPES, blank=False, null=False)
     direction = models.CharField(
-        max_length=1, choices=Direction.choices, blank=False, null=False
+        max_length=1, choices=Direction.choices, blank=False, null=False, default="0"
     )
 
     state = models.CharField(max_length=1, choices=State.choices, null=True)

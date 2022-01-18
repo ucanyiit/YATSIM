@@ -11,7 +11,7 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     RoomIdForm,
     UserIdForm,
 )
-from .models import Cell, Room, Train
+from .models import Cell, Room, Train, Wagon
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
@@ -48,14 +48,22 @@ def room_view(request, room_id):
     if user not in room.guests.all() and user != room.owner:
         raise PermissionDenied
 
+    trains = Train.objects.filter(room_id__exact=room_id)
+
+    wagons = {}
+    for train in trains:
+        cur_wagons = Wagon.objects.filter(train=train.pk)
+        for wagon in cur_wagons:
+            wagons[(wagon.y, wagon.x)] = (train.type, wagon.direction)
+
     cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
     cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
     for cell in cell_objects:
-        cells[cell.y][cell.x] = cell
+        cells[cell.y][cell.x] = (cell, wagons.get((cell.y, cell.x)))
+        if wagons.get((cell.y, cell.x)):
+            print(wagons.get((cell.y, cell.x)))
 
     stations = [c for c in cell_objects if c.type == "8"]
-
-    trains = Train.objects.filter(room_id=room_id)
 
     return render(
         request,
@@ -300,12 +308,47 @@ def remove_train(request, room_id):
 
 @login_required
 def start_simulation(request, room_id):
-    pass
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        if room_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user in room.guests.all() or user == room.owner:
+                trains = get_list_or_404(Train, room_id=room.id)
+                with transaction.atomic():
+                    for train in trains:
+                        source = train.source
+                        wagon = Wagon(
+                            x=source.x,
+                            y=source.y,
+                            direction=source.direction,
+                            train=train,
+                        )
+                        wagon.save()
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")
 
 
 @login_required
 def stop_simulation(request, room_id):
-    pass
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        if room_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user in room.guests.all() or user == room.owner:
+                trains = Train.objects.filter(room_id=room.id)
+                with transaction.atomic():
+                    for train in trains:
+                        Wagon.objects.filter(train=train.pk).delete()
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")
 
 
 @login_required

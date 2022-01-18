@@ -82,4 +82,14 @@ urlpatterns = [
         views.remove_train,
         name="remove_train",
     ),
+    path(
+        "room/start/<int:room_id>/",
+        views.start_simulation,
+        name="start",
+    ),
+    path(
+        "room/stop/<int:room_id>/",
+        views.stop_simulation,
+        name="stop",
+    ),
 ]
