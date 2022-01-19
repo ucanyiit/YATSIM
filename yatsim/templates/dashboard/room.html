@@ -140,7 +140,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <label for="train_id">Train:</label>
     <select name="train_id" id="train_id" class="form-control">
         {% for train in trains %}
-            <option value="{{train.id}}">{{train}}</option>
+            <option value="{{train.id}}">Station: ({{train.source.x}}, {{train.source.y}}), Type: {{train.type}}</option>
         {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Remove Train</button>
@@ -158,7 +158,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <label for="station_id">Station:</label>
     <select name="station_id" id="station_id" class="form-control">
         {% for station in stations %}
-        <option value="{{station.id}}">{{station}}</option>
+        <option value="{{station.id}}">{{station.x}}, {{station.y}}</option>
         {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Add Train</button>

@@ -63,8 +63,6 @@ def room_view(request, room_id):
     cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
     for cell in cell_objects:
         cells[cell.y][cell.x] = (cell, wagons.get((cell.y, cell.x)))
-        if wagons.get((cell.y, cell.x)):
-            print(wagons.get((cell.y, cell.x)))
 
     stations = [c for c in cell_objects if c.type == "8"]
 
@@ -376,17 +374,6 @@ def run_simulation(request, room_id):
                             new_x, new_y = get_new_coord(
                                 first_wagon.x, first_wagon.y, first_wagon.direction
                             )
-                            for wagon in wagons:
-                                print(
-                                    wagon.sequence_id, wagon.x, wagon.y, wagon.direction
-                                )
-                            print(
-                                first_wagon.x,
-                                first_wagon.y,
-                                first_wagon.direction,
-                                new_x,
-                                new_y,
-                            )
                             cell = (
                                 Cell.objects.filter(room_id=room.id)
                                 .filter(x=new_x)
@@ -420,9 +407,6 @@ def run_simulation(request, room_id):
                                 str((int(first_wagon.direction) + 2) % 4)
                             )
                             first_wagon.save()
-                            print(first_wagon)
-
-                            print(wagons)
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.
