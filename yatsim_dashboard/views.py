@@ -353,4 +353,84 @@ def stop_simulation(request, room_id):
 
 @login_required
 def run_simulation(request, room_id):
-    pass
+    if request.method == "POST":
+        user = request.user
+        room_form = RoomIdForm(request.POST, request.FILES)
+        if room_form.is_valid():
+            room = get_object_or_404(Room, pk=room_id)
+            if user in room.guests.all() or user == room.owner:
+                step_count = request.POST["step_count"]
+                with transaction.atomic():
+                    for _ in range(0, int(step_count)):
+                        trains = Train.objects.filter(room_id=room.id)
+                        for train in trains:
+                            wagons = Wagon.objects.filter(train=train.pk)
+
+                            first_wagon = wagons[0]
+                            new_x, new_y = get_new_coord(
+                                first_wagon.x, first_wagon.y, first_wagon.direction
+                            )
+                            for wagon in wagons:
+                                print(
+                                    wagon.sequence_id, wagon.x, wagon.y, wagon.direction
+                                )
+                            print(
+                                first_wagon.x,
+                                first_wagon.y,
+                                first_wagon.direction,
+                                new_x,
+                                new_y,
+                            )
+                            cell = (
+                                Cell.objects.filter(room_id=room.id)
+                                .filter(x=new_x)
+                                .filter(y=new_y)
+                            )
+
+                            if not cell:
+                                break
+
+                            for i in range(len(wagons) - 1, 0, -1):
+                                wagon = wagons[i]
+                                front_wagon = wagons[i - 1]
+                                wagon.x = front_wagon.x
+                                wagon.y = front_wagon.y
+                                wagon.direction = front_wagon.direction
+                                wagon.save()
+
+                            if train.length > len(wagons):
+                                source = train.source
+                                wagon = Wagon(
+                                    x=source.x,
+                                    y=source.y,
+                                    direction=source.direction,
+                                    train=train,
+                                )
+                                wagon.save()
+
+                            first_wagon.x = new_x
+                            first_wagon.y = new_y
+                            first_wagon.direction = cell[0].next_cell(
+                                str((int(first_wagon.direction) + 2) % 4)
+                            )
+                            first_wagon.save()
+                            print(first_wagon)
+
+                            print(wagons)
+            else:
+                raise PermissionDenied
+        else:  # TODO: Empty control flow.
+            pass
+    return redirect(f"/room/{room_id}")
+
+
+def get_new_coord(x, y, direction):
+    if direction == "0":
+        return (x, y - 1)
+    if direction == "1":
+        return (x + 1, y)
+    if direction == "2":
+        return (x, y + 1)
+    if direction == "3":
+        return (x - 1, y)
+    raise Exception("Direction is not defined")

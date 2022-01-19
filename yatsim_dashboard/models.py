@@ -142,7 +142,10 @@ class Cell(models.Model):
                 return self.direction
             raise Exception(f"1 cell {self.x}, {self.y}, {entry}")
         if self.type == "2":
+            print("hello")
+            print(self.direction)
             opposite = str((int(self.direction) + 1) % 4)
+            print(opposite)
             if entry == self.direction:
                 return opposite
             if entry == opposite:
@@ -232,4 +235,4 @@ class Wagon(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ("-sequence_id",)
+        ordering = ("sequence_id",)

@@ -92,4 +92,9 @@ urlpatterns = [
         views.stop_simulation,
         name="stop",
     ),
+    path(
+        "room/run/<int:room_id>/",
+        views.run_simulation,
+        name="run",
+    ),
 ]

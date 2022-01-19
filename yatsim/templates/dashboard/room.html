@@ -174,4 +174,14 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <button class="btn btn-default" type="submit" >STOP</button>
 </form>
 
+<form class="form-inline" action="/room/run/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <span class="lead">Run Simulation </span>
+    <label for="step_count">Steps:</label>
+    <input class="form-control" type="number" id="step_count" name="step_count">
+
+    <button class="btn btn-default" type="submit" >Run</button>
+</form>
+
+
 {% endblock %}
