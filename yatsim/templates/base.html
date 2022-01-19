@@ -45,6 +45,9 @@
         .cell {
             position: relative;
         }
+        .form-inline {
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 
@@ -53,7 +56,7 @@
         {% block body %}
         
         {% block header %}
-        <h1>{% block header_text %}header{% endblock %}</h1>
+        <h2>{% block header_text %}header{% endblock %}</h2>
         {% endblock %}
         
         {% block content %}

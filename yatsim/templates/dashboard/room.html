@@ -8,7 +8,7 @@
 Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a>
 
 <h5>
-{{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}, {{room.height}}, {{room.width}}
+{{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}, {{room.height}}, {{room.width}}, {% if running %} Simulation is running {% else %} Simulation is stopped {% endif %}
 </h5>
 
 <h5>
@@ -164,15 +164,19 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <button class="btn btn-default" type="submit" >Add Train</button>
 </form>
 
-<form class="form-inline" action="/room/start/{{room.id}}/" method="post">
-    {% csrf_token %}
-    <button class="btn btn-default" type="submit" >START</button>
-</form>
-
+{% if running %}
 <form class="form-inline" action="/room/stop/{{room.id}}/" method="post">
     {% csrf_token %}
-    <button class="btn btn-default" type="submit" >STOP</button>
+    <span class="lead">Stop Simulation </span>
+    <button class="btn btn-default" type="submit" >Stop</button>
 </form>
+{% else %}
+<form class="form-inline" action="/room/start/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <span class="lead">Start Simulation </span>
+    <button class="btn btn-default" type="submit" >Start</button>
+</form>
+{% endif %}
 
 <form class="form-inline" action="/room/run/{{room.id}}/" method="post">
     {% csrf_token %}

@@ -50,11 +50,14 @@ def room_view(request, room_id):
 
     trains = Train.objects.filter(room_id__exact=room_id)
 
+    running = False
+
     wagons = {}
     for train in trains:
         cur_wagons = Wagon.objects.filter(train=train.pk)
         for wagon in cur_wagons:
             wagons[(wagon.y, wagon.x)] = (train.type, wagon.direction)
+            running = True
 
     cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
     cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
@@ -76,6 +79,7 @@ def room_view(request, room_id):
             "cells": cells,
             "stations": stations,
             "trains": trains,
+            "running": running,
         },
     )
 
@@ -317,6 +321,8 @@ def start_simulation(request, room_id):
                 trains = get_list_or_404(Train, room_id=room.id)
                 with transaction.atomic():
                     for train in trains:
+                        if Wagon.objects.filter(train=train):
+                            raise Exception("Simulation is already started")
                         source = train.source
                         wagon = Wagon(
                             x=source.x,
