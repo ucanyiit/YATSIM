@@ -122,7 +122,7 @@ def clone_room(request, room_id):
         user = request.user
         form = RoomCloneForm(request.POST, request.FILES)
         if form.is_valid():
-            try:
+            with transaction.atomic():
                 room = get_object_or_404(Room, pk=room_id)
                 new_room = Room.objects.create(
                     owner=user,
@@ -131,8 +131,20 @@ def clone_room(request, room_id):
                     width=room.width,
                 )
                 new_room.save()
-            except:  # TODO: Bare except.
-                pass
+                cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+                for cell in cell_objects:
+                    new_cell = get_object_or_404(
+                        Cell, room_id=new_room.id, x=cell.x, y=cell.y
+                    )
+                    new_cell.delete()
+                    new_cell = Cell(
+                        x=cell.x,
+                        y=cell.y,
+                        room_id=new_room,
+                        type=cell.type,
+                        direction=cell.direction,
+                    )
+                    new_cell.save()
         else:  # TODO: Empty control flow.
             pass
     return redirect("/dashboard")
@@ -382,31 +394,35 @@ def run_simulation(request, room_id):
 
                             if not cell:
                                 break
-
-                            for i in range(len(wagons) - 1, 0, -1):
-                                wagon = wagons[i]
-                                front_wagon = wagons[i - 1]
-                                wagon.x = front_wagon.x
-                                wagon.y = front_wagon.y
-                                wagon.direction = front_wagon.direction
-                                wagon.save()
-
-                            if train.length > len(wagons):
-                                source = train.source
-                                wagon = Wagon(
-                                    x=source.x,
-                                    y=source.y,
-                                    direction=source.direction,
-                                    train=train,
+                            try:
+                                next_direction = cell[0].next_cell(
+                                    str((int(first_wagon.direction) + 2) % 4)
                                 )
-                                wagon.save()
 
-                            first_wagon.x = new_x
-                            first_wagon.y = new_y
-                            first_wagon.direction = cell[0].next_cell(
-                                str((int(first_wagon.direction) + 2) % 4)
-                            )
-                            first_wagon.save()
+                                for i in range(len(wagons) - 1, 0, -1):
+                                    wagon = wagons[i]
+                                    front_wagon = wagons[i - 1]
+                                    wagon.x = front_wagon.x
+                                    wagon.y = front_wagon.y
+                                    wagon.direction = front_wagon.direction
+                                    wagon.save()
+
+                                if train.length > len(wagons):
+                                    source = train.source
+                                    wagon = Wagon(
+                                        x=source.x,
+                                        y=source.y,
+                                        direction=source.direction,
+                                        train=train,
+                                    )
+                                    wagon.save()
+
+                                first_wagon.x = new_x
+                                first_wagon.y = new_y
+                                first_wagon.direction = next_direction
+                                first_wagon.save()
+                            except:
+                                pass
             else:
                 raise PermissionDenied
         else:  # TODO: Empty control flow.

@@ -97,6 +97,11 @@ class Cell(models.Model):
                 f"height={room.height} does not permit this placement"
             )
 
+    def save(self, *args, **kwargs):
+        if self.type in ["3", "4", "5"] and self.pk is None:
+            self.state = "1"
+        super().save(*args, **kwargs)
+
     class Meta:
         unique_together = (("room_id", "x", "y"),)
 
@@ -170,7 +175,7 @@ class Cell(models.Model):
         if self.type == "5":
             if entry != self.direction:
                 return self.direction
-            return str((int(self.direction) + 1 + int(entry)) % 4)
+            return str((int(self.direction) + 1 + int(self.state)) % 4)
 
         if self.type in ["6", "7"]:
             return str((int(self.direction) + 2) % 4)

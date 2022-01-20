@@ -134,6 +134,23 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 
 <h4>Simulation Operations:</h4>
 
+{% if running %}
+<form class="form-inline" action="/room/stop/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <span class="lead">Stop Simulation </span>
+    <button class="btn btn-default" type="submit" >Stop</button>
+</form>
+
+<form class="form-inline" action="/room/run/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <span class="lead">Run Simulation </span>
+    <label for="step_count">Steps:</label>
+    <input class="form-control" type="number" id="step_count" name="step_count">
+
+    <button class="btn btn-default" type="submit" >Run</button>
+</form>
+{% else %}
+
 <form class="form-inline" action="/room/remove_train/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Remove Train </span>
@@ -164,28 +181,12 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <button class="btn btn-default" type="submit" >Add Train</button>
 </form>
 
-{% if running %}
-<form class="form-inline" action="/room/stop/{{room.id}}/" method="post">
-    {% csrf_token %}
-    <span class="lead">Stop Simulation </span>
-    <button class="btn btn-default" type="submit" >Stop</button>
-</form>
-{% else %}
 <form class="form-inline" action="/room/start/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Start Simulation </span>
     <button class="btn btn-default" type="submit" >Start</button>
 </form>
 {% endif %}
-
-<form class="form-inline" action="/room/run/{{room.id}}/" method="post">
-    {% csrf_token %}
-    <span class="lead">Run Simulation </span>
-    <label for="step_count">Steps:</label>
-    <input class="form-control" type="number" id="step_count" name="step_count">
-
-    <button class="btn btn-default" type="submit" >Run</button>
-</form>
 
 
 {% endblock %}
