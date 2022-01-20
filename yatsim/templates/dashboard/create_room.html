@@ -5,6 +5,8 @@
 
 {% block content %}
 
+Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a>
+
 {% if form.errors %}
 <p>Form error</p>
 {% endif %}
@@ -15,7 +17,7 @@
     <table>
         {{ form.as_table }}
     </table>
-    <button type="submit" >HODL</button>
+    <button class="btn btn-default" type="submit" >HODL</button>
 </form>
 <br>
 

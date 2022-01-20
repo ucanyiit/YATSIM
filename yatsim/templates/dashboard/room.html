@@ -8,8 +8,10 @@
 Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url "dashboard" %}>dashboard</a>
 
 <h5>
-{{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}, {{room.height}}, {{room.width}}, {% if running %} Simulation is running {% else %} Simulation is stopped {% endif %}
+{{room.id}}: <b>{{room.owner.username}}</b>/{{ room.room_name }}, height: {{room.height}}, width: {{room.width}}, {% if running %} Simulation is running 🚀 {% else %} Simulation is stopped 🌱 {% endif %}
 </h5>
+
+<button class="btn btn-default" onClick="window.location.reload();">Refresh Page</button>
 
 <h5>
     Guests:
@@ -49,15 +51,15 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/place/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Place </span>
-    <label for="x">X:</label>
-    <input  class="form-control" type="number" id="x" name="x" required>
-    <label for="y">Y:</label>
-    <input  class="form-control" type="number" id="y" name="y" required>
-    <label for="type">Cell Type:</label>
+    <label for="x">X </label>
+    <input class="form-control" type="number" id="x" name="x" min="1" max="{{room.width}}" required>
+    <label for="y">Y </label>
+    <input class="form-control" type="number" id="y" name="y" min="1" max="{{room.height}}" required>
+    <label for="type">Cell Type </label>
     <select name="type" id="type" class="form-control">
-    {% for choice in cell_types %}
-        <option value="{{choice.0}}">{{choice.1}}</option>
-    {% endfor %}
+        {% for choice in cell_types %}
+            <option value="{{choice.0}}">{{choice.1}}</option>
+        {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Place Cell</button>
 </form>
@@ -65,15 +67,15 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/rotate/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Rotate </span>
-    <label for="x">X:</label>
-    <input  class="form-control" type="number" id="x" name="x" required>
-    <label for="y">Y:</label>
-    <input  class="form-control" type="number" id="y" name="y" required>
-    <label for="direction">Direction:</label>
+    <label for="x">X </label>
+    <input class="form-control" type="number" id="x" name="x" min="1" max="{{room.width}}" required>
+    <label for="y">Y </label>
+    <input class="form-control" type="number" id="y" name="y" min="1" max="{{room.height}}" required>
+    <label for="direction">Direction </label>
     <select name="direction" id="direction" class="form-control">
-    {% for direction in directions %}
-        <option value="{{direction.0}}">{{direction.1}}</option>
-    {% endfor %}
+        {% for direction in directions %}
+            <option value="{{direction.0}}">{{direction.1}}</option>
+        {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Rotate Cell</button>
 </form>
@@ -90,13 +92,13 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <button class="btn btn-default" type="submit" >Switch Cell</button>
 </form>
 
-<h4>Room Operations:</h4>
+<h4>Room Operations </h4>
 
 <form class="form-inline" action="/room/clone/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Clone </span>
-    <label for="room_name">Room name:</label>
-    <input  class="form-control" type="text" id="room_name" name="room_name">
+    <label for="room_name">Room name </label>
+    <input class="form-control" type="text" id="room_name" name="room_name" required>
 
     <button class="btn btn-default" type="submit" >Clone</button>
 </form>
@@ -111,7 +113,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/add/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Add User </span>
-    <label for="user_id">User:</label>
+    <label for="user_id">User </label>
     <select name="user_id" id="add_username" class="form-control">
         {% for u in users %}
         <option value="{{u.id}}">{{u.username}}</option>
@@ -124,7 +126,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/remove/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Remove User </span>
-    <label for="user_id">User:</label>
+    <label for="user_id">User </label>
     <select name="user_id" id="rem_username" class="form-control">
         {% for u in room.guests.all %}
             <option value="{{u.id}}">{{u.username}}</option>
@@ -141,7 +143,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 </form>
 {% endif %}
 
-<h4>Simulation Operations:</h4>
+<h4>Simulation Operations </h4>
 
 {% if running %}
 <form class="form-inline" action="/room/stop/{{room.id}}/" method="post">
@@ -153,17 +155,22 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/run/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Run Simulation </span>
-    <label for="step_count">Steps:</label>
-    <input class="form-control" type="number" id="step_count" name="step_count">
+    <label for="step_count">Steps </label>
+    <input class="form-control" type="number" id="step_count" name="step_count" min="1" max="100" value="1">
 
     <button class="btn btn-default" type="submit" >Run</button>
 </form>
 {% else %}
+<form class="form-inline" action="/room/start/{{room.id}}/" method="post">
+    {% csrf_token %}
+    <span class="lead">Start Simulation </span>
+    <button class="btn btn-default" type="submit" >Start</button>
+</form>
 
 <form class="form-inline" action="/room/remove_train/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Remove Train </span>
-    <label for="train_id">Train:</label>
+    <label for="train_id">Train </label>
     <select name="train_id" id="train_id" class="form-control">
         {% for train in trains %}
             <option value="{{train.id}}">Station: ({{train.source.x}}, {{train.source.y}}), Type: {% if train.type == "0" %}Mitski{% else %}Lady Gaga{% endif %}</option>
@@ -175,27 +182,22 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 <form class="form-inline" action="/room/add_train/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Add Train </span>
-    <label for="train_type">Type:</label>
+    <label for="train_type">Type </label>
     <select name="train_type" id="station_id" class="form-control">
         <option value="0">Mitski</option>
         <option value="1">Lady Gaga</option>
     </select>
-    <label for="train_length">Length:</label>
-    <input  class="form-control" type="number" id="train_length" name="train_length">
 
-    <label for="station_id">Station:</label>
+    <label for="train_length">Length </label>
+    <input class="form-control" type="number" id="train_length" name="train_length" min="1" max="100" required>
+
+    <label for="station_id">Station </label>
     <select name="station_id" id="station_id" class="form-control">
         {% for station in stations %}
         <option value="{{station.id}}">({{station.x}}, {{station.y}})</option>
         {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Add Train</button>
-</form>
-
-<form class="form-inline" action="/room/start/{{room.id}}/" method="post">
-    {% csrf_token %}
-    <span class="lead">Start Simulation </span>
-    <button class="btn btn-default" type="submit" >Start</button>
 </form>
 {% endif %}
 
