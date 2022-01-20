@@ -1,7 +1,7 @@
 {% extends "../base.html" %}
 {% load static %}
 
-{% block header_text %}Dashboard{% endblock %}
+{% block header_text %}{{ room.room_name }}{% endblock %}
 
 {% block content %}
 
@@ -15,14 +15,12 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 
 <h5>
     Guests:
-</h5>
-<ol>
     {% for u in room.guests.all %}
-        <li>{{u.username}}</li>
+        {{u.username}}, 
     {% empty %}
         No guests :(
     {% endfor %}
-</ol>
+</h5>
 
 
 <center>
@@ -32,10 +30,10 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
             {% for cell in cell_row %}
             <td>
                 <div class="cell">
-                    <img class="direction{{cell.0.direction}}" width="32" height="32" src="{% static 'cells/' %}type{{cell.0.type}}.png"/>
-                    {% if cell.1 %}
-                    <img class="train direction{{cell.1.1}}" width="32" height="32" src="{% static 'trains/' %}type{{cell.1.0}}.png"/>
-                    {% endif %}
+                    <img class="direction{{cell.0.direction}}" width="48" height="48" src="{% static 'cells/' %}type{{cell.0.type}}.png"/>
+                    {% for wagon in cell.1 %}
+                        <img class="train direction{{wagon.1}}" width="48" height="48" src="{% static 'trains/' %}type{{wagon.0}}.png"/>
+                    {% endfor %}
                 </div>
             </td>
             {% endfor %}
@@ -45,16 +43,16 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
 </center>
 
 <h4>
-    Cell Operations:
+    Cell Operations
 </h4>
 
 <form class="form-inline" action="/room/place/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Place </span>
     <label for="x">X </label>
-    <input class="form-control" type="number" id="x" name="x" min="1" max="{{room.width}}" required>
+    <input class="form-control" type="number" id="x" name="x" min="0" max="{{room.width_lim}}" required>
     <label for="y">Y </label>
-    <input class="form-control" type="number" id="y" name="y" min="1" max="{{room.height}}" required>
+    <input class="form-control" type="number" id="y" name="y" min="0" max="{{room.height_lim}}" required>
     <label for="type">Cell Type </label>
     <select name="type" id="type" class="form-control">
         {% for choice in cell_types %}
@@ -68,9 +66,9 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% csrf_token %}
     <span class="lead">Rotate </span>
     <label for="x">X </label>
-    <input class="form-control" type="number" id="x" name="x" min="1" max="{{room.width}}" required>
+    <input class="form-control" type="number" id="x" name="x" min="0" max="{{room.width_lim}}" required>
     <label for="y">Y </label>
-    <input class="form-control" type="number" id="y" name="y" min="1" max="{{room.height}}" required>
+    <input class="form-control" type="number" id="y" name="y" min="0" max="{{room.height_lim}}" required>
     <label for="direction">Direction </label>
     <select name="direction" id="direction" class="form-control">
         {% for direction in directions %}

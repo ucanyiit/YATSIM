@@ -44,6 +44,8 @@ def room_view(request, room_id):
     users = User.objects.exclude(id__exact=user.id).exclude(
         id__in=[room.id for room in room.guests.all()]
     )
+    room.width_lim = room.width - 1
+    room.height_lim = room.height - 1
 
     if user not in room.guests.all() and user != room.owner:
         raise PermissionDenied
@@ -53,16 +55,23 @@ def room_view(request, room_id):
     running = False
 
     wagons = {}
+    for y in range(room.height):
+        for x in range(room.width):
+            wagons[(y, x)] = []
+
     for train in trains:
         cur_wagons = Wagon.objects.filter(train=train.pk)
         for wagon in cur_wagons:
-            wagons[(wagon.y, wagon.x)] = (train.type, wagon.direction)
+            wagons[(wagon.y, wagon.x)].append((train.type, wagon.direction))
             running = True
 
     cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
     cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
     for cell in cell_objects:
-        cells[cell.y][cell.x] = (cell, wagons.get((cell.y, cell.x)))
+        cell_view = cell
+        if cell.state:
+            cell_view.type = cell_view.type + cell_view.state
+        cells[cell.y][cell.x] = (cell_view, wagons.get((cell.y, cell.x)))
 
     stations = [c for c in cell_objects if c.type == "8"]
     statefuls = [
