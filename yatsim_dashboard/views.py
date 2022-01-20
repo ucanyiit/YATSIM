@@ -226,6 +226,8 @@ def place_cell(request, room_id):
                 if int(cell_type) > 8 or int(cell_type) < 0:
                     raise Exception("Cell type is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                if cell.has_wagon():
+                    raise Exception("Cell has a wagon on it.")
                 with transaction.atomic():
                     cell.delete()
                     cell = Cell(x=x, y=y, room_id=room, type=cell_type)
@@ -242,16 +244,15 @@ def switch_cell(request, room_id):
     if request.method == "POST":
         user = request.user
         room_form = RoomIdForm(request.POST, request.FILES)
-        # cell_form = SwitchCellForm(request.POST, request.FILES)
         if room_form.is_valid():
             room = get_object_or_404(Room, pk=room_id)
             if user in room.guests.all() or user == room.owner:
                 data = request.POST
-                # x = data["x"]
-                # y = data["y"]
                 cell = get_object_or_404(
                     Cell, room_id=room.id, id=data["stateful_cell"]
                 )
+                if cell.has_wagon():
+                    raise Exception("The cell has a wagon on it")
                 cell.switch_state()
             else:
                 raise PermissionDenied
@@ -276,6 +277,8 @@ def rotate_cell(request, room_id):
                 if int(direction) > 3 or int(direction) < 0:
                     raise Exception("Direction is not defined.")
                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                if cell.has_wagon():
+                    raise Exception("The cell has a wagon on it")
                 cell.rotate(str(direction))
             else:
                 raise PermissionDenied

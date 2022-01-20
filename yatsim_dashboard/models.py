@@ -99,6 +99,15 @@ class Cell(models.Model):
                 f"height={room.height} does not permit this placement"
             )
 
+    def has_wagon(self):
+        return (
+            Cell.objects.filter(
+                models.Q(room_id__train__wagon__x=self.x)
+                & models.Q(room_id__train__wagon__y=self.y)
+            ).count()
+            != 0
+        )
+
     def save(self, *args, **kwargs):
         if self.type in ["3", "4", "5"] and self.pk is None:
             self.state = "1"
