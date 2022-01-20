@@ -65,6 +65,11 @@ def room_view(request, room_id):
         cells[cell.y][cell.x] = (cell, wagons.get((cell.y, cell.x)))
 
     stations = [c for c in cell_objects if c.type == "8"]
+    statefuls = [
+        (c, Cell.CELL_TYPES[int(c.type)][1])
+        for c in cell_objects
+        if c.type in ["3", "4", "5"]
+    ]
 
     return render(
         request,
@@ -78,6 +83,9 @@ def room_view(request, room_id):
             "stations": stations,
             "trains": trains,
             "running": running,
+            "cell_types": Cell.CELL_TYPES,
+            "directions": Cell.Direction.choices,
+            "stateful_cells": statefuls,
         },
     )
 
@@ -239,9 +247,11 @@ def switch_cell(request, room_id):
             room = get_object_or_404(Room, pk=room_id)
             if user in room.guests.all() or user == room.owner:
                 data = request.POST
-                x = data["x"]
-                y = data["y"]
-                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+                # x = data["x"]
+                # y = data["y"]
+                cell = get_object_or_404(
+                    Cell, room_id=room.id, id=data["stateful_cell"]
+                )
                 cell.switch_state()
             else:
                 raise PermissionDenied

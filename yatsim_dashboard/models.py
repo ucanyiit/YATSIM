@@ -1,5 +1,7 @@
 """Models displayed in main page."""
 
+from typing import cast
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -175,7 +177,8 @@ class Cell(models.Model):
         if self.type == "5":
             if entry != self.direction:
                 return self.direction
-            return str((int(self.direction) + 1 + int(self.state)) % 4)
+            s: int = int(cast(str, self.state))
+            return str((int(self.direction) + 1 + s) % 4)
 
         if self.type in ["6", "7"]:
             return str((int(self.direction) + 2) % 4)

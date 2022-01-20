@@ -50,11 +50,15 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% csrf_token %}
     <span class="lead">Place </span>
     <label for="x">X:</label>
-    <input  class="form-control" type="number" id="x" name="x">
+    <input  class="form-control" type="number" id="x" name="x" required>
     <label for="y">Y:</label>
-    <input  class="form-control" type="number" id="y" name="y">
+    <input  class="form-control" type="number" id="y" name="y" required>
     <label for="type">Cell Type:</label>
-    <input  class="form-control" type="number" id="type" name="type">
+    <select name="type" id="type" class="form-control">
+    {% for choice in cell_types %}
+        <option value="{{choice.0}}">{{choice.1}}</option>
+    {% endfor %}
+    </select>
     <button class="btn btn-default" type="submit" >Place Cell</button>
 </form>
 
@@ -62,22 +66,27 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% csrf_token %}
     <span class="lead">Rotate </span>
     <label for="x">X:</label>
-    <input  class="form-control" type="number" id="x" name="x">
+    <input  class="form-control" type="number" id="x" name="x" required>
     <label for="y">Y:</label>
-    <input  class="form-control" type="number" id="y" name="y">
+    <input  class="form-control" type="number" id="y" name="y" required>
     <label for="direction">Direction:</label>
-    <input  class="form-control" type="number" id="direction" name="direction">
+    <select name="direction" id="direction" class="form-control">
+    {% for direction in directions %}
+        <option value="{{direction.0}}">{{direction.1}}</option>
+    {% endfor %}
+    </select>
     <button class="btn btn-default" type="submit" >Rotate Cell</button>
 </form>
 
 <form class="form-inline" action="/room/switch/{{room.id}}/" method="post">
     {% csrf_token %}
     <span class="lead">Switch </span>
-    <label for="x">X:</label>
-    <input  class="form-control" type="number" id="x" name="x">
-    <label for="y">Y:</label>
-    <input  class="form-control" type="number" id="y" name="y">
-
+    <label for="stateful_cell">Stateful Cell:</label>
+    <select name="stateful_cell" id="stateful_cell" class="form-control">
+    {% for stateful in stateful_cells %}
+        <option value="{{stateful.0.id}}">({{stateful.0.x}}, {{stateful.0.y}}): {{stateful.1}}</option>
+    {% endfor %}
+    </select>
     <button class="btn btn-default" type="submit" >Switch Cell</button>
 </form>
 
@@ -157,7 +166,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     <label for="train_id">Train:</label>
     <select name="train_id" id="train_id" class="form-control">
         {% for train in trains %}
-            <option value="{{train.id}}">Station: ({{train.source.x}}, {{train.source.y}}), Type: {{train.type}}</option>
+            <option value="{{train.id}}">Station: ({{train.source.x}}, {{train.source.y}}), Type: {% if train.type == "0" %}Mitski{% else %}Lady Gaga{% endif %}</option>
         {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Remove Train</button>
@@ -167,15 +176,17 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
     {% csrf_token %}
     <span class="lead">Add Train </span>
     <label for="train_type">Type:</label>
-    <input  class="form-control" type="text" id="train_type" name="train_type">
-
+    <select name="train_type" id="station_id" class="form-control">
+        <option value="0">Mitski</option>
+        <option value="1">Lady Gaga</option>
+    </select>
     <label for="train_length">Length:</label>
     <input  class="form-control" type="number" id="train_length" name="train_length">
 
     <label for="station_id">Station:</label>
     <select name="station_id" id="station_id" class="form-control">
         {% for station in stations %}
-        <option value="{{station.id}}">{{station.x}}, {{station.y}}</option>
+        <option value="{{station.id}}">({{station.x}}, {{station.y}})</option>
         {% endfor %}
     </select>
     <button class="btn btn-default" type="submit" >Add Train</button>
