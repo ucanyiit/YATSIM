@@ -30,7 +30,7 @@ Hello {{ user.username }}, <a href={% url "logout" %}>logout</a> <a href={% url 
             {% for cell in cell_row %}
             <td>
                 <div class="cell">
-                    <img class="direction{{cell.0.direction}}" width="48" height="48" src="{% static 'cells/' %}type{{cell.0.type}}.png"/>
+                    <img class="direction{{cell.0.direction}}" width="48" height="48" src="{% static 'cells/' %}type{{cell.0.type_view}}.png"/>
                     {% for wagon in cell.1 %}
                         <img class="train direction{{wagon.1}}" width="48" height="48" src="{% static 'trains/' %}type{{wagon.0}}.png"/>
                     {% endfor %}

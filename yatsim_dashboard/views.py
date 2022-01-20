@@ -69,8 +69,9 @@ def room_view(request, room_id):
     cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
     for cell in cell_objects:
         cell_view = cell
+        cell_view.type_view = cell_view.type
         if cell.state:
-            cell_view.type = cell_view.type + cell_view.state
+            cell_view.type_view += cell_view.state
         cells[cell.y][cell.x] = (cell_view, wagons.get((cell.y, cell.x)))
 
     stations = [c for c in cell_objects if c.type == "8"]
@@ -415,7 +416,7 @@ def run_simulation(request, room_id):
                             )
 
                             if not cell:
-                                break
+                                continue
                             try:
                                 next_direction = cell[0].next_cell(
                                     str((int(first_wagon.direction) + 2) % 4)
