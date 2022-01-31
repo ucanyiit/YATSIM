@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
 
@@ -21,14 +22,20 @@ from .models import Cell, Room, Train, Wagon
 # Implement a robusts checking mechanism.
 
 
+def success(result):
+    return JsonResponse({"response": "success", "result": result})
+
+
+def error(message):
+    return JsonResponse({"response": "error", "message": message})
+
+
 @login_required
 def index(request):
     user = request.user
     owned_rooms = Room.objects.filter(owner=user)
     guest_rooms = Room.objects.filter(guests=user)
-    return render(
-        request,
-        "dashboard/index.html",
+    return success(
         {
             "user": user,
             "owned_rooms": owned_rooms,
