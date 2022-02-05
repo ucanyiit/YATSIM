@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
+import RequestHandler from '../utils/RequestHandler';
 
 const Dashboard = ({ goRoom }) => {
   const [loading, setLoading] = useState(false);
@@ -8,10 +9,9 @@ const Dashboard = ({ goRoom }) => {
 
   if (!loading && !failedToLoad && !data) {
     setLoading(true);
-    fetch('http://localhost:8000/dashboard')
+    (new RequestHandler()).request('dashboard', 'get')
       .then((response) => {
-        if (response.status >= 200 && response.status < 300 && response.data.response === 'success') setData(response.data.result);
-        else setFailed(true);
+        setData(response);
       })
       .catch(() => setFailed(true))
       .finally(() => setLoading(false));
