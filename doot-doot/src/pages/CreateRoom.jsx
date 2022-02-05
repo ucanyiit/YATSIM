@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
-const CreateRoom = () => {
+const CreateRoom = ({ goHome }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [room_name, setRoomName] = useState('');
@@ -21,6 +21,7 @@ const CreateRoom = () => {
           (new RequestHandler()).request('create_room', 'post', { height, width, room_name })
             .then((response) => {
               console.log('yes', response);
+              goHome();
             })
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));

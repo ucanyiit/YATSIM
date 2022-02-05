@@ -1,6 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
@@ -23,14 +22,6 @@ from .models import Cell, Room, Train, Wagon
 # Implement a robusts checking mechanism.
 
 
-def success(result):
-    return JsonResponse({"response": "success", "result": result})
-
-
-def error(message):
-    return JsonResponse({"response": "error", "message": message})
-
-
 # @login_required
 def index(request):
     # user = request.user
@@ -39,7 +30,7 @@ def index(request):
     guest_rooms = Room.objects.filter(guests=user)
     # active_players, cell, created_at, guests, height, id, owner, owner_id, room_name, train, updated_at, width
 
-    return success(
+    return JsonResponse(
         {
             "user": {"username": user.username},
             "owned_rooms": list(

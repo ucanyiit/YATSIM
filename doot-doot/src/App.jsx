@@ -66,8 +66,8 @@ const App = () => {
       />
       )}
       {page === 'room' && <Room id={roomId} />}
-      {page === 'create' && <CreateRoom id={roomId} />}
-      {page === 'login' && <Login />}
+      {page === 'create' && <CreateRoom id={roomId} goHome={() => setPage('home')} />}
+      {page === 'login' && <Login goHome={() => setPage('home')} />}
       <Button onClick={() => {
         socket.send('ping');
       }}

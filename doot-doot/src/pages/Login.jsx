@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
-const Login = () => {
+const Login = ({ goHome }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [username, setUsername] = useState('');
@@ -16,12 +16,11 @@ const Login = () => {
       <Form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(password, username);
           setLoading(true);
-          (new RequestHandler()).request('dashboard/login', 'post', { password, username })
+          (new RequestHandler()).request('api/auth/login/', 'post', { password, username })
             .then((response) => {
-              console.log('yes', response);
               localStorage.setItem('token', response.token);
+              goHome();
             })
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));

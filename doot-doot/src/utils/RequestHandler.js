@@ -19,29 +19,29 @@ export default class RequestHandler {
       case 'post':
         response = await fetch(url, {
           method: 'POST',
-          body: data,
-          headers: this.headers,
+          body: JSON.stringify(data),
+          headers: { ...this.headers, 'Content-Type': 'application/json' },
         });
         break;
       case 'put':
         response = await fetch(url, {
           method: 'PUT',
-          body: data,
-          headers: this.headers,
+          body: JSON.stringify(data),
+          headers: { ...this.headers, 'Content-Type': 'application/json' },
         });
         break;
       case 'delete':
         response = await fetch(url, {
           method: 'DELETE',
-          body: data,
-          headers: this.headers,
+          body: JSON.stringify(data),
+          headers: { ...this.headers, 'Content-Type': 'application/json' },
         });
         break;
       default:
         throw Error('Undefined requestType');
     }
 
-    if (response.status >= 200 && response.status < 400) return (await response.json()).result;
+    if (response.status >= 200 && response.status < 400) return response.json();
 
     throw Error(response.data);
   }
