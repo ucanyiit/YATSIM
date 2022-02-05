@@ -1,21 +1,13 @@
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import RequestHandler from '../utils/RequestHandler';
 
 const CreateRoom = () => {
   const [loading, setLoading] = useState(false);
-  const [failedToLoad, setFailed] = useState(false);
-  const [name, setName] = useState('');
+  const [failed, setFailed] = useState(false);
+  const [room_name, setRoomName] = useState('');
   const [width, setWidth] = useState('');
   const [height, setHeight] = useState('');
-
-  if (loading || failedToLoad) {
-    return (
-      <div>
-        {failedToLoad && 'Failed to load'}
-        {loading && 'Loading..'}
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -25,9 +17,8 @@ const CreateRoom = () => {
       <Form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(height, width, name);
           setLoading(true);
-          fetch('http://localhost:8000/dashboard')
+          (new RequestHandler()).request('create_room', 'post', { height, width, room_name })
             .then((response) => {
               console.log('yes', response);
             })
@@ -37,7 +28,7 @@ const CreateRoom = () => {
       >
         <Form.Group className="mb-3" controlId="name">
           <Form.Label>Room Name</Form.Label>
-          <Form.Control type="text" placeholder="Name" onChange={(e) => setName(e.target.value)} required />
+          <Form.Control type="text" placeholder="Name" onChange={(e) => setRoomName(e.target.value)} required />
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="width">
@@ -49,8 +40,12 @@ const CreateRoom = () => {
           <Form.Label>Height</Form.Label>
           <Form.Control type="number" placeholder="Height" onChange={(e) => setHeight(e.target.value)} min={1} max={100} required />
         </Form.Group>
-
-        <Button variant="primary" type="submit">
+        {failed && (
+        <p>
+          Failed to create a room.
+        </p>
+        )}
+        <Button loading={loading} disabled={loading} variant="primary" type="submit">
           Create
         </Button>
       </Form>

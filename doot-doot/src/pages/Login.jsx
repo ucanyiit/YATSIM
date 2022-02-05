@@ -1,20 +1,12 @@
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import RequestHandler from '../utils/RequestHandler';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const [failedToLoad, setFailed] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
-  if (loading || failedToLoad) {
-    return (
-      <div>
-        {failedToLoad && 'Failed to load'}
-        {loading && 'Loading..'}
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -26,9 +18,10 @@ const Login = () => {
           e.preventDefault();
           console.log(password, username);
           setLoading(true);
-          fetch('http://localhost:8000/dashboard')
+          (new RequestHandler()).request('dashboard/login', 'post', { password, username })
             .then((response) => {
               console.log('yes', response);
+              localStorage.setItem('token', response.token);
             })
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
@@ -44,7 +37,12 @@ const Login = () => {
           <Form.Control type="password" placeholder="Passowrd" onChange={(e) => setPassword(e.target.value)} required />
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        {failed && (
+        <p>
+          Failed to login.
+        </p>
+        )}
+        <Button loading={loading} disabled={loading} variant="primary" type="submit">
           Login
         </Button>
       </Form>

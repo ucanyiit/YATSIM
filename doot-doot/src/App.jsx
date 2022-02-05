@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Button, Container } from 'react-bootstrap';
 import CreateRoom from './pages/CreateRoom';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 import Room from './pages/Room';
 
 const App = () => {
   const [page, setPage] = useState('home');
   const [roomId, setRoomId] = useState('');
   const [socket, setSocket] = useState(null);
+  const token = localStorage.getItem('token');
 
   if (!socket) {
     console.log('enter', socket);
@@ -35,12 +37,26 @@ const App = () => {
   return (
     <Container className="mt-3">
       <div className="mb-3">
-        <Button onClick={() => setPage('home')} className="me-2">
+        <Button className="me-2" onClick={() => setPage('home')}>
           Home
         </Button>
-        <Button onClick={() => setPage('create')}>
+        <Button className="me-2" onClick={() => setPage('create')}>
           Create Room
         </Button>
+        {!token && (
+        <Button onClick={() => setPage('login')}>
+          Login
+        </Button>
+        )}
+        {token && (
+          <Button onClick={() => {
+            localStorage.removeItem('token');
+            window.location.reload(false);
+          }}
+          >
+            Logout
+          </Button>
+        )}
       </div>
       {page === 'home' && (
       <Dashboard goRoom={(room_id) => {
@@ -51,6 +67,7 @@ const App = () => {
       )}
       {page === 'room' && <Room id={roomId} />}
       {page === 'create' && <CreateRoom id={roomId} />}
+      {page === 'login' && <Login />}
       <Button onClick={() => {
         socket.send('ping');
       }}

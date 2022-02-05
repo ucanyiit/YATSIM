@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import RequestHandler from '../utils/RequestHandler';
 
 const Room = ({ id }) => {
   const [loading, setLoading] = useState(false);
@@ -7,10 +8,9 @@ const Room = ({ id }) => {
 
   if (!loading && !failedToLoad && !data) {
     setLoading(true);
-    fetch('http://localhost:8000/dashboard')
+    (new RequestHandler()).request(`room/${id}`, 'get')
       .then((response) => {
-        if (response.status >= 200 && response.status < 300 && response.data.response === 'success') setData(response.data.result);
-        else setFailed(true);
+        setData(response);
       })
       .catch(() => setFailed(true))
       .finally(() => setLoading(false));
