@@ -5,6 +5,9 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
+from rest_framework.views import APIView, Response
+from rest_framework.permissions import IsAuthenticated
+
 
 from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     RoomCloneForm,
@@ -14,6 +17,8 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
 )
 from .models import Cell, Room, Train, Wagon
 
+from .serializers import DashboardSerializer
+
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
 
@@ -22,25 +27,17 @@ from .models import Cell, Room, Train, Wagon
 # Implement a robusts checking mechanism.
 
 
-# @login_required
-def index(request):
-    # user = request.user
-    user = User.objects.get(username="ucanyiit")
-    owned_rooms = Room.objects.filter(owner=user)
-    guest_rooms = Room.objects.filter(guests=user)
-    # active_players, cell, created_at, guests, height, id, owner, owner_id, room_name, train, updated_at, width
+class DashboardAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
 
-    return JsonResponse(
-        {
-            "user": {"username": user.username},
-            "owned_rooms": list(
-                owned_rooms.values("owner__username", "room_name", "id")
-            ),
-            "guest_rooms": list(
-                guest_rooms.values("owner__username", "room_name", "id")
-            ),
-        },
-    )
+    def get(self, request):
+        user = request.user
+        owned_rooms = Room.objects.filter(owner=user)
+        guest_rooms = Room.objects.filter(guests=user)
+        obj = DashboardSerializer(data= {"owned_rooms": owned_rooms, "guest_rooms": guest_rooms, "user": user})
+        obj.is_valid()
+        return Response(obj.data)
+
 
 
 @login_required
