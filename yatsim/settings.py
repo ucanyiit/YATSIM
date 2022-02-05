@@ -41,8 +41,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
-    "yatsim_dashboard",
+    "rest_framework",
+    "rest_framework.authtoken",
     "yatsim",
+    "yatsim_dashboard",
+    "yatsim_user",
 ]
 
 MIDDLEWARE = [
@@ -63,6 +66,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.165",
     "http://192.168.1.165:3006",
 ]
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+}
 
 ROOT_URLCONF = "yatsim.urls"
 
