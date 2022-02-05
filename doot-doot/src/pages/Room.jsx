@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Button } from 'react-bootstrap';
 
-const Dashboard = ({ goRoom }) => {
+const Room = ({ id }) => {
   const [loading, setLoading] = useState(false);
   const [failedToLoad, setFailed] = useState(false);
   const [data, setData] = useState(null);
@@ -29,33 +28,11 @@ const Dashboard = ({ goRoom }) => {
 
   return (
     <div>
-      <h2>
-        Home
-      </h2>
-      <span>
-        {`You are logged in as ${data.user.username}.`}
-      </span>
-      <ul>
-        {data.owned_rooms.map((room) => (
-          <li key={room.id}>
-            {`${room.id}: `}
-            <b>{room.owner__username}</b>
-            {`/${room.room_name}, `}
-            <Button onClick={() => goRoom(room.id)}>go</Button>
-          </li>
-        ))}
-      </ul>
-
-      <ul>
-        {data.guest_rooms.map((room) => (
-          <li key={room.id}>
-            {`${room.id}: ${room.owner__username}/${room.room_name}, `}
-            <Button onClick={() => goRoom(room.id)}>go</Button>
-          </li>
-        ))}
-      </ul>
+      room room
+      {' '}
+      {id}
     </div>
   );
 };
 
-export default Dashboard;
+export default Room;
