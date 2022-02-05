@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
 
 const Login = () => {
@@ -27,7 +26,7 @@ const Login = () => {
           e.preventDefault();
           console.log(password, username);
           setLoading(true);
-          axios.get('http://localhost:8000/dashboard')
+          fetch('http://localhost:8000/dashboard')
             .then((response) => {
               console.log('yes', response);
             })

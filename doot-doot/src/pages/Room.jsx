@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from 'axios';
 
 const Room = ({ id }) => {
   const [loading, setLoading] = useState(false);
@@ -8,7 +7,7 @@ const Room = ({ id }) => {
 
   if (!loading && !failedToLoad && !data) {
     setLoading(true);
-    axios.get('http://localhost:8000/dashboard')
+    fetch('http://localhost:8000/dashboard')
       .then((response) => {
         if (response.status >= 200 && response.status < 300 && response.data.response === 'success') setData(response.data.result);
         else setFailed(true);

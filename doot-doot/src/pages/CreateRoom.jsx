@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
 
 const CreateRoom = () => {
@@ -28,7 +27,7 @@ const CreateRoom = () => {
           e.preventDefault();
           console.log(height, width, name);
           setLoading(true);
-          axios.get('http://localhost:8000/dashboard')
+          fetch('http://localhost:8000/dashboard')
             .then((response) => {
               console.log('yes', response);
             })
