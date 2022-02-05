@@ -21,15 +21,6 @@
         "camelcase": [
             0
         ],
-        "react/jsx-filename-extension": [
-            1,
-            {
-                "extensions": [
-                    ".tsx",
-                    ".ts"
-                ]
-            }
-        ],
         "no-use-before-define": "off",
         "react/react-in-jsx-scope": "off",
         "react/function-component-definition": [

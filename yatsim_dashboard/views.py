@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
@@ -30,16 +31,23 @@ def error(message):
     return JsonResponse({"response": "error", "message": message})
 
 
-@login_required
+# @login_required
 def index(request):
-    user = request.user
+    # user = request.user
+    user = User.objects.get(username="ucanyiit")
     owned_rooms = Room.objects.filter(owner=user)
     guest_rooms = Room.objects.filter(guests=user)
+    # active_players, cell, created_at, guests, height, id, owner, owner_id, room_name, train, updated_at, width
+
     return success(
         {
-            "user": user,
-            "owned_rooms": owned_rooms,
-            "guest_rooms": guest_rooms,
+            "user": {"username": user.username},
+            "owned_rooms": list(
+                owned_rooms.values("owner__username", "room_name", "id")
+            ),
+            "guest_rooms": list(
+                guest_rooms.values("owner__username", "room_name", "id")
+            ),
         },
     )
 
