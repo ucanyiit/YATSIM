@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.9"
 Django = "^4.0.1"
 django-rest-framework = "^0.1.0"
+djangorestframework-stubs = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.12.1"
