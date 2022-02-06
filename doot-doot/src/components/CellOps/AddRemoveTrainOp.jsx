@@ -11,6 +11,7 @@ const AddRemoveTrainOp = ({ room, cell }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [type, setType] = useState(cell.type);
+  const [length, setLength] = useState(1);
 
   if (cell.train) {
     return (
@@ -23,7 +24,7 @@ const AddRemoveTrainOp = ({ room, cell }) => {
           onSubmit={(e) => {
             e.preventDefault();
             setLoading(true);
-            (new RequestHandler()).request(`room/remove_train/${room.id}/`, 'post', { train_id: cell.train.id })
+            (new RequestHandler()).request(`room/${room.id}/train`, 'delete', { train_id: cell.train.id })
               .then(() => {})
               .catch(() => setFailed(true))
               .finally(() => setLoading(false));
@@ -49,7 +50,7 @@ const AddRemoveTrainOp = ({ room, cell }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request(`room/add_train/${room.id}/`, 'post', { x: cell.x, y: cell.y, type })
+          (new RequestHandler()).request(`room/${room.id}/train/`, 'post', { source: { x: cell.x, y: cell.y }, type, length })
             .then(() => {})
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
@@ -57,13 +58,17 @@ const AddRemoveTrainOp = ({ room, cell }) => {
       >
         <Form.Group className="mb-3" controlId="type">
           <Form.Label>Type</Form.Label>
-          <Form.Select value={cell.type} onChange={(e) => setType(e.target.value)}>
+          <Form.Select className="mb-3" value={cell.type} onChange={(e) => setType(e.target.value)}>
             {types.map((train_type) => (
               <option key={train_type.value} value={train_type.value}>
                 {train_type.name}
               </option>
             ))}
           </Form.Select>
+          <Form.Group className="mb-3" controlId="length">
+            <Form.Label>Length</Form.Label>
+            <Form.Control type="number" placeholder="Length" onChange={(e) => setLength(e.target.value)} min={1} max={20} required />
+          </Form.Group>
         </Form.Group>
         {failed && (
           <p>

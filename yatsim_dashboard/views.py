@@ -2,23 +2,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
-from django.views.generic.edit import FormView
-from rest_framework import generics, mixins, permissions
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
 
 from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     RoomCloneForm,
-    RoomCreationForm,
     RoomIdForm,
-    UserIdForm,
 )
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
     CreateCellSerializer,
     CreateRoomSerializer,
+    CreateTrainSerializer,
     DashboardData,
     DashboardRoomSerializer,
     DashboardSerializer,
@@ -201,10 +198,22 @@ class TrainAddDeleteAPIView(APIView):
     permission_classes = [IsRoomOwnerOrGuest]
 
     def post(self, request, room_id):
-        serializer = BasicCellSerializer(data=request.data)
+        serializer = CreateTrainSerializer(data=request.data)
         serializer.is_valid()
+        data = serializer.data
         room = get_object_or_404(Room, pk=room_id)
-        t = Train(room_id=room_id, **serializer.data)
+        cell = get_object_or_404(
+            Cell,
+            room_id=room,
+            x=data["source"]["x"],
+            y=data["source"]["y"],
+        )
+        t = Train(
+            room_id=room,
+            source=cell,
+            type=data["type"],
+            length=data["length"],
+        )
         t.save()
         return Response({"response": "ok"})
 

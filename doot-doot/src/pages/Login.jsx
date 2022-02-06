@@ -32,8 +32,8 @@ const Login = ({ goHome }) => {
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="password">
-          <Form.Label>Width</Form.Label>
-          <Form.Control type="password" placeholder="Passowrd" onChange={(e) => setPassword(e.target.value)} required />
+          <Form.Label>Password</Form.Label>
+          <Form.Control type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
         </Form.Group>
 
         {failed && (
