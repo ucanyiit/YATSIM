@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from .models import Room
+from .models import Cell, Room, Train, Wagon
 
 
 class LoginRequestSerializer(serializers.Serializer):
@@ -79,6 +79,38 @@ class CreateRoomSerializer(serializers.ModelSerializer):
         )
 
 
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = (
+            "id",
+            "room_name",
+            "height",
+            "width",
+        )
+
+
+class WagonSerializer(serializers.ModelSerializer):
+    pass
+
+    class Meta:
+        model = Wagon
+
+
+class CellSerializer(serializers.ModelSerializer):
+    pass
+
+    class Meta:
+        model = Cell
+
+
+class TrainSerializer(serializers.ModelSerializer):
+    pass
+
+    class Meta:
+        model = Train
+
+
 class DashboardData:
     def __init__(self, user, owned_rooms, guest_rooms):
         self.user = user
@@ -93,3 +125,30 @@ class DashboardSerializer(serializers.Serializer):
 
     class Meta:
         fields = ("owned_rooms", "guest_rooms", "username")
+
+
+class RoomDataSerializer(serializers.Serializer):
+    user = UserSerializer()
+    room = RoomSerializer()
+    cells = CellSerializer(many=True)
+    trains = TrainSerializer(many=True)
+    running = serializers.BooleanField()
+
+    class Meta:
+        fields = ("user", "room", "cells", "trains", "running")
+
+
+class RoomData:
+    def __init__(
+        self,
+        user,
+        room,
+        cells,
+        trains,
+        running,
+    ):
+        self.user = user
+        self.room = room
+        self.cells = cells
+        self.trains = trains
+        self.running = running

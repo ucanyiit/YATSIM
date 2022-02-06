@@ -38,7 +38,7 @@ const Dashboard = ({ goRoom }) => {
         {data.owned_rooms.map((room) => (
           <ListGroup.Item key={room.id}>
             {`${room.id}: `}
-            <b>{room.owner__username}</b>
+            <b>{room.owner.username}</b>
             {`/${room.room_name}, `}
             <Button onClick={() => goRoom(room.id)}>go</Button>
           </ListGroup.Item>
@@ -48,7 +48,7 @@ const Dashboard = ({ goRoom }) => {
       <ListGroup>
         {data.guest_rooms.map((room) => (
           <ListGroup.Item key={room.id}>
-            {`${room.id}: ${room.owner__username}/${room.room_name}, `}
+            {`${room.id}: ${room.owner.username}/${room.room_name}, `}
             <Button onClick={() => goRoom(room.id)}>go</Button>
           </ListGroup.Item>
         ))}

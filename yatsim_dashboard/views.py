@@ -5,9 +5,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
-from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView, Response
 
 from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,

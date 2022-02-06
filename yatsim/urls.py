@@ -24,13 +24,6 @@ from yatsim_dashboard import views
 from yatsim_user import views as user_views
 
 urlpatterns = [
-    # path(
-    #     "login/",
-    #     auth_views.LoginView.as_view(
-    #         template_name="auth/login.html", redirect_authenticated_user=True
-    #     ),
-    #     name="login",
-    # ),
     path(
         "logout/",
         auth_views.LogoutView.as_view(template_name="auth/logout.html"),
@@ -40,11 +33,6 @@ urlpatterns = [
     path("dashboard/", views.DashboardAPIView.as_view(), name="dashboard"),
     path(
         "create_room/",
-        login_required(views.CreateRoomView.as_view()),
-        name="create_room",
-    ),
-    path(
-        "create_room_new/",
         views.CreateRoomAPIView.as_view(),
         name="create_room_new",
     ),
