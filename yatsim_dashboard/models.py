@@ -218,7 +218,9 @@ models.signals.post_save.connect(
 class Train(models.Model):
     type = models.CharField(max_length=32, blank=False, null=False)
     length = models.PositiveSmallIntegerField(blank=False, null=False)
-    source = models.ForeignKey(Cell, on_delete=models.CASCADE, blank=False, null=False)
+    source = models.OneToOneField(
+        Cell, on_delete=models.CASCADE, blank=False, null=False, unique=True
+    )
     room_id = models.ForeignKey(Room, on_delete=models.CASCADE, blank=False, null=False)
 
 

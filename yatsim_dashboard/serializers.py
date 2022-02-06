@@ -165,6 +165,12 @@ class RoomData:
         self.trains = trains
 
 
+class BasicCellSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cell
+        fields = ["x", "y"]
+
+
 class CreateCellSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cell
@@ -176,3 +182,11 @@ class RotateCellSerializer(serializers.ModelSerializer):
         model = Cell
         fields = ["x", "y", "direction"]
         extra_kwargs = {"direction": {"validators": [validate_direction]}}
+
+
+class CreateTrainSerializer(serializers.ModelSerializer):
+    source = BasicCellSerializer()
+
+    class Meta:
+        model = Train
+        fields = ["type", "length", "source"]

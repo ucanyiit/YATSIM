@@ -62,14 +62,9 @@ urlpatterns = [
         name="rotate_cell",
     ),
     path(
-        "room/add_train/<int:room_id>/",
-        views.add_train,
-        name="add_train",
-    ),
-    path(
-        "room/remove_train/<int:room_id>/",
-        views.remove_train,
-        name="remove_train",
+        "room/<int:room_id>/train/",
+        views.TrainAddDeleteAPIView.as_view(),
+        name="train add/remove",
     ),
     path(
         "room/start/<int:room_id>/",

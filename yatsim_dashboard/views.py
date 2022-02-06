@@ -197,6 +197,66 @@ class RotateCellAPIView(APIView):
         return Response({"response": "ok"})
 
 
+class TrainAddDeleteAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        serializer = BasicCellSerializer(data=request.data)
+        serializer.is_valid()
+        room = get_object_or_404(Room, pk=room_id)
+        t = Train(room_id=room_id, **serializer.data)
+        t.save()
+        return Response({"response": "ok"})
+
+    def delete(self, request, room_id):
+        t = get_object_or_404(Train, pk=request.data["train_id"])
+        t.delete()
+        return Response({"response": "ok"})
+
+
+@login_required
+def add_train(request, room_id):
+    user = request.user
+    room = get_object_or_404(Room, pk=room_id)
+    if request.method == "POST":
+        if user in room.guests.all() or user == room.owner:
+            data = request.POST
+            if data["train_type"] not in ["0", "1"]:
+                raise Exception("Train type should be '0' or '1'")
+            station = get_object_or_404(Cell, pk=data["station_id"])
+            if station.type != "8":
+                raise Exception("Not a station :( don't be cheeky.")
+            exists = Train.objects.filter(source=station)
+            if exists:
+                raise Exception(
+                    "Station is full. Remove existing train from the station."
+                )
+            train = Train(
+                room_id=room,
+                type=data["train_type"],
+                length=data["train_length"],
+                source=station,
+            )
+            train.save()
+        else:
+            raise PermissionDenied
+    return redirect(f"/room/{room_id}")
+
+
+@login_required
+def remove_train(request, room_id):
+    user = request.user
+    room = get_object_or_404(Room, pk=room_id)
+    if request.method == "POST":
+        if user in room.guests.all() or user == room.owner:
+            train_id = request.POST["train_id"]
+            train = get_object_or_404(Train, pk=train_id)
+            train.delete()
+        else:
+            raise PermissionDenied
+    return redirect(f"/room/{room_id}")
+
+
 @login_required
 def room_view(request, room_id):
     user = request.user
@@ -294,127 +354,8 @@ def clone_room(request, room_id):
     return redirect("/dashboard")
 
 
-# @login_required
-# def place_cell(request, room_id):
-#     if request.method == "POST":
-#         user = request.user
-#         room_form = RoomIdForm(request.POST, request.FILES)
-#         # cell_form = PlaceCellForm(request.POST, request.FILES)
-#         if room_form.is_valid():
-#             room = get_object_or_404(Room, pk=room_id)
-#             if user in room.guests.all() or user == room.owner:
-#                 data = request.POST
-#                 x = data["x"]
-#                 y = data["y"]
-#                 cell_type = data["type"]
-#                 if int(cell_type) > 8 or int(cell_type) < 0:
-#                     raise Exception("Cell type is not defined.")
-#                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-#                 if cell.has_wagon():
-#                     raise Exception("Cell has a wagon on it.")
-#                 with transaction.atomic():
-#                     cell.delete()
-#                     cell = Cell(x=x, y=y, room_id=room, type=cell_type)
-#                     cell.save()
-#             else:
-#                 raise PermissionDenied
-#         else:  # TODO: Empty control flow.
-#             pass
-#     return redirect(f"/room/{room_id}")
-
-
-# @login_required
-# def switch_cell(request, room_id):
-#     if request.method == "POST":
-#         user = request.user
-#         room_form = RoomIdForm(request.POST, request.FILES)
-#         if room_form.is_valid():
-#             room = get_object_or_404(Room, pk=room_id)
-#             if user in room.guests.all() or user == room.owner:
-#                 data = request.POST
-#                 cell = get_object_or_404(
-#                     Cell, room_id=room.id, id=data["stateful_cell"]
-#                 )
-#                 if cell.has_wagon():
-#                     raise Exception("The cell has a wagon on it")
-#                 cell.switch_state()
-#             else:
-#                 raise PermissionDenied
-#         else:  # TODO: Empty control flow.
-#             pass
-#     return redirect(f"/room/{room_id}")
-
-
-# @login_required
-# def rotate_cell(request, room_id):
-#     if request.method == "POST":
-#         user = request.user
-#         room_form = RoomIdForm(request.POST, request.FILES)
-#         # cell_form = RotateCellForm(request.POST, request.FILES)
-#         if room_form.is_valid():
-#             room = get_object_or_404(Room, pk=room_id)
-#             if user in room.guests.all() or user == room.owner:
-#                 data = request.POST
-#                 x = data["x"]
-#                 y = data["y"]
-#                 direction = data["direction"]
-#                 if int(direction) > 3 or int(direction) < 0:
-#                     raise Exception("Direction is not defined.")
-#                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-#                 if cell.has_wagon():
-#                     raise Exception("The cell has a wagon on it")
-#                 cell.rotate(str(direction))
-#             else:
-#                 raise PermissionDenied
-#         else:  # TODO: Empty control flow.
-#             pass
-#     return redirect(f"/room/{room_id}")
-
-
+# @login_
 # pylint:disable=w0613
-
-
-@login_required
-def add_train(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, pk=room_id)
-    if request.method == "POST":
-        if user in room.guests.all() or user == room.owner:
-            data = request.POST
-            if data["train_type"] not in ["0", "1"]:
-                raise Exception("Train type should be '0' or '1'")
-            station = get_object_or_404(Cell, pk=data["station_id"])
-            if station.type != "8":
-                raise Exception("Not a station :( don't be cheeky.")
-            exists = Train.objects.filter(source=station)
-            if exists:
-                raise Exception(
-                    "Station is full. Remove existing train from the station."
-                )
-            train = Train(
-                room_id=room,
-                type=data["train_type"],
-                length=data["train_length"],
-                source=station,
-            )
-            train.save()
-        else:
-            raise PermissionDenied
-    return redirect(f"/room/{room_id}")
-
-
-@login_required
-def remove_train(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, pk=room_id)
-    if request.method == "POST":
-        if user in room.guests.all() or user == room.owner:
-            train_id = request.POST["train_id"]
-            train = get_object_or_404(Train, pk=train_id)
-            train.delete()
-        else:
-            raise PermissionDenied
-    return redirect(f"/room/{room_id}")
 
 
 @login_required
