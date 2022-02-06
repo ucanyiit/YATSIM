@@ -3,21 +3,22 @@ import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const types = [
-  { value: '0', name: 'Mitsky' },
+  { value: '0', name: 'Mitski' },
   { value: '1', name: 'Lady Gaga' },
 ];
 
 const AddRemoveTrainOp = ({ room, cell }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [type, setType] = useState(cell.type);
+  const [type, setType] = useState(cell.train?.type || 0);
   const [length, setLength] = useState(1);
+  const type_name = cell.train?.type === 1 ? 'Lady Gaga' : 'Mitski';
 
   if (cell.train) {
     return (
       <div>
         <p className="lead">
-          Remove Train
+          {`Remove ${type_name}`}
         </p>
 
         <Form
@@ -58,7 +59,7 @@ const AddRemoveTrainOp = ({ room, cell }) => {
       >
         <Form.Group className="mb-3" controlId="type">
           <Form.Label>Type</Form.Label>
-          <Form.Select className="mb-3" value={cell.type} onChange={(e) => setType(e.target.value)}>
+          <Form.Select className="mb-3" value={type} onChange={(e) => setType(e.target.value)}>
             {types.map((train_type) => (
               <option key={train_type.value} value={train_type.value}>
                 {train_type.name}

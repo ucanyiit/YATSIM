@@ -18,24 +18,41 @@ const App = () => {
   const webSocket = useRef(null);
 
   useEffect(() => {
-    if (!room_id) return;
+    if (!room_id || webSocket.current) return;
     const connectionString = `ws://localhost:8000/ws/play/${room_id}/${token}`;
     webSocket.current = new WebSocket(connectionString);
     webSocket.current.onmessage = (evt) => {
       const message = JSON.parse(evt.data);
-      const { event } = message;
+      const {
+        event, cell, users: inc_users, trains: inc_trains, guests,
+      } = message;
+      const r = JSON.parse(JSON.stringify(roomData));
+      let {
+        users, trains,
+      } = r;
+      const {
+        cells, room,
+      } = r;
       switch (event) {
         case 'cell_change':
-          const { cell } = message;
-          const { cells } = roomData;
           cells[cell.y * roomData.room.width + cell.x] = cell;
-          setRoomData({
-            ...roomData,
-            cells,
-          });
+          break;
+        case 'users':
+          users = inc_users;
+          room.guests = guests;
+          break;
+        case 'trains':
+          console.log(inc_trains, trains);
+          trains = inc_trains;
           break;
         default:
       }
+      setRoomData({
+        cells,
+        users,
+        room,
+        trains,
+      });
     };
     webSocket.current.onopen = () => {
       console.log('connected');

@@ -9,10 +9,7 @@ from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
 
-from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
-    RoomCloneForm,
-    RoomIdForm,
-)
+from .forms import RoomIdForm
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
     CellSerializer,
@@ -38,31 +35,44 @@ from .serializers import (
 # Implement a robusts checking mechanism.
 
 
+def send_user_data(guests, room_id, user):
+    users = User.objects.exclude(id__exact=user.id).exclude(
+        id__in=[user.id for user in guests.all()]
+    )
+    users_data = UserSerializer(users, many=True)
+    guests_data = UserSerializer(guests, many=True)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        str(room_id),
+        {
+            "type": "send_message",
+            "event": "users",
+            "users": users_data.data,
+            "guests": guests_data.data,
+        },
+    )
+
+
+def send_trains_data(room_id):
+    trains = Train.objects.filter(room_id__exact=room_id)
+    trains_data = TrainSerializer(trains, many=True)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        str(room_id),
+        {
+            "type": "send_message",
+            "event": "trains",
+            "trains": trains_data.data,
+        },
+    )
+
+
 def send_cell_data(cell, room_id):
     cell_data = CellSerializer(cell)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         str(room_id),
         {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
-    )
-
-
-# train: Union[Train, str]
-def send_crerated_train_data(train, room_id):
-    train_data = TrainSerializer(train)
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        str(room_id),
-        {"type": "send_message", "event": "train_create", "train": train_data.data},
-    )
-
-
-def send_deleted_train_data(train_id, room_id):
-    train_data = train_id if type(train_id) is str else str(train_id)
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        str(room_id),
-        {"type": "send_message", "event": "train_delete", "train": train_data},
     )
 
 
@@ -136,6 +146,8 @@ class RoomUserManagementAPIView(APIView):
         room = get_object_or_404(Room, pk=room_id)
         room.guests.add(new_guest)
         room.save()
+
+        send_user_data(room.guests, room.id, request.user)
         return Response({"response": "ok"})
 
     def delete(self, request, room_id):
@@ -145,6 +157,8 @@ class RoomUserManagementAPIView(APIView):
         room = get_object_or_404(Room, pk=room_id)
         room.guests.remove(user)
         room.save()
+
+        send_user_data(room.guests, room.id, request.user)
         return Response({"response": "ok"})
 
 
@@ -157,6 +171,7 @@ class LeaveOrDeleteRoomAPIView(APIView):
         if user in room.guests.all():
             room.guests.remove(user)
             room.save()
+            send_user_data(room.guests, room.id, request.user)
         elif user == room.owner:
             room.delete()
         else:
@@ -252,14 +267,13 @@ class TrainAddDeleteAPIView(APIView):
             length=data["length"],
         )
         t.save()
-        send_crerated_train_data(t, room_id)
+        send_trains_data(room_id)
         return Response({"response": "ok"})
 
     def delete(self, request, room_id):
         t = get_object_or_404(Train, pk=request.data["train_id"])
-        tid = t.id
         t.delete()
-        send_deleted_train_data(tid, room_id)
+        send_trains_data(room_id)
         return Response({"response": "ok"})
 
 
