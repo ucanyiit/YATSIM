@@ -24,8 +24,8 @@ const App = () => {
 
     ws.onmessage = (evt) => {
       // listen to data sent from the websocket server
-      // const message = JSON.parse(evt.data);
-      console.log(evt.data);
+      const message = JSON.parse(evt.data);
+      console.log(message);
     };
 
     ws.onclose = () => {
@@ -68,12 +68,14 @@ const App = () => {
       {page === 'room' && <Room id={roomId} />}
       {page === 'create' && <CreateRoom id={roomId} goHome={() => setPage('home')} />}
       {page === 'login' && <Login goHome={() => setPage('home')} />}
+      {token && (
       <Button onClick={() => {
-        socket.send('ping');
+        socket.send(JSON.stringify({ type: 'attach', token, room_id: 2 }));
       }}
       >
         Ping
       </Button>
+      )}
     </Container>
   );
 };
