@@ -7,6 +7,14 @@ from rest_framework.authtoken.models import Token
 from .models import Cell, Room, Train, Wagon
 
 
+def validate_direction(value):
+    try:
+        if not 0 <= int(value) <= 3:
+            raise serializers.ValidationError("Invalid direction")
+    except:
+        raise serializers.ValidationError("Invalid direction")
+
+
 class LoginRequestSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=True, allow_blank=False)
     password = serializers.CharField(max_length=150, required=True, allow_blank=False)
@@ -168,11 +176,3 @@ class RotateCellSerializer(serializers.ModelSerializer):
         model = Cell
         fields = ["x", "y", "direction"]
         extra_kwargs = {"direction": {"validators": [validate_direction]}}
-
-
-def validate_direction(value):
-    try:
-        if not 0 <= int(value) <= 3:
-            raise serializers.ValidationError("Invalid direction")
-    except:
-        raise serializers.ValidationError("Invalid direction")

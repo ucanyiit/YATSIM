@@ -29,7 +29,7 @@ const PlaceOp = ({ room, cell }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request(`room/place/${room.id}/`, 'post', { x: cell.x, y: cell.y, type })
+          (new RequestHandler()).request(`room/${room.id}/place/`, 'post', { x: cell.x, y: cell.y, type })
             .then(() => {})
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));

@@ -24,7 +24,7 @@ const RotateOp = ({ room, cell }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request(`room/rotate/${room.id}/`, 'post', { x: cell.x, y: cell.y, direction })
+          (new RequestHandler()).request(`room/${room.id}/rotate/`, 'post', { x: cell.x, y: cell.y, direction })
             .then(() => {})
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));

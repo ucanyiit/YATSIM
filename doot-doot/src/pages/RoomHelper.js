@@ -1,10 +1,10 @@
 import type0 from '../assets/cells/type0.png';
 import type1 from '../assets/cells/type1.png';
 import type2 from '../assets/cells/type2.png';
-import type30 from '../assets/cells/type30.png';
+import type32 from '../assets/cells/type32.png';
 import type31 from '../assets/cells/type31.png';
 import type41 from '../assets/cells/type41.png';
-import type42 from '../assets/cells/type42.png';
+import type40 from '../assets/cells/type40.png';
 import type50 from '../assets/cells/type50.png';
 import type51 from '../assets/cells/type51.png';
 import type52 from '../assets/cells/type52.png';
@@ -20,12 +20,12 @@ const cellTable = {
   1: type1,
   2: type2,
   3: {
-    0: type30,
+    2: type32,
     1: type31,
   },
   4: {
     1: type41,
-    2: type42,
+    0: type40,
   },
   5: {
     0: type50,

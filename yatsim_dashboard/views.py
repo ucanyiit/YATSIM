@@ -24,6 +24,7 @@ from .serializers import (
     DashboardSerializer,
     RoomData,
     RoomDataSerializer,
+    RotateCellSerializer,
     UserSerializer,
 )
 
@@ -155,7 +156,7 @@ class PlaceCellAPIView(APIView):
 
         with transaction.atomic():
             cell.delete()
-            cell = Cell(room=room, **serializer.data)
+            cell = Cell(room_id=room, **serializer.data)
             cell.save()
 
         return Response({"response": "ok"})
@@ -179,12 +180,15 @@ class SwitchCellAPIView(APIView):
 class RotateCellAPIView(APIView):
     permission_classes = [IsRoomOwnerOrGuest]
 
-    def post(request, room_id):
+    def post(self, request, room_id):
         user = request.user
         room = get_object_or_404(Room, pk=room_id)
-        serializer = CreateCellSerializer(data=request.data)
+        serializer = RotateCellSerializer(data=request.data)
         serializer.is_valid()
+        data = serializer.data
         direction = data["direction"]
+        x = data["x"]
+        y = data["y"]
         cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
         if cell.has_wagon():
             raise Exception("The cell has a wagon on it")

@@ -16,7 +16,7 @@ const SwitchOp = ({ room, cell }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request(`room/switch/${room.id}/`, 'post', { x: cell.x, y: cell.y })
+          (new RequestHandler()).request(`room/${room.id}/switch/`, 'post', { x: cell.x, y: cell.y })
             .then(() => {})
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
