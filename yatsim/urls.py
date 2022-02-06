@@ -35,7 +35,8 @@ urlpatterns = [
         views.CreateRoomAPIView.as_view(),
         name="create_room_new",
     ),
-    path("room/<int:room_id>", views.room_view, name="room"),
+    path("room_old/<int:room_id>", views.room_view, name="room"),
+    path("room/<int:room_id>", views.RoomAPIView.as_view(), name="room"),
     path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
     path("room/add/<int:room_id>/", views.add_user_to_room, name="add_user_to_room"),
     path(

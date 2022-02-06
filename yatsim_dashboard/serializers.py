@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
@@ -91,24 +93,24 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class WagonSerializer(serializers.ModelSerializer):
-    pass
-
     class Meta:
         model = Wagon
+        fields = ["x", "y", "direction"]
 
 
 class CellSerializer(serializers.ModelSerializer):
-    pass
-
     class Meta:
         model = Cell
+        fields = ["x", "y", "type", "direction", "state"]
 
 
 class TrainSerializer(serializers.ModelSerializer):
-    pass
+    source = CellSerializer()
+    wagon_set = WagonSerializer(many=True)
 
     class Meta:
         model = Train
+        fields = ["id", "type", "length", "source", "wagon_set"]
 
 
 class DashboardData:
@@ -131,21 +133,21 @@ class RoomDataSerializer(serializers.Serializer):
     room = RoomSerializer()
     cells = CellSerializer(many=True)
     trains = TrainSerializer(many=True)
-    running = serializers.BooleanField()
 
     class Meta:
-        fields = ("user", "room", "cells", "trains", "running")
+        fields = ("room", "cells", "trains")
 
 
 class RoomData:
     def __init__(
         self,
-        room,
-        cells,
-        trains,
-        running,
-    ):
+        room: Room,
+        cells: Iterable[Cell],
+        trains: Iterable[Train],
+    ) -> None:
         self.room = room
         self.cells = cells
         self.trains = trains
-        self.running = running
+
+
+# Room stuff

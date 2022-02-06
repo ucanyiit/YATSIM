@@ -20,6 +20,8 @@ from .serializers import (
     DashboardData,
     DashboardRoomSerializer,
     DashboardSerializer,
+    RoomData,
+    RoomDataSerializer,
 )
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
@@ -40,6 +42,19 @@ class DashboardAPIView(APIView):
         data = DashboardData(user, owned_rooms, guest_rooms)
         obj = DashboardSerializer(data)
         return Response(obj.data)
+
+
+class RoomAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
+        trains = Train.objects.filter(room_id__exact=room_id)
+        cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+
+        obj = RoomData(room, cell_objects, trains)
+
+        return Response(RoomDataSerializer(obj).data)
 
 
 @login_required
