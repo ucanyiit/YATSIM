@@ -81,5 +81,7 @@ urlpatterns = [
         views.run_simulation,
         name="run",
     ),
-    path("room/clone/<int:room_id>/", views.clone_room, name="clone_room"),
+    path(
+        "room/<int:room_id>/clone/", views.CloneRoomAPIView.as_view(), name="clone_room"
+    ),
 ]

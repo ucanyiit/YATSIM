@@ -190,3 +190,9 @@ class CreateTrainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Train
         fields = ["type", "length", "source"]
+
+
+class CloneRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ["room_name"]

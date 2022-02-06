@@ -13,6 +13,7 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
 )
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
+    CloneRoomSerializer,
     CreateCellSerializer,
     CreateRoomSerializer,
     CreateTrainSerializer,
@@ -223,47 +224,68 @@ class TrainAddDeleteAPIView(APIView):
         return Response({"response": "ok"})
 
 
-@login_required
-def add_train(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, pk=room_id)
-    if request.method == "POST":
-        if user in room.guests.all() or user == room.owner:
-            data = request.POST
-            if data["train_type"] not in ["0", "1"]:
-                raise Exception("Train type should be '0' or '1'")
-            station = get_object_or_404(Cell, pk=data["station_id"])
-            if station.type != "8":
-                raise Exception("Not a station :( don't be cheeky.")
-            exists = Train.objects.filter(source=station)
-            if exists:
-                raise Exception(
-                    "Station is full. Remove existing train from the station."
-                )
-            train = Train(
-                room_id=room,
-                type=data["train_type"],
-                length=data["train_length"],
-                source=station,
+class CloneRoomAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        user = request.user
+        serializer = CloneRoomSerializer(data=request.data)
+        serializer.is_valid()
+        data = serializer.data
+        room = get_object_or_404(Room, pk=room_id)
+        new_room = Room.objects.create(
+            owner=user,
+            room_name=data["room_name"],
+            height=room.height,
+            width=room.width,
+        )
+        new_room.save()
+        cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+        for cell in cell_objects:
+            new_cell = get_object_or_404(Cell, room_id=new_room.id, x=cell.x, y=cell.y)
+            new_cell.delete()
+            new_cell = Cell(
+                x=cell.x,
+                y=cell.y,
+                room_id=new_room,
+                type=cell.type,
+                direction=cell.direction,
             )
-            train.save()
-        else:
-            raise PermissionDenied
-    return redirect(f"/room/{room_id}")
+            new_cell.save()
 
 
-@login_required
-def remove_train(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, pk=room_id)
-    if request.method == "POST":
-        if user in room.guests.all() or user == room.owner:
-            train_id = request.POST["train_id"]
-            train = get_object_or_404(Train, pk=train_id)
-            train.delete()
-        else:
-            raise PermissionDenied
-    return redirect(f"/room/{room_id}")
+# @login_required
+# def clone_room(request, room_id):
+#     if request.method == "POST":
+#         user = request.user
+#         form = RoomCloneForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             with transaction.atomic():
+#                 room = get_object_or_404(Room, pk=room_id)
+#                 new_room = Room.objects.create(
+#                     owner=user,
+#                     room_name=request.POST["room_name"],
+#                     height=room.height,
+#                     width=room.width,
+#                 )
+#                 new_room.save()
+#                 cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+#                 for cell in cell_objects:
+#                     new_cell = get_object_or_404(
+#                         Cell, room_id=new_room.id, x=cell.x, y=cell.y
+#                     )
+#                     new_cell.delete()
+#                     new_cell = Cell(
+#                         x=cell.x,
+#                         y=cell.y,
+#                         room_id=new_room,
+#                         type=cell.type,
+#                         direction=cell.direction,
+#                     )
+#                     new_cell.save()
+#         else:  # TODO: Empty control flow.
+#             pass
+#     return redirect("/dashboard")
 
 
 @login_required
@@ -327,40 +349,6 @@ def room_view(request, room_id):
             "stateful_cells": statefuls,
         },
     )
-
-
-@login_required
-def clone_room(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        form = RoomCloneForm(request.POST, request.FILES)
-        if form.is_valid():
-            with transaction.atomic():
-                room = get_object_or_404(Room, pk=room_id)
-                new_room = Room.objects.create(
-                    owner=user,
-                    room_name=request.POST["room_name"],
-                    height=room.height,
-                    width=room.width,
-                )
-                new_room.save()
-                cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
-                for cell in cell_objects:
-                    new_cell = get_object_or_404(
-                        Cell, room_id=new_room.id, x=cell.x, y=cell.y
-                    )
-                    new_cell.delete()
-                    new_cell = Cell(
-                        x=cell.x,
-                        y=cell.y,
-                        room_id=new_room,
-                        type=cell.type,
-                        direction=cell.direction,
-                    )
-                    new_cell.save()
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect("/dashboard")
 
 
 # @login_
