@@ -1,8 +1,8 @@
 import { Container, Row } from 'react-bootstrap';
 import AddRemoveTrainOp from './AddRemoveTrainOp';
 import PlaceOp from './PlaceOp';
-import RotateOp from './RotateOp';
 import SwitchOp from './SwitchOp';
+import RotateOp from './RotateOp';
 
 const CellOps = ({ room, cell }) => (
   <Container>

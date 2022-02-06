@@ -1,10 +1,15 @@
 import { OverlayTrigger, Popover } from 'react-bootstrap';
-import CellOps from '../components/CellOps';
+import CellOps from '../components/CellOps/CellOps';
+import GuestOps from '../components/GuestOps/GuestOps';
 import './room.css';
 import { getCellImage, getWagonImage } from './RoomHelper';
 
-const Room = ({ roomData: { room, cells, trains } }) => {
-  const running = false;
+const Room = ({
+  roomData: {
+    room, cells, trains, users,
+  },
+}) => {
+  let running = false;
 
   const grid = [];
   const newCells = cells.sort((a, b) => {
@@ -26,6 +31,7 @@ const Room = ({ roomData: { room, cells, trains } }) => {
   for (const train of trains) {
     // eslint-disable-next-line no-restricted-syntax
     for (const wagon of train.wagon_set) {
+      running = true;
       grid[wagon.y][wagon.x].wagons.push({ type: train.type, direction: wagon.direction });
     }
     grid[train.source.y][train.source.x].train = train;
@@ -44,7 +50,9 @@ const Room = ({ roomData: { room, cells, trains } }) => {
       <h5>
         {`${room.id}: `}
         <b>{room.owner.username}</b>
-        {`/${room.room_name}, height: ${room.height}, width: ${room.width}, ${running && 'Simulation is running 🚀'}${!running && 'Simulation is stopped 🌱'}`}
+        {`/${room.room_name}, height: ${room.height}, width: ${room.width}, `}
+        {running && 'Simulation is running 🚀'}
+        {!running && 'Simulation is stopped 🌱'}
       </h5>
       <div>
         Guests:
@@ -95,6 +103,7 @@ const Room = ({ roomData: { room, cells, trains } }) => {
           </tbody>
         </table>
       </center>
+      <GuestOps room={room} users={users} />
     </div>
   );
 };

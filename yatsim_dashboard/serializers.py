@@ -135,6 +135,7 @@ class DashboardSerializer(serializers.Serializer):
 
 class RoomDataSerializer(serializers.Serializer):
     room = RoomSerializer()
+    users = UserSerializer(many=True)
     cells = CellSerializer(many=True)
     trains = TrainSerializer(many=True)
 
@@ -146,10 +147,12 @@ class RoomData:
     def __init__(
         self,
         room: Room,
+        users: Iterable[User],
         cells: Iterable[Cell],
         trains: Iterable[Train],
     ) -> None:
         self.room = room
+        self.users = users
         self.cells = cells
         self.trains = trains
 

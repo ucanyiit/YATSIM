@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import RequestHandler from '../utils/RequestHandler';
+import RequestHandler from '../../utils/RequestHandler';
 
 const types = [
   { value: '0', name: 'Blank' },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import RequestHandler from '../utils/RequestHandler';
+import RequestHandler from '../../utils/RequestHandler';
 
 const SwitchOp = ({ room, cell }) => {
   const [loading, setLoading] = useState(false);

@@ -38,12 +38,12 @@ urlpatterns = [
     path("room/<int:room_id>", views.RoomAPIView.as_view(), name="room_view_delete"),
     path(
         "room/<int:room_id>/user/",
-        views.RoomUserManagement.as_view(),
+        views.RoomUserManagementAPIView.as_view(),
         name="guest add/delete",
     ),
     path(
         "room/<int:room_id>/leave/",
-        views.LeaveRoomAPIView.as_view(),
+        views.LeaveOrDeleteRoomAPIView.as_view(),
         name="leave room",
     ),
     path(

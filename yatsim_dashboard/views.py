@@ -85,8 +85,11 @@ class RoomAPIView(generics.RetrieveDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()  # room
         trains = Train.objects.filter(room_id__exact=instance.id)
+        users = User.objects.exclude(id__exact=request.user.id).exclude(
+            id__in=[room.id for room in instance.guests.all()]
+        )
         cell_objects = get_list_or_404(Cell, room_id__exact=instance.id)
-        obj = RoomData(instance, cell_objects, trains)
+        obj = RoomData(instance, users, cell_objects, trains)
         serializer = self.get_serializer(obj)
         return Response(serializer.data)
 
@@ -97,6 +100,7 @@ class RoomUserManagementAPIView(APIView):
 
     def post(self, request, room_id):
         serializer = UserSerializer(data=request.data)
+        serializer.is_valid()
         new_guest = get_object_or_404(User, username=serializer.data["username"])
         room = get_object_or_404(Room, pk=room_id)
         room.guests.add(new_guest)
@@ -105,21 +109,27 @@ class RoomUserManagementAPIView(APIView):
 
     def delete(self, request, room_id):
         serializer = UserSerializer(data=request.data)
-        new_guest = get_object_or_404(User, username=serializer.data["username"])
+        serializer.is_valid()
+        user = get_object_or_404(User, username=serializer.data["username"])
         room = get_object_or_404(Room, pk=room_id)
-        room.guests.remove(new_guest)
+        room.guests.remove(user)
         room.save()
         return Response({"response": "ok"})
 
 
-class LeaveRoomAPIView(APIView):
+class LeaveOrDeleteRoomAPIView(APIView):
     permission_classes = [IsRoomOwnerOrGuest]
 
     def post(self, request, room_id):
         user = request.user
         room = get_object_or_404(Room, pk=room_id)
-        room.guests.remove(user)
-        room.save()
+        if user in room.guests.all():
+            room.guests.remove(user)
+            room.save()
+        elif user == room.owner:
+            room.delete()
+        else:
+            raise Exception("You can not")
         return Response({"response": "ok"})
 
 
