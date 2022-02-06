@@ -17,6 +17,7 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
 )
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
+    CreateCellSerializer,
     CreateRoomSerializer,
     DashboardData,
     DashboardRoomSerializer,
@@ -99,6 +100,7 @@ class RoomUserManagementAPIView(APIView):
         new_guest = get_object_or_404(User, username=serializer.data["username"])
         room = get_object_or_404(Room, pk=room_id)
         room.guests.add(new_guest)
+        room.save()
         return Response({"response": "ok"})
 
     def delete(self, request, room_id):
@@ -106,17 +108,46 @@ class RoomUserManagementAPIView(APIView):
         new_guest = get_object_or_404(User, username=serializer.data["username"])
         room = get_object_or_404(Room, pk=room_id)
         room.guests.remove(new_guest)
+        room.save()
         return Response({"response": "ok"})
 
 
 class LeaveRoomAPIView(APIView):
     permission_classes = [IsRoomOwnerOrGuest]
 
+    def post(self, request, room_id):
+        user = request.user
+        room = get_object_or_404(Room, pk=room_id)
+        room.guests.remove(user)
+        room.save()
+        return Response({"response": "ok"})
+
 
 class DeleteRoomAPIView(generics.DestroyAPIView):
     permission_classes = [IsRoomOwner]
     queryset = Room.objects.all()
     lookup_url_kwarg = "room_id"
+
+
+class PlaceCellAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        serializer = CreateCellSerializer(data=request.data)
+        room = get_object_or_404(Room, pk=room_id)
+        # data = request.POST
+        # x = data["x"]
+        # y = data["y"]
+        # cell_type = data["type"]
+        # if int(cell_type) > 8 or int(cell_type) < 0:
+        #     raise Exception("Cell type is not defined.")
+        # cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+        # if cell.has_wagon():
+        #     raise Exception("Cell has a wagon on it.")
+        # with transaction.atomic():
+        #     cell.delete()
+        #     cell = Cell(x=x, y=y, room_id=room, type=cell_type)
+        #     cell.save()
 
 
 @login_required
@@ -182,40 +213,6 @@ def room_view(request, room_id):
     )
 
 
-class CreateRoomView(FormView):
-    template_name = "dashboard/create_room.html"
-    form_class = RoomCreationForm
-    success_url = "/dashboard"
-
-    def form_valid(self, form):
-        user = self.request.user
-        data = self.request.POST
-        room_name = data["room_name"]
-        height = data["height"]
-        width = data["width"]
-        new_room = Room.objects.create(
-            owner=user, room_name=room_name, height=height, width=width
-        )
-        new_room.save()
-        return super().form_valid(form)
-
-
-@login_required
-def delete_room(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        form = RoomIdForm(request.POST, request.FILES)
-        if form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user != room.owner:
-                raise PermissionDenied
-            else:
-                room.delete()
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect("/dashboard")
-
-
 @login_required
 def clone_room(request, room_id):
     if request.method == "POST":
@@ -245,58 +242,6 @@ def clone_room(request, room_id):
                         direction=cell.direction,
                     )
                     new_cell.save()
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect("/dashboard")
-
-
-@login_required
-def add_user_to_room(request, room_id):
-    if request.method == "POST":
-        request_user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        user_form = UserIdForm(request.POST, request.FILES)
-        if room_form.is_valid() and user_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            user = get_object_or_404(User, pk=request.POST["user_id"])
-            if room.owner == request_user:
-                room.guests.add(user)
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
-
-
-@login_required
-def remove_user_from_room(request, room_id):
-    if request.method == "POST":
-        request_user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        user_form = UserIdForm(request.POST, request.FILES)
-        if room_form.is_valid() and user_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            user = get_object_or_404(User, pk=request.POST["user_id"])
-            if room.owner == request_user:
-                room.guests.remove(user)
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
-
-
-@login_required
-def leave_from_room(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if room.owner != user:
-                room.guests.remove(user)
-            else:
-                raise PermissionDenied
         else:  # TODO: Empty control flow.
             pass
     return redirect("/dashboard")

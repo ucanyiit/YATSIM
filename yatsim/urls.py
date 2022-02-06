@@ -35,24 +35,16 @@ urlpatterns = [
         views.CreateRoomAPIView.as_view(),
         name="create_room_new",
     ),
-    path("room_old/<int:room_id>", views.room_view, name="room_old"),
-    path("room/delete/<int:room_id>/", views.delete_room, name="delete_room_old"),
     path("room/<int:room_id>", views.RoomAPIView.as_view(), name="room_view_delete"),
     path(
-        "room/delete/<int:room_id>/",
-        views.DeleteRoomAPIView.as_view(),
-        name="delete_room",
-    ),
-    path("room/add/<int:room_id>/", views.add_user_to_room, name="add_user_to_room"),
-    path(
-        "room/remove/<int:room_id>/",
-        views.remove_user_from_room,
-        name="remove_user_from_room",
+        "room/<int:room_id>/user/",
+        views.RoomUserManagement.as_view(),
+        name="guest add/delete",
     ),
     path(
-        "room/leave/<int:room_id>/",
-        views.leave_from_room,
-        name="leave_from_room",
+        "room/<int:room_id>/leave/",
+        views.LeaveRoomAPIView.as_view(),
+        name="leave room",
     ),
     path(
         "room/place/<int:room_id>/",
@@ -95,5 +87,4 @@ urlpatterns = [
         name="run",
     ),
     path("room/clone/<int:room_id>/", views.clone_room, name="clone_room"),
-    path("api/auth/login/", user_views.LoginAPIView.as_view()),
 ]
