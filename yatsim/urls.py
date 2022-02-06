@@ -47,18 +47,18 @@ urlpatterns = [
         name="leave room",
     ),
     path(
-        "room/place/<int:room_id>/",
-        views.place_cell,
+        "room/<int:room_id>/place/",
+        views.PlaceCellAPIView.as_view(),
         name="place_cell",
     ),
     path(
-        "room/switch/<int:room_id>/",
-        views.switch_cell,
+        "room/<int:room_id>/switch/",
+        views.SwitchCellAPIView.as_view(),
         name="switch_cell",
     ),
     path(
-        "room/rotate/<int:room_id>/",
-        views.rotate_cell,
+        "room/<int:room_id>/rotate/",
+        views.RotateCellAPIView.as_view(),
         name="rotate_cell",
     ),
     path(

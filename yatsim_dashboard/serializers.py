@@ -161,3 +161,18 @@ class CreateCellSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cell
         fields = ["x", "y", "type"]
+
+
+class RotateCellSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cell
+        fields = ["x", "y", "direction"]
+        extra_kwargs = {"direction": {"validators": [validate_direction]}}
+
+
+def validate_direction(value):
+    try:
+        if not 0 <= int(value) <= 3:
+            raise serializers.ValidationError("Invalid direction")
+    except:
+        raise serializers.ValidationError("Invalid direction")

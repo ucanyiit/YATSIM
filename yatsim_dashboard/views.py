@@ -144,20 +144,53 @@ class PlaceCellAPIView(APIView):
 
     def post(self, request, room_id):
         serializer = CreateCellSerializer(data=request.data)
+        serializer.is_valid()
+        cell = get_object_or_404(
+            Cell, room_id=room_id, x=serializer.data["x"], y=serializer.data["y"]
+        )
         room = get_object_or_404(Room, pk=room_id)
-        # data = request.POST
-        # x = data["x"]
-        # y = data["y"]
-        # cell_type = data["type"]
-        # if int(cell_type) > 8 or int(cell_type) < 0:
-        #     raise Exception("Cell type is not defined.")
-        # cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-        # if cell.has_wagon():
-        #     raise Exception("Cell has a wagon on it.")
-        # with transaction.atomic():
-        #     cell.delete()
-        #     cell = Cell(x=x, y=y, room_id=room, type=cell_type)
-        #     cell.save()
+
+        if cell.has_wagon():
+            raise Exception("Cell has a wagon on it.")
+
+        with transaction.atomic():
+            cell.delete()
+            cell = Cell(room=room, **serializer.data)
+            cell.save()
+
+        return Response({"response": "ok"})
+
+
+class SwitchCellAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        serializer = CreateCellSerializer(data=request.data)
+        serializer.is_valid()
+        cell = get_object_or_404(
+            Cell, room_id=room_id, x=serializer.data["x"], y=serializer.data["y"]
+        )
+        if cell.has_wagon():
+            raise Exception("The cell has a wagon on it")
+        cell.switch_state()
+        return Response({"response": "ok"})
+
+
+class RotateCellAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(request, room_id):
+        user = request.user
+        room = get_object_or_404(Room, pk=room_id)
+        serializer = CreateCellSerializer(data=request.data)
+        serializer.is_valid()
+        direction = data["direction"]
+        cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+        if cell.has_wagon():
+            raise Exception("The cell has a wagon on it")
+        cell.rotate(str(direction))
+
+        return Response({"response": "ok"})
 
 
 @login_required
@@ -257,81 +290,81 @@ def clone_room(request, room_id):
     return redirect("/dashboard")
 
 
-@login_required
-def place_cell(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        # cell_form = PlaceCellForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                data = request.POST
-                x = data["x"]
-                y = data["y"]
-                cell_type = data["type"]
-                if int(cell_type) > 8 or int(cell_type) < 0:
-                    raise Exception("Cell type is not defined.")
-                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-                if cell.has_wagon():
-                    raise Exception("Cell has a wagon on it.")
-                with transaction.atomic():
-                    cell.delete()
-                    cell = Cell(x=x, y=y, room_id=room, type=cell_type)
-                    cell.save()
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
+# @login_required
+# def place_cell(request, room_id):
+#     if request.method == "POST":
+#         user = request.user
+#         room_form = RoomIdForm(request.POST, request.FILES)
+#         # cell_form = PlaceCellForm(request.POST, request.FILES)
+#         if room_form.is_valid():
+#             room = get_object_or_404(Room, pk=room_id)
+#             if user in room.guests.all() or user == room.owner:
+#                 data = request.POST
+#                 x = data["x"]
+#                 y = data["y"]
+#                 cell_type = data["type"]
+#                 if int(cell_type) > 8 or int(cell_type) < 0:
+#                     raise Exception("Cell type is not defined.")
+#                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+#                 if cell.has_wagon():
+#                     raise Exception("Cell has a wagon on it.")
+#                 with transaction.atomic():
+#                     cell.delete()
+#                     cell = Cell(x=x, y=y, room_id=room, type=cell_type)
+#                     cell.save()
+#             else:
+#                 raise PermissionDenied
+#         else:  # TODO: Empty control flow.
+#             pass
+#     return redirect(f"/room/{room_id}")
 
 
-@login_required
-def switch_cell(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                data = request.POST
-                cell = get_object_or_404(
-                    Cell, room_id=room.id, id=data["stateful_cell"]
-                )
-                if cell.has_wagon():
-                    raise Exception("The cell has a wagon on it")
-                cell.switch_state()
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
+# @login_required
+# def switch_cell(request, room_id):
+#     if request.method == "POST":
+#         user = request.user
+#         room_form = RoomIdForm(request.POST, request.FILES)
+#         if room_form.is_valid():
+#             room = get_object_or_404(Room, pk=room_id)
+#             if user in room.guests.all() or user == room.owner:
+#                 data = request.POST
+#                 cell = get_object_or_404(
+#                     Cell, room_id=room.id, id=data["stateful_cell"]
+#                 )
+#                 if cell.has_wagon():
+#                     raise Exception("The cell has a wagon on it")
+#                 cell.switch_state()
+#             else:
+#                 raise PermissionDenied
+#         else:  # TODO: Empty control flow.
+#             pass
+#     return redirect(f"/room/{room_id}")
 
 
-@login_required
-def rotate_cell(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        # cell_form = RotateCellForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                data = request.POST
-                x = data["x"]
-                y = data["y"]
-                direction = data["direction"]
-                if int(direction) > 3 or int(direction) < 0:
-                    raise Exception("Direction is not defined.")
-                cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
-                if cell.has_wagon():
-                    raise Exception("The cell has a wagon on it")
-                cell.rotate(str(direction))
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
+# @login_required
+# def rotate_cell(request, room_id):
+#     if request.method == "POST":
+#         user = request.user
+#         room_form = RoomIdForm(request.POST, request.FILES)
+#         # cell_form = RotateCellForm(request.POST, request.FILES)
+#         if room_form.is_valid():
+#             room = get_object_or_404(Room, pk=room_id)
+#             if user in room.guests.all() or user == room.owner:
+#                 data = request.POST
+#                 x = data["x"]
+#                 y = data["y"]
+#                 direction = data["direction"]
+#                 if int(direction) > 3 or int(direction) < 0:
+#                     raise Exception("Direction is not defined.")
+#                 cell = get_object_or_404(Cell, room_id=room.id, x=x, y=y)
+#                 if cell.has_wagon():
+#                     raise Exception("The cell has a wagon on it")
+#                 cell.rotate(str(direction))
+#             else:
+#                 raise PermissionDenied
+#         else:  # TODO: Empty control flow.
+#             pass
+#     return redirect(f"/room/{room_id}")
 
 
 # pylint:disable=w0613
