@@ -1,12 +1,24 @@
-/* eslint-disable no-case-declarations */
-import { useState } from 'react';
-import { Button, OverlayTrigger, Popover } from 'react-bootstrap';
+import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CellOps from '../components/CellOps/CellOps';
 import GuestOps from '../components/GuestOps/GuestOps';
 import './room.css';
 import { getCellImage, getWagonImage } from './RoomHelper';
 
-const getGrid = (cells, room, trains) => {
+const Room = ({
+  roomData: {
+    room, cells, trains, users,
+  },
+}) => {
+  let running = false;
+
+  const popover = (cell) => (
+    <Popover id="popover-basic">
+      <Popover.Body>
+        <CellOps cell={cell} room={room} />
+      </Popover.Body>
+    </Popover>
+  );
+
   const grid = [];
   const newCells = cells.sort((a, b) => {
     if (a.y < b.y) return -1;
@@ -27,73 +39,14 @@ const getGrid = (cells, room, trains) => {
   for (const train of trains) {
     // eslint-disable-next-line no-restricted-syntax
     for (const wagon of train.wagon_set) {
+      running = true;
       grid[wagon.y][wagon.x].wagons.push({ type: train.type, direction: wagon.direction });
     }
     grid[train.source.y][train.source.x].train = train;
   }
 
-  return grid;
-};
-
-const Room = ({
-  roomData: {
-    room, cells, trains, users,
-  },
-}) => {
-  const token = localStorage.getItem('token');
-  const [grid, setGrid] = useState(getGrid(cells, room, trains));
-  const [socket, setSocket] = useState(null);
-
-  const running = false;
-
-  if (socket === null) {
-    const connectionString = `ws://localhost:8000/ws/play/${room.id}/${token}`;
-    const ws = new WebSocket(connectionString);
-
-    ws.onopen = () => {
-      console.log('connected');
-    };
-
-    ws.onmessage = (evt) => {
-      const message = JSON.parse(evt.data);
-      const { type } = evt;
-      switch (type) {
-        case 'cell_change':
-          const { cell } = evt;
-          const newGrid = grid;
-          newGrid[cell.y][cell.x] = cell;
-          setGrid(newGrid);
-          break;
-        default:
-      }
-      console.log(message);
-    };
-
-    ws.onclose = () => {
-      console.log('disconnected');
-    };
-
-    setSocket(ws);
-  }
-
-  const popover = (cell) => (
-    <Popover id="popover-basic">
-      <Popover.Body>
-        <CellOps cell={cell} room={room} />
-      </Popover.Body>
-    </Popover>
-  );
-
   return (
     <div>
-      {token && (
-      <Button onClick={() => {
-        socket.send(JSON.stringify({ event: 'attach', token }));
-      }}
-      >
-        Ping
-      </Button>
-      )}
       <h5>
         {`${room.id}: `}
         <b>{room.owner.username}</b>

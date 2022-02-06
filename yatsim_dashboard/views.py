@@ -37,6 +37,15 @@ from .serializers import (
 # Implement a robusts checking mechanism.
 
 
+def send_cell_data(cell, room_id):
+    cell_data = CellSerializer(cell)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        str(room_id),
+        {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
+    )
+
+
 class IsRoomOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj: Room):
         return obj.owner == request.user
@@ -160,14 +169,7 @@ class PlaceCellAPIView(APIView):
             cell = Cell(room_id=room, **serializer.data)
             cell.save()
 
-        channel_layer = get_channel_layer()
-        print(room_id)
-
-        cell_data = CellSerializer(cell)
-        async_to_sync(channel_layer.group_send)(
-            str(room_id),
-            {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
-        )
+        send_cell_data(cell, room_id)
         return Response({"response": "ok"})
 
 
@@ -183,6 +185,8 @@ class SwitchCellAPIView(APIView):
         if cell.has_wagon():
             raise Exception("The cell has a wagon on it")
         cell.switch_state()
+
+        send_cell_data(cell, room_id)
         return Response({"response": "ok"})
 
 
@@ -203,6 +207,7 @@ class RotateCellAPIView(APIView):
             raise Exception("The cell has a wagon on it")
         cell.rotate(str(direction))
 
+        send_cell_data(cell, room_id)
         return Response({"response": "ok"})
 
 

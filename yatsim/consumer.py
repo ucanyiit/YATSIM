@@ -14,7 +14,6 @@ class RoomConsumer(JsonWebsocketConsumer):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         token = self.scope["url_route"]["kwargs"]["token"]
         # Join room group
-        print("======\n", self.room_id, token, end="\n======\n")
         t = Token.objects.get(key=token)
         user = t.user
         room = Room.objects.get(pk=self.room_id)
@@ -22,10 +21,6 @@ class RoomConsumer(JsonWebsocketConsumer):
             print(self.room_id, self.channel_name, "connected")
             self.accept()
             async_to_sync(self.channel_layer.group_add)(self.room_id, self.channel_name)
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_id,
-                {"type": "send_message", "message": "asd", "event": "MOVE"},
-            )
 
     def disconnect(self, close_code):
         print("Disconnected")
@@ -38,11 +33,6 @@ class RoomConsumer(JsonWebsocketConsumer):
         Get the event and send the appropriate event
         """
         print(json_data)
-        self.send_json(json_data)
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_id,
-            json.dumps(json_data),
-        )
 
         # if event == 'MOVE':
         #     # Send message to room group

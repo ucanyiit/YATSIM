@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable no-case-declarations */
+import { useEffect, useRef, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import CreateRoom from './pages/CreateRoom';
@@ -12,7 +13,37 @@ const App = () => {
   const [page, setPage] = useState('home');
   const [loading, setLoading] = useState(false);
   const [failedToLoad, setFailed] = useState(false);
+  const [room_id, set_room_id] = useState(null);
   const [roomData, setRoomData] = useState(null);
+  const webSocket = useRef(null);
+
+  useEffect(() => {
+    if (!room_id) return;
+    const connectionString = `ws://localhost:8000/ws/play/${room_id}/${token}`;
+    webSocket.current = new WebSocket(connectionString);
+    webSocket.current.onmessage = (evt) => {
+      const message = JSON.parse(evt.data);
+      const { event } = message;
+      switch (event) {
+        case 'cell_change':
+          const { cell } = message;
+          const { cells } = roomData;
+          cells[cell.y * roomData.room.width + cell.x] = cell;
+          setRoomData({
+            ...roomData,
+            cells,
+          });
+          break;
+        default:
+      }
+    };
+    webSocket.current.onopen = () => {
+      console.log('connected');
+    };
+    webSocket.current.onclose = () => {
+      console.log('disconnected');
+    };
+  }, [room_id]);
 
   const goHome = () => {
     setPage('home');
@@ -24,9 +55,13 @@ const App = () => {
     (new RequestHandler()).request(`room/${roomId}`, 'get')
       .then((response) => {
         setRoomData(response);
+        set_room_id(response.room.id);
         setPage('room');
       })
-      .catch(() => setFailed(true))
+      .catch((e) => {
+        console.error(e);
+        setFailed(true);
+      })
       .finally(() => setLoading(false));
   };
 
