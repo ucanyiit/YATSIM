@@ -1,15 +1,36 @@
 import { useState } from 'react';
 import { Button, Container } from 'react-bootstrap';
+import Header from './components/Header';
 import CreateRoom from './pages/CreateRoom';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Room from './pages/Room';
+import RequestHandler from './utils/RequestHandler';
 
 const App = () => {
   const [page, setPage] = useState('home');
-  const [roomId, setRoomId] = useState('');
   const [socket, setSocket] = useState(null);
   const token = localStorage.getItem('token');
+  const [loading, setLoading] = useState(false);
+  const [failedToLoad, setFailed] = useState(false);
+  const [roomData, setRoomData] = useState(null);
+
+  const goHome = () => {
+    setPage('home');
+    setRoomData(null);
+  };
+
+  const setRoom = (roomId) => {
+    setLoading(true);
+    (new RequestHandler()).request(`room/${roomId}`, 'get')
+      .then((response) => {
+        console.log(response);
+        setRoomData(response);
+        setPage('room');
+      })
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false));
+  };
 
   if (!socket) {
     console.log('enter', socket);
@@ -18,56 +39,38 @@ const App = () => {
     console.log('done', socket);
 
     ws.onopen = () => {
-      // on connecting, do nothing but log it to the console
       console.log('connected', ws.url, ws.readyState, ws);
     };
 
     ws.onmessage = (evt) => {
-      // listen to data sent from the websocket server
       const message = JSON.parse(evt.data);
       console.log(message);
     };
 
     ws.onclose = () => {
       console.log('disconnected');
-      // automatically try to reconnect on connection loss
     };
+  }
+
+  if (loading || failedToLoad) {
+    return (
+      <Container className="mt-3">
+        <Header token={token} setPage={setPage} />
+        {failedToLoad && 'Failed to load, please refresh.'}
+        {loading && 'Loading..'}
+      </Container>
+    );
   }
 
   return (
     <Container className="mt-3">
-      <div className="mb-3">
-        <Button className="me-2" onClick={() => setPage('home')}>
-          Home
-        </Button>
-        <Button className="me-2" onClick={() => setPage('create')}>
-          Create Room
-        </Button>
-        {!token && (
-        <Button onClick={() => setPage('login')}>
-          Login
-        </Button>
-        )}
-        {token && (
-          <Button onClick={() => {
-            localStorage.removeItem('token');
-            window.location.reload(false);
-          }}
-          >
-            Logout
-          </Button>
-        )}
-      </div>
+      <Header token={token} setPage={setPage} />
       {page === 'home' && (
-      <Dashboard goRoom={(room_id) => {
-        setPage('room');
-        setRoomId(room_id);
-      }}
-      />
+      <Dashboard goRoom={setRoom} />
       )}
-      {page === 'room' && <Room id={roomId} />}
-      {page === 'create' && <CreateRoom id={roomId} goHome={() => setPage('home')} />}
-      {page === 'login' && <Login goHome={() => setPage('home')} />}
+      {page === 'room' && <Room goHome={goHome} roomData={roomData} />}
+      {page === 'create' && <CreateRoom goHome={goHome} />}
+      {page === 'login' && <Login goHome={goHome} />}
       {token && (
       <Button onClick={() => {
         socket.send(JSON.stringify({ type: 'attach', token, room_id: 2 }));
