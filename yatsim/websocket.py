@@ -1,3 +1,5 @@
+import json
+
 connections = {}
 
 
@@ -16,9 +18,13 @@ async def websocket_application(scope, receive, send):
             break
 
         if event["type"] == "websocket.receive":
-            print(event)
-            if event["text"] == "ping":
-                await send({"type": "websocket.send", "text": "pong!"})
+            data = json.loads(event["text"])
+            print(data)
+            if data["type"] == "attach":
+                # check data["room"] and data["token"]
+                send_data = json.dumps({"asd": "asd"})
+                print(send_data, type(send_data))
+                await send({"type": "websocket.send", "text": send_data})
 
 
 def send_message_to_connections(data):

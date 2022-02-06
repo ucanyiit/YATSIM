@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, ListGroup } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
 const Dashboard = ({ goRoom }) => {
@@ -34,25 +34,25 @@ const Dashboard = ({ goRoom }) => {
       <span>
         {`You are logged in as ${data.user.username}.`}
       </span>
-      <ul>
+      <ListGroup>
         {data.owned_rooms.map((room) => (
-          <li key={room.id}>
+          <ListGroup.Item key={room.id}>
             {`${room.id}: `}
             <b>{room.owner__username}</b>
             {`/${room.room_name}, `}
             <Button onClick={() => goRoom(room.id)}>go</Button>
-          </li>
+          </ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
 
-      <ul>
+      <ListGroup>
         {data.guest_rooms.map((room) => (
-          <li key={room.id}>
+          <ListGroup.Item key={room.id}>
             {`${room.id}: ${room.owner__username}/${room.room_name}, `}
             <Button onClick={() => goRoom(room.id)}>go</Button>
-          </li>
+          </ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
     </div>
   );
 };
