@@ -7,7 +7,7 @@ import { getCellImage, getWagonImage } from './RoomHelper';
 const Room = ({
   roomData: {
     room, cells, trains, users,
-  },
+  }, goHome,
 }) => {
   let running = false;
 
@@ -103,7 +103,7 @@ const Room = ({
           </tbody>
         </table>
       </center>
-      <GuestOps room={room} users={users} />
+      <GuestOps room={room} users={users} goHome={goHome} />
     </div>
   );
 };

@@ -4,13 +4,13 @@ import AddGuestOp from './AddGuestOp';
 import LeaveOp from './LeaveOp';
 import RemoveGuestOp from './RemoveGuestOp';
 
-const GuestOps = ({ room, users }) => (
+const GuestOps = ({ room, users, goHome }) => (
   <Container>
     <h4>
       Cell Operations
     </h4>
     <Row className="my-2">
-      <LeaveOp room={room} />
+      <LeaveOp room={room} goHome={goHome} />
     </Row>
     <Row className="my-2">
       <RemoveGuestOp room={room} />
@@ -19,7 +19,7 @@ const GuestOps = ({ room, users }) => (
       <AddGuestOp room={room} users={users} />
     </Row>
     <Row className="my-2">
-      <CloneOp room={room} />
+      <CloneOp room={room} goHome={goHome} />
     </Row>
   </Container>
 );

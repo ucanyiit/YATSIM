@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
-const LeaveOrDeleteOp = ({ room }) => {
+const LeaveOrDeleteOp = ({ room, goHome }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -17,7 +17,7 @@ const LeaveOrDeleteOp = ({ room }) => {
           e.preventDefault();
           setLoading(true);
           (new RequestHandler()).request(`room/${room.id}/leave/`, 'post', { })
-            .then(() => {})
+            .then(goHome)
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
         }}

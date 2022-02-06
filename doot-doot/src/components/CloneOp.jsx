@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
-const CloneOp = ({ room }) => {
+const CloneOp = ({ room, goHome }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [roomName, setRoomName] = useState('');
@@ -18,7 +18,7 @@ const CloneOp = ({ room }) => {
           e.preventDefault();
           setLoading(true);
           (new RequestHandler()).request(`room/${room.id}/clone/`, 'post', { room_name: roomName })
-            .then(() => {})
+            .then(goHome)
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
         }}
