@@ -1,11 +1,12 @@
 import json
 
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from rest_framework.authtoken.models import Token
 
 
-class TicTacToeConsumer(AsyncJsonWebsocketConsumer):
+class RoomConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_code"]
+        self.room_name = self.scope["url_route"]["kwargs"]["room_id"]
         self.room_group_name = "room_%s" % self.room_name
 
         # Join room group
@@ -24,8 +25,12 @@ class TicTacToeConsumer(AsyncJsonWebsocketConsumer):
         """
         response = json.loads(text_data)
         event = response.get("event", None)
-        message = response.get("message", None)
-        print("======\n", event, message, end="=====\n\n")
+        print("======\n", event, end="\n======\n")
+        if event == "attach":
+            token = response.get("token", None)
+            room_id = response.get("room_id", None)
+            print(token, room_id)
+            # a = Token.objects.get(key=token)
         # if event == 'MOVE':
         #     # Send message to room group
         #     await self.channel_layer.group_send(self.room_group_name, {

@@ -1,4 +1,5 @@
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+import { useState } from 'react';
+import { Button, OverlayTrigger, Popover } from 'react-bootstrap';
 import CellOps from '../components/CellOps/CellOps';
 import GuestOps from '../components/GuestOps/GuestOps';
 import './room.css';
@@ -9,6 +10,29 @@ const Room = ({
     room, cells, trains, users,
   },
 }) => {
+  const token = localStorage.getItem('token');
+  const [socket, setSocket] = useState(null);
+
+  if (!socket) {
+    const connectionString = `ws://localhost:8000/ws/play/${room.id}/`;
+    const ws = new WebSocket(connectionString);
+
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ event: 'attach', token, room_id: room.id }));
+    };
+
+    ws.onmessage = (evt) => {
+      const message = JSON.parse(evt.data);
+      console.log(message);
+    };
+
+    ws.onclose = () => {
+      console.log('disconnected');
+    };
+
+    setSocket(ws);
+  }
+
   let running = false;
 
   const grid = [];
@@ -47,6 +71,14 @@ const Room = ({
 
   return (
     <div>
+      {token && (
+      <Button onClick={() => {
+        socket.send(JSON.stringify({ event: 'attach', token }));
+      }}
+      >
+        Ping
+      </Button>
+      )}
       <h5>
         {`${room.id}: `}
         <b>{room.owner.username}</b>
