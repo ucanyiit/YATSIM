@@ -37,7 +37,11 @@ const PlaceOp = ({ room, cell }) => {
       >
         <Form.Group className="mb-3" controlId="type">
           <Form.Label>Type</Form.Label>
-          <Form.Select value={cell.type} onChange={(e) => setType(e.target.value)} required min="0" max={room.width - 1}>
+          <Form.Select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
             {types.map((cell_type) => (
               <option key={cell_type.value} value={cell_type.value}>
                 {cell_type.name}

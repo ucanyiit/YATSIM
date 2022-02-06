@@ -12,7 +12,7 @@ const directions = [
 const RotateOp = ({ room, cell }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [direction, setDirection] = useState(cell.type);
+  const [direction, setDirection] = useState(cell.direction);
 
   return (
     <div>
@@ -32,7 +32,11 @@ const RotateOp = ({ room, cell }) => {
       >
         <Form.Group className="mb-3" controlId="direction">
           <Form.Label>Direction</Form.Label>
-          <Form.Select value={cell.direction} onChange={(e) => setDirection(e.target.value)} required min="0" max={room.width - 1}>
+          <Form.Select
+            value={direction}
+            onChange={(e) => setDirection(e.target.value)}
+            required
+          >
             {directions.map((cell_direction) => (
               <option key={cell_direction.value} value={cell_direction.value}>
                 {cell_direction.name}

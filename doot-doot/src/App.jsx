@@ -24,7 +24,6 @@ const App = () => {
     setLoading(true);
     (new RequestHandler()).request(`room/${roomId}`, 'get')
       .then((response) => {
-        console.log(response);
         setRoomData(response);
         setPage('room');
       })

@@ -19,10 +19,7 @@ const CreateRoom = ({ goHome }) => {
           e.preventDefault();
           setLoading(true);
           (new RequestHandler()).request('create_room/', 'post', { height, width, room_name })
-            .then((response) => {
-              console.log('yes', response);
-              goHome();
-            })
+            .then(goHome)
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
         }}

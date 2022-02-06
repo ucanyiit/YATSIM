@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CellOps from '../components/CellOps';
 import './room.css';
@@ -6,9 +5,8 @@ import { getCellImage, getWagonImage } from './RoomHelper';
 
 const Room = ({ roomData: { room, cells, trains } }) => {
   const running = false;
-  const [grid, setMap] = useState(null);
 
-  const newGrid = [];
+  const grid = [];
   const newCells = cells.sort((a, b) => {
     if (a.y < b.y) return -1;
     if (a.y > b.y) return 1;
@@ -21,28 +19,16 @@ const Room = ({ roomData: { room, cells, trains } }) => {
     for (let j = 0; j < room.width; j += 1) {
       row.push({ ...newCells[i * room.width + j], wagons: [] });
     }
-    newGrid.push(row);
+    grid.push(row);
   }
 
   // eslint-disable-next-line no-restricted-syntax
   for (const train of trains) {
-    console.log(train);
     // eslint-disable-next-line no-restricted-syntax
     for (const wagon of train.wagon_set) {
-      newGrid[wagon.y][wagon.x].wagons.push({ type: train.type, direction: wagon.direction });
+      grid[wagon.y][wagon.x].wagons.push({ type: train.type, direction: wagon.direction });
     }
-  }
-
-  if (JSON.stringify(grid) !== JSON.stringify(newGrid)) {
-    setMap(newGrid);
-  }
-
-  if (!grid) {
-    return (
-      <div>
-        Loading...
-      </div>
-    );
+    grid[train.source.y][train.source.x].train = train;
   }
 
   const popover = (cell) => (
@@ -63,43 +49,50 @@ const Room = ({ roomData: { room, cells, trains } }) => {
       <div>
         Guests:
         {room.guests.map((u) => (
-          <span>
-            {u.username}
+          <span key={u}>
+            {`${u.username}, `}
           </span>
         ))}
+        {room.guests.length === 0 && (
+        <span>
+          {' No guests :('}
+        </span>
+        )}
       </div>
       <center>
         <table>
-          {grid.map((row) => (
-            <tr>
-              {row.map((cell) => (
-                <td>
-                  <OverlayTrigger trigger="click" placement="right" overlay={popover(cell)}>
-                    <div className="cell">
-                      <img
-                        alt="wow"
-                        className={`direction${cell.direction}`}
-                        width="48"
-                        height="48"
-                        src={getCellImage(cell.type, cell.state)}
-                      />
-                      {cell.wagons.map((wagon) => (
+          <tbody>
+            {grid.map((row) => (
+              <tr key={row[0].y}>
+                {row.map((cell) => (
+                  <td key={cell.x}>
+                    <OverlayTrigger trigger="click" placement="right" overlay={popover(cell)}>
+                      <div className="cell">
                         <img
-                          key={`${wagon.type}`}
-                          alt="doot-doot"
-                          className={`train direction${wagon.direction}`}
+                          alt="wow"
+                          className={`direction${cell.direction}`}
                           width="48"
                           height="48"
-                          src={getWagonImage(wagon.type)}
+                          src={getCellImage(cell.type, cell.state)}
                         />
-                      ))}
-                    </div>
-                  </OverlayTrigger>
+                        {cell.wagons.map((wagon) => (
+                          <img
+                            key={`${wagon.type}`}
+                            alt="doot-doot"
+                            className={`train direction${wagon.direction}`}
+                            width="48"
+                            height="48"
+                            src={getWagonImage(wagon.type)}
+                          />
+                        ))}
+                      </div>
+                    </OverlayTrigger>
 
-                </td>
-              ))}
-            </tr>
-          ))}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
       </center>
     </div>
