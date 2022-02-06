@@ -128,7 +128,6 @@ class DashboardSerializer(serializers.Serializer):
 
 
 class RoomDataSerializer(serializers.Serializer):
-    user = UserSerializer()
     room = RoomSerializer()
     cells = CellSerializer(many=True)
     trains = TrainSerializer(many=True)
@@ -141,13 +140,11 @@ class RoomDataSerializer(serializers.Serializer):
 class RoomData:
     def __init__(
         self,
-        user,
         room,
         cells,
         trains,
         running,
     ):
-        self.user = user
         self.room = room
         self.cells = cells
         self.trains = trains

@@ -17,7 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from yatsim_dashboard import views
@@ -36,10 +35,8 @@ urlpatterns = [
         views.CreateRoomAPIView.as_view(),
         name="create_room_new",
     ),
-    # path("room/<int:room_id>/", views.index, name="room_page"),
-    path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
-    path("room/clone/<int:room_id>/", views.clone_room, name="clone_room"),
     path("room/<int:room_id>", views.room_view, name="room"),
+    path("room/delete/<int:room_id>/", views.delete_room, name="delete_room"),
     path("room/add/<int:room_id>/", views.add_user_to_room, name="add_user_to_room"),
     path(
         "room/remove/<int:room_id>/",
@@ -91,5 +88,6 @@ urlpatterns = [
         views.run_simulation,
         name="run",
     ),
+    path("room/clone/<int:room_id>/", views.clone_room, name="clone_room"),
     path("api/auth/login/", user_views.LoginAPIView.as_view()),
 ]
