@@ -5,6 +5,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
+from rest_framework import generics, mixins, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
 
@@ -22,6 +23,7 @@ from .serializers import (
     DashboardSerializer,
     RoomData,
     RoomDataSerializer,
+    UserSerializer,
 )
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
@@ -30,6 +32,24 @@ from .serializers import (
 # pylint:disable=w0702
 # TODO: Bare exceptions. What are possible exceptions and how to resolve them?
 # Implement a robusts checking mechanism.
+
+
+class IsRoomOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj: Room):
+        return obj.owner == request.user
+
+
+class IsRoomOwnerOrGuest(IsRoomOwner):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return user in obj.guests.all() or super().has_object_permission(
+            request, view, obj
+        )
+
+
+class IsSafeMethod(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS
 
 
 class DashboardAPIView(APIView):
@@ -44,17 +64,59 @@ class DashboardAPIView(APIView):
         return Response(obj.data)
 
 
-class RoomAPIView(APIView):
+class CreateRoomAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, room_id):
+    def post(self, request):
+        user = request.user
+        serializer = CreateRoomSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        obj = serializer.save(owner=user)
+        return Response(DashboardRoomSerializer(obj).data)
+
+
+class RoomAPIView(generics.RetrieveDestroyAPIView):
+    permission_classes = [IsRoomOwner | (IsRoomOwnerOrGuest & IsSafeMethod)]
+    queryset = Room.objects.all()
+    lookup_url_kwarg = "room_id"
+    serializer_class = RoomDataSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()  # room
+        trains = Train.objects.filter(room_id__exact=instance.id)
+        cell_objects = get_list_or_404(Cell, room_id__exact=instance.id)
+        obj = RoomData(instance, cell_objects, trains)
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+
+
+# TODO: ws stuff.
+class RoomUserManagementAPIView(APIView):
+    permission_classes = [IsRoomOwner]
+
+    def post(self, request, room_id):
+        serializer = UserSerializer(data=request.data)
+        new_guest = get_object_or_404(User, username=serializer.data["username"])
         room = get_object_or_404(Room, pk=room_id)
-        trains = Train.objects.filter(room_id__exact=room_id)
-        cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+        room.guests.add(new_guest)
+        return Response({"response": "ok"})
 
-        obj = RoomData(room, cell_objects, trains)
+    def delete(self, request, room_id):
+        serializer = UserSerializer(data=request.data)
+        new_guest = get_object_or_404(User, username=serializer.data["username"])
+        room = get_object_or_404(Room, pk=room_id)
+        room.guests.remove(new_guest)
+        return Response({"response": "ok"})
 
-        return Response(RoomDataSerializer(obj).data)
+
+class LeaveRoomAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+
+class DeleteRoomAPIView(generics.DestroyAPIView):
+    permission_classes = [IsRoomOwner]
+    queryset = Room.objects.all()
+    lookup_url_kwarg = "room_id"
 
 
 @login_required
@@ -118,17 +180,6 @@ def room_view(request, room_id):
             "stateful_cells": statefuls,
         },
     )
-
-
-class CreateRoomAPIView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        user = request.user
-        serializer = CreateRoomSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        obj = serializer.save(owner=user)
-        return Response(DashboardRoomSerializer(obj).data)
 
 
 class CreateRoomView(FormView):

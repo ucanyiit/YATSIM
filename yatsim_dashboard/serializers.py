@@ -150,4 +150,10 @@ class RoomData:
         self.trains = trains
 
 
+# class UserSerializerNoValidation(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ("id",)
+
+
 # Room stuff
