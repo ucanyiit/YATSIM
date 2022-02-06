@@ -70,7 +70,6 @@ class DashboardRoomSerializer(serializers.ModelSerializer):
 
 
 class CreateRoomSerializer(serializers.ModelSerializer):
-    # owner = UserSerializer() # Nested
     class Meta:
         model = Room
         fields = (
@@ -82,6 +81,9 @@ class CreateRoomSerializer(serializers.ModelSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
+    guests = UserSerializer(many=True)
+    owner = UserSerializer()
+
     class Meta:
         model = Room
         fields = (
@@ -89,6 +91,8 @@ class RoomSerializer(serializers.ModelSerializer):
             "room_name",
             "height",
             "width",
+            "guests",
+            "owner",
         )
 
 

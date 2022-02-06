@@ -5,9 +5,11 @@ const Header = ({ setPage, token }) => (
     <Button className="me-2" onClick={() => setPage('home')}>
       Home
     </Button>
+    {token && (
     <Button className="me-2" onClick={() => setPage('create')}>
       Create Room
     </Button>
+    )}
     {!token && (
     <Button onClick={() => setPage('login')}>
       Login

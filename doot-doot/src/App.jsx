@@ -24,7 +24,6 @@ const App = () => {
     setLoading(true);
     (new RequestHandler()).request(`room/${roomId}`, 'get')
       .then((response) => {
-        console.log(response);
         setRoomData(response);
         setPage('room');
       })
@@ -62,6 +61,16 @@ const App = () => {
     );
   }
 
+  if (!token) {
+    return (
+      <Container className="mt-3">
+        <Header token={token} setPage={setPage} />
+        {page === 'login' && <Login goHome={goHome} />}
+        {page !== 'login' && <p>Please login to see dashboard.</p>}
+      </Container>
+    );
+  }
+
   return (
     <Container className="mt-3">
       <Header token={token} setPage={setPage} />
@@ -70,7 +79,6 @@ const App = () => {
       )}
       {page === 'room' && <Room goHome={goHome} roomData={roomData} />}
       {page === 'create' && <CreateRoom goHome={goHome} />}
-      {page === 'login' && <Login goHome={goHome} />}
       {token && (
       <Button onClick={() => {
         socket.send(JSON.stringify({ type: 'attach', token, room_id: 2 }));
