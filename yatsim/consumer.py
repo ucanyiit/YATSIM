@@ -1,36 +1,49 @@
 import json
 
-from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from asgiref.sync import async_to_sync
+from channels.generic.websocket import JsonWebsocketConsumer
 from rest_framework.authtoken.models import Token
 
+from yatsim_dashboard.models import Room
 
-class RoomConsumer(AsyncJsonWebsocketConsumer):
-    async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_id"]
-        self.room_group_name = "room_%s" % self.room_name
 
+class RoomConsumer(JsonWebsocketConsumer):
+    groups = [str(room.id) for room in Room.objects.all()]
+
+    def connect(self):
+        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
+        token = self.scope["url_route"]["kwargs"]["token"]
         # Join room group
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
+        print("======\n", self.room_id, token, end="\n======\n")
+        t = Token.objects.get(key=token)
+        user = t.user
+        room = Room.objects.get(pk=self.room_id)
+        if user in room.guests.all() or user == room.owner:
+            print(self.room_id, self.channel_name, "connected")
+            self.accept()
+            async_to_sync(self.channel_layer.group_add)(self.room_id, self.channel_name)
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_id,
+                {"type": "send_message", "message": "asd", "event": "MOVE"},
+            )
 
-    async def disconnect(self, close_code):
+    def disconnect(self, close_code):
         print("Disconnected")
         # Leave room group
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        async_to_sync(self.channel_layer.group_discard)(self.room_id, self.channel_name)
 
-    async def receive(self, text_data):
+    def receive_json(self, json_data):
         """
         Receive message from WebSocket.
         Get the event and send the appropriate event
         """
-        response = json.loads(text_data)
-        event = response.get("event", None)
-        print("======\n", event, end="\n======\n")
-        if event == "attach":
-            token = response.get("token", None)
-            room_id = response.get("room_id", None)
-            print(token, room_id)
-            # a = Token.objects.get(key=token)
+        print(json_data)
+        self.send_json(json_data)
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_id,
+            json.dumps(json_data),
+        )
+
         # if event == 'MOVE':
         #     # Send message to room group
         #     await self.channel_layer.group_send(self.room_group_name, {
@@ -55,13 +68,8 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         #         'event': "END"
         #     })
 
-    async def send_message(self, res):
+    def send_message(self, res):
         """Receive message from room group"""
         # Send message to WebSocket
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "payload": res,
-                }
-            )
-        )
+        print("res", res)
+        self.send_json(res)

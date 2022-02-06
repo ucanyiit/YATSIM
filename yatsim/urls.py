@@ -20,8 +20,14 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from yatsim_dashboard import views
+from yatsim_user import views as user_views
 
 urlpatterns = [
+    path(
+        "api/auth/login/",
+        user_views.LoginAPIView.as_view(),
+        name="login",
+    ),
     path(
         "logout/",
         auth_views.LogoutView.as_view(template_name="auth/logout.html"),

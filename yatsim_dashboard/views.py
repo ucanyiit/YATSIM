@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -13,6 +15,7 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
 )
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
+    CellSerializer,
     CloneRoomSerializer,
     CreateCellSerializer,
     CreateRoomSerializer,
@@ -157,6 +160,14 @@ class PlaceCellAPIView(APIView):
             cell = Cell(room_id=room, **serializer.data)
             cell.save()
 
+        channel_layer = get_channel_layer()
+        print(room_id)
+
+        cell_data = CellSerializer(cell)
+        async_to_sync(channel_layer.group_send)(
+            str(room_id),
+            {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
+        )
         return Response({"response": "ok"})
 
 
