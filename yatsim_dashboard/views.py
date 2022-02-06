@@ -5,6 +5,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView, Response
@@ -16,7 +17,12 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     UserIdForm,
 )
 from .models import Cell, Room, Train, Wagon
-from .serializers import DashboardData, DashboardSerializer
+from .serializers import (
+    CreateRoomSerializer,
+    DashboardData,
+    DashboardRoomSerializer,
+    DashboardSerializer,
+)
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
@@ -99,6 +105,17 @@ def room_view(request, room_id):
             "stateful_cells": statefuls,
         },
     )
+
+
+class CreateRoomAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        serializer = CreateRoomSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        obj = serializer.save(owner=user)
+        return Response(DashboardRoomSerializer(obj).data)
 
 
 class CreateRoomView(FormView):

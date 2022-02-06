@@ -48,19 +48,35 @@ class RegisterRequestSerializer(serializers.ModelSerializer):
         }
 
 
-class DashboardRoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Room
-        fields = (
-            "id",
-            "room_name",
-        )
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username",)
+
+
+class DashboardRoomSerializer(serializers.ModelSerializer):
+    owner = UserSerializer()
+
+    class Meta:
+        model = Room
+        depth = 1
+        fields = (
+            "id",
+            "room_name",
+            "owner",
+        )
+
+
+class CreateRoomSerializer(serializers.ModelSerializer):
+    # owner = UserSerializer() # Nested
+    class Meta:
+        model = Room
+        fields = (
+            "room_name",
+            "height",
+            "width",
+            # "owner"
+        )
 
 
 class DashboardData:

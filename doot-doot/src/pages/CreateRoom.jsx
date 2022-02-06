@@ -18,7 +18,7 @@ const CreateRoom = ({ goHome }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request('create_room', 'post', { height, width, room_name })
+          (new RequestHandler()).request('create_room/', 'post', { height, width, room_name })
             .then((response) => {
               console.log('yes', response);
               goHome();
