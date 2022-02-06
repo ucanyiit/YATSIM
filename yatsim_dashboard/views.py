@@ -233,25 +233,29 @@ class CloneRoomAPIView(APIView):
         serializer.is_valid()
         data = serializer.data
         room = get_object_or_404(Room, pk=room_id)
-        new_room = Room.objects.create(
-            owner=user,
-            room_name=data["room_name"],
-            height=room.height,
-            width=room.width,
-        )
-        new_room.save()
-        cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
-        for cell in cell_objects:
-            new_cell = get_object_or_404(Cell, room_id=new_room.id, x=cell.x, y=cell.y)
-            new_cell.delete()
-            new_cell = Cell(
-                x=cell.x,
-                y=cell.y,
-                room_id=new_room,
-                type=cell.type,
-                direction=cell.direction,
+        with transaction.atomic():
+            new_room = Room.objects.create(
+                owner=user,
+                room_name=data["room_name"],
+                height=room.height,
+                width=room.width,
             )
-            new_cell.save()
+            new_room.save()
+            cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+            for cell in cell_objects:
+                new_cell = get_object_or_404(
+                    Cell, room_id=new_room.id, x=cell.x, y=cell.y
+                )
+                new_cell.delete()
+                new_cell = Cell(
+                    x=cell.x,
+                    y=cell.y,
+                    room_id=new_room,
+                    type=cell.type,
+                    direction=cell.direction,
+                )
+                new_cell.save()
+        return Response({"response": "ok"})
 
 
 # @login_required

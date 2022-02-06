@@ -1,4 +1,5 @@
 import { Container, Row } from 'react-bootstrap';
+import CloneOp from '../CloneOp';
 import AddGuestOp from './AddGuestOp';
 import LeaveOp from './LeaveOp';
 import RemoveGuestOp from './RemoveGuestOp';
@@ -16,6 +17,9 @@ const GuestOps = ({ room, users }) => (
     </Row>
     <Row className="my-2">
       <AddGuestOp room={room} users={users} />
+    </Row>
+    <Row className="my-2">
+      <CloneOp room={room} />
     </Row>
   </Container>
 );
