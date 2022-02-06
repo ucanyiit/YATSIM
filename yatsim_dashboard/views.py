@@ -49,8 +49,8 @@ class RoomAPIView(APIView):
 
     def get(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
-        trains = Train.objects.filter(room_id__exact=room_id)
         cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
+        trains = Train.objects.filter(room_id__exact=room_id)
 
         obj = RoomData(room, cell_objects, trains)
 
