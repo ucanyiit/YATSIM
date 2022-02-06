@@ -21,7 +21,6 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from yatsim_dashboard import views
-
 from yatsim_user import views as user_views
 
 urlpatterns = [
@@ -100,5 +99,4 @@ urlpatterns = [
         name="run",
     ),
     path("api/auth/login/", user_views.LoginAPIView.as_view()),
-
 ]

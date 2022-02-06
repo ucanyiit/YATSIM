@@ -5,9 +5,9 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.views.generic.edit import FormView
-from rest_framework.views import APIView, Response
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView, Response
 
 from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     RoomCloneForm,
@@ -16,8 +16,7 @@ from .forms import (  # PlaceCellForm,; RotateCellForm,; SwitchCellForm,
     UserIdForm,
 )
 from .models import Cell, Room, Train, Wagon
-
-from .serializers import DashboardSerializer
+from .serializers import DashboardData, DashboardSerializer
 
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
@@ -34,10 +33,9 @@ class DashboardAPIView(APIView):
         user = request.user
         owned_rooms = Room.objects.filter(owner=user)
         guest_rooms = Room.objects.filter(guests=user)
-        obj = DashboardSerializer(data= {"owned_rooms": owned_rooms, "guest_rooms": guest_rooms, "user": user})
-        obj.is_valid()
+        data = DashboardData(user, owned_rooms, guest_rooms)
+        obj = DashboardSerializer(data)
         return Response(obj.data)
-
 
 
 @login_required

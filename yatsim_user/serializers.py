@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+
 
 class LoginRequestSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=True, allow_blank=False)
@@ -8,6 +9,7 @@ class LoginRequestSerializer(serializers.Serializer):
 
     class Meta:
         fields = ("username", "password")
+
 
 class AuthTokenSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
@@ -18,6 +20,7 @@ class AuthTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
         fields = ("token",)
+
 
 class RegisterRequestSerializer(serializers.ModelSerializer):
     def validate_password(self, password):

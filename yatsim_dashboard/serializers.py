@@ -1,7 +1,9 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+
 from .models import Room
+
 
 class LoginRequestSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150, required=True, allow_blank=False)
@@ -9,6 +11,7 @@ class LoginRequestSerializer(serializers.Serializer):
 
     class Meta:
         fields = ("username", "password")
+
 
 class AuthTokenSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
@@ -19,6 +22,7 @@ class AuthTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
         fields = ("token",)
+
 
 class RegisterRequestSerializer(serializers.ModelSerializer):
     def validate_password(self, password):
@@ -45,20 +49,31 @@ class RegisterRequestSerializer(serializers.ModelSerializer):
 
 
 class DashboardRoomSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Room
-        fields = ("id", "room_name",  )
+        fields = (
+            "id",
+            "room_name",
+        )
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("username",)
 
+
+class DashboardData:
+    def __init__(self, user, owned_rooms, guest_rooms):
+        self.user = user
+        self.owned_rooms = owned_rooms
+        self.guest_rooms = guest_rooms
+
+
 class DashboardSerializer(serializers.Serializer):
     owned_rooms = DashboardRoomSerializer(many=True)
     guest_rooms = DashboardRoomSerializer(many=True)
-    username = UserSerializer()
+    user = UserSerializer()
 
     class Meta:
         fields = ("owned_rooms", "guest_rooms", "username")

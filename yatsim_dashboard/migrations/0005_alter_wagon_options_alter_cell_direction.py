@@ -6,17 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('yatsim_dashboard', '0004_alter_wagon_options_train_room_id_wagon_sequence_id'),
+        (
+            "yatsim_dashboard",
+            "0004_alter_wagon_options_train_room_id_wagon_sequence_id",
+        ),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='wagon',
-            options={'ordering': ('sequence_id',)},
+            name="wagon",
+            options={"ordering": ("sequence_id",)},
         ),
         migrations.AlterField(
-            model_name='cell',
-            name='direction',
-            field=models.CharField(choices=[('0', 'NORTH'), ('1', 'EAST'), ('2', 'SOUTH'), ('3', 'WEST')], default='0', max_length=1),
+            model_name="cell",
+            name="direction",
+            field=models.CharField(
+                choices=[("0", "NORTH"), ("1", "EAST"), ("2", "SOUTH"), ("3", "WEST")],
+                default="0",
+                max_length=1,
+            ),
         ),
     ]

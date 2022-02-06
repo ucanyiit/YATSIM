@@ -31,7 +31,9 @@ class LoginAPIView(APIView):
         serializer = LoginRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        profile = User.objects.filter(username=serializer.validated_data["username"]).first()
+        profile = User.objects.filter(
+            username=serializer.validated_data["username"]
+        ).first()
 
         if profile is None or not profile.check_password(
             serializer.validated_data["password"]
