@@ -13,13 +13,15 @@ const App = () => {
   const [page, setPage] = useState('home');
   const [loading, setLoading] = useState(false);
   const [failedToLoad, setFailed] = useState(false);
-  const [room_id, set_room_id] = useState(null);
   const [roomData, setRoomData] = useState(null);
   const webSocket = useRef(null);
 
   useEffect(() => {
-    if (!room_id || webSocket.current) return;
-    const connectionString = `ws://localhost:8000/ws/play/${room_id}/${token}`;
+    if (page !== 'room') {
+      if (webSocket.current) { webSocket.current.close(); }
+      return;
+    }
+    const connectionString = `ws://localhost:8000/ws/play/${roomData.room.id}/${token}`;
     webSocket.current = new WebSocket(connectionString);
     webSocket.current.onmessage = (evt) => {
       const message = JSON.parse(evt.data);
@@ -42,7 +44,6 @@ const App = () => {
           room.guests = guests;
           break;
         case 'trains':
-          console.log(inc_trains, trains);
           trains = inc_trains;
           break;
         default:
@@ -60,7 +61,7 @@ const App = () => {
     webSocket.current.onclose = () => {
       console.log('disconnected');
     };
-  }, [room_id]);
+  }, [page]);
 
   const goHome = () => {
     setPage('home');
@@ -72,7 +73,6 @@ const App = () => {
     (new RequestHandler()).request(`room/${roomId}`, 'get')
       .then((response) => {
         setRoomData(response);
-        set_room_id(response.room.id);
         setPage('room');
       })
       .catch((e) => {
