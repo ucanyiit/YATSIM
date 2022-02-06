@@ -1,37 +1,20 @@
-import { useState } from 'react';
-import RequestHandler from '../utils/RequestHandler';
-
-const Room = ({ id }) => {
-  const [loading, setLoading] = useState(false);
-  const [failedToLoad, setFailed] = useState(false);
-  const [data, setData] = useState(null);
-
-  if (!loading && !failedToLoad && !data) {
-    setLoading(true);
-    (new RequestHandler()).request(`room/${id}`, 'get')
-      .then((response) => {
-        setData(response);
-      })
-      .catch(() => setFailed(true))
-      .finally(() => setLoading(false));
-  }
-
-  if (loading || !data || failedToLoad) {
-    return (
-      <div>
-        {failedToLoad && 'Failed to load'}
-        {loading && 'Loading..'}
-      </div>
-    );
-  }
-
-  return (
+const Room = ({ roomData: { room, running } }) => (
+  <div>
+    <h5>
+      {`${room.id}: `}
+      <b>{room.owner.username}</b>
+      {`/${room.room_name}, height: ${room.height}, width: ${room.width}, ${running && 'Simulation is running 🚀'}${!running && 'Simulation is stopped 🌱'}`}
+    </h5>
     <div>
-      room room
-      {' '}
-      {id}
+      Guests:
+      {room.guests.map((u) => (
+        <span>
+          {u.username}
+        </span>
+      ))}
     </div>
-  );
-};
+
+  </div>
+);
 
 export default Room;
