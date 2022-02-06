@@ -1,4 +1,5 @@
 from django.urls import path
+
 from yatsim.consumer import RoomConsumer
 
 websocket_urlpatterns = [

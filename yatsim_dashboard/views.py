@@ -26,6 +26,7 @@ from .serializers import (
     RoomData,
     RoomDataSerializer,
     RotateCellSerializer,
+    TrainSerializer,
     UserSerializer,
 )
 
@@ -43,6 +44,25 @@ def send_cell_data(cell, room_id):
     async_to_sync(channel_layer.group_send)(
         str(room_id),
         {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
+    )
+
+
+# train: Union[Train, str]
+def send_crerated_train_data(train, room_id):
+    train_data = TrainSerializer(train)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        str(room_id),
+        {"type": "send_message", "event": "train_create", "train": train_data.data},
+    )
+
+
+def send_deleted_train_data(train_id, room_id):
+    train_data = train_id if type(train_id) is str else str(train_id)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        str(room_id),
+        {"type": "send_message", "event": "train_delete", "train": train_data},
     )
 
 
@@ -232,11 +252,14 @@ class TrainAddDeleteAPIView(APIView):
             length=data["length"],
         )
         t.save()
+        send_crerated_train_data(t, room_id)
         return Response({"response": "ok"})
 
     def delete(self, request, room_id):
         t = get_object_or_404(Train, pk=request.data["train_id"])
+        tid = t.id
         t.delete()
+        send_deleted_train_data(tid, room_id)
         return Response({"response": "ok"})
 
 
@@ -272,40 +295,6 @@ class CloneRoomAPIView(APIView):
                 )
                 new_cell.save()
         return Response({"response": "ok"})
-
-
-# @login_required
-# def clone_room(request, room_id):
-#     if request.method == "POST":
-#         user = request.user
-#         form = RoomCloneForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             with transaction.atomic():
-#                 room = get_object_or_404(Room, pk=room_id)
-#                 new_room = Room.objects.create(
-#                     owner=user,
-#                     room_name=request.POST["room_name"],
-#                     height=room.height,
-#                     width=room.width,
-#                 )
-#                 new_room.save()
-#                 cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
-#                 for cell in cell_objects:
-#                     new_cell = get_object_or_404(
-#                         Cell, room_id=new_room.id, x=cell.x, y=cell.y
-#                     )
-#                     new_cell.delete()
-#                     new_cell = Cell(
-#                         x=cell.x,
-#                         y=cell.y,
-#                         room_id=new_room,
-#                         type=cell.type,
-#                         direction=cell.direction,
-#                     )
-#                     new_cell.save()
-#         else:  # TODO: Empty control flow.
-#             pass
-#     return redirect("/dashboard")
 
 
 @login_required
