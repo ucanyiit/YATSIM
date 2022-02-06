@@ -8,6 +8,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
+from threading import Lock
 
 from .forms import RoomIdForm
 from .models import Cell, Room, Train, Wagon
@@ -27,12 +28,19 @@ from .serializers import (
     UserSerializer,
 )
 
+from yatsim.simulation import Simulation
+
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
 
 # pylint:disable=w0702
 # TODO: Bare exceptions. What are possible exceptions and how to resolve them?
 # Implement a robusts checking mechanism.
+
+
+sLock = Lock()
+simulations = {}
+
 
 
 def send_user_data(guests, room_id, user):
@@ -311,99 +319,72 @@ class CloneRoomAPIView(APIView):
         return Response({"response": "ok"})
 
 
-@login_required
-def room_view(request, room_id):
-    user = request.user
-    room = get_object_or_404(Room, pk=room_id)
-    users = User.objects.exclude(id__exact=user.id).exclude(
-        id__in=[room.id for room in room.guests.all()]
-    )
-    room.width_lim = room.width - 1
-    room.height_lim = room.height - 1
-
-    if user not in room.guests.all() and user != room.owner:
-        raise PermissionDenied
-
-    trains = Train.objects.filter(room_id__exact=room_id)
-
-    running = False
-
-    wagons = {}
-    for y in range(room.height):
-        for x in range(room.width):
-            wagons[(y, x)] = []
-
-    for train in trains:
-        cur_wagons = Wagon.objects.filter(train=train.pk)
-        for wagon in cur_wagons:
-            wagons[(wagon.y, wagon.x)].append((train.type, wagon.direction))
-            running = True
-
-    cell_objects = get_list_or_404(Cell, room_id__exact=room.id)
-    cells = [[" " for _ in range(room.width)] for _ in range(room.height)]
-    for cell in cell_objects:
-        cell_view = cell
-        cell_view.type_view = cell_view.type
-        if cell.state:
-            cell_view.type_view += cell_view.state
-        cells[cell.y][cell.x] = (cell_view, wagons.get((cell.y, cell.x)))
-
-    stations = [c for c in cell_objects if c.type == "8"]
-    statefuls = [
-        (c, Cell.CELL_TYPES[int(c.type)][1])
-        for c in cell_objects
-        if c.type in ["3", "4", "5"]
-    ]
-
-    return render(
-        request,
-        "dashboard/room.html",
-        {
-            "user": user,
-            "room": room,
-            "users": users,
-            "is_owner": room.owner == user,
-            "cells": cells,
-            "stations": stations,
-            "trains": trains,
-            "running": running,
-            "cell_types": Cell.CELL_TYPES,
-            "directions": Cell.Direction.choices,
-            "stateful_cells": statefuls,
-        },
-    )
 
 
-# @login_
 # pylint:disable=w0613
 
 
-@login_required
-def start_simulation(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                trains = get_list_or_404(Train, room_id=room.id)
-                with transaction.atomic():
-                    for train in trains:
-                        if Wagon.objects.filter(train=train):
-                            raise Exception("Simulation is already started")
-                        source = train.source
-                        wagon = Wagon(
-                            x=source.x,
-                            y=source.y,
-                            direction=source.direction,
-                            train=train,
-                        )
-                        wagon.save()
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
+class StartSimulationAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        room = get_object_or_404(Room, pk=room_id)
+        trains = get_list_or_404(Train, room_id=room.id)
+        with sLock:
+            if simulations.get("room.id") is not None:
+                raise Exception("Simulation is already started")
+            with transaction.atomic():
+                for train in trains:
+                    source = train.source
+                    wagon = Wagon(
+                        x=source.x,
+                        y=source.y,
+                        direction=source.direction,
+                        train=train,
+                    )
+                    wagon.save()
+                t = Simulation(room)
+                simulations[room.id] = t
+                t.start()
+
+        return Response({"response": "ok"})
+
+
+class StopSimulationAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        with sLock:
+            if simulations.get("room_id") is None:
+                raise Exception("No simulations running.")
+            simulations["room_id"].stop_sim()
+            simulations.pop("room_id")
+        return Response({"response": "ok"})
+
+
+class ToggleSimulationAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        with sLock:
+            if simulations.get("room_id") is None:
+                raise Exception("No simulations running.")
+            simulations["room_id"].toggle_sim()
+        return Response({"response": "ok"})
+
+
+class SimulationPeriodAPIView(APIView):
+    permission_classes = [IsRoomOwnerOrGuest]
+
+    def post(self, request, room_id):
+        period = int(request.data["period"])
+        with sLock:
+            if simulations.get("room_id") is None:
+                raise Exception("No simulations running.")
+            simulations["room_id"].set_period(period)
+
+
+
 
 
 @login_required
