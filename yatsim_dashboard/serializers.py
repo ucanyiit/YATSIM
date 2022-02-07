@@ -141,15 +141,36 @@ class DashboardSerializer(serializers.Serializer):
         fields = ("owned_rooms", "guest_rooms", "username")
 
 
+class SimDataSerializer(serializers.Serializer):
+    running = serializers.BooleanField()
+    alive = serializers.BooleanField()
+    period = serializers.FloatField(min_value=0.5, max_value=4)
+
+    class Meta:
+        fields = ("running", "alive", "period")
+
+
 class RoomDataSerializer(serializers.Serializer):
     room = RoomSerializer()
     users = UserSerializer(many=True)
     cells = CellSerializer(many=True)
     trains = TrainSerializer(many=True)
-    running = serializers.BooleanField()
+    sim = SimDataSerializer()
 
     class Meta:
-        fields = ("room", "cells", "trains", "users", "running")
+        fields = ("room", "cells", "trains", "users", "sim")
+
+
+class SimData:
+    def __init__(
+        self,
+        running: bool,
+        alive: bool,
+        period: float,
+    ) -> None:
+        self.running = running
+        self.alive = alive
+        self.period = period
 
 
 class RoomData:
@@ -159,13 +180,13 @@ class RoomData:
         users: Iterable[User],
         cells: Iterable[Cell],
         trains: Iterable[Train],
-        running: bool,
+        sim: SimData,
     ) -> None:
         self.room = room
         self.users = users
         self.cells = cells
         self.trains = trains
-        self.running = running
+        self.sim = sim
 
 
 class BasicCellSerializer(serializers.ModelSerializer):

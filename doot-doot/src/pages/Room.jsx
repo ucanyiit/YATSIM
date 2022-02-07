@@ -7,11 +7,9 @@ import { getCellImage, getWagonImage } from './RoomHelper';
 
 const Room = ({
   roomData: {
-    room, cells, trains, users,
+    room, cells, trains, users, sim,
   }, goHome,
 }) => {
-  let running = false;
-
   const popover = (cell) => (
     <Popover id="popover-basic">
       <Popover.Body>
@@ -40,7 +38,6 @@ const Room = ({
   for (const train of trains) {
     // eslint-disable-next-line no-restricted-syntax
     for (const wagon of train.wagon_set) {
-      running = true;
       grid[wagon.y][wagon.x].wagons.push({ type: train.type, direction: wagon.direction });
     }
     grid[train.source.y][train.source.x].train = train;
@@ -52,8 +49,8 @@ const Room = ({
         {`${room.id}: `}
         <b>{room.owner.username}</b>
         {`/${room.room_name}, height: ${room.height}, width: ${room.width}, `}
-        {running && 'Simulation is running 🚀'}
-        {!running && 'Simulation is stopped 🌱'}
+        {sim.running && 'Simulation is running 🚀'}
+        {!sim.running && 'Simulation is stopped 🌱'}
       </h5>
       <div>
         Guests:
@@ -104,7 +101,7 @@ const Room = ({
           </tbody>
         </table>
       </center>
-      <SimOps room={room} />
+      <SimOps room={room} alive={sim.alive} running={sim.running} period={sim.period} />
       <GuestOps room={room} users={users} goHome={goHome} />
     </div>
   );

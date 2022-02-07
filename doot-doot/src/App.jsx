@@ -13,7 +13,11 @@ const App = () => {
   const [page, setPage] = useState('home');
   const [loading, setLoading] = useState(false);
   const [failedToLoad, setFailed] = useState(false);
-  const [roomData, setRoomData] = useState(null);
+  const [sim, setSim] = useState(null);
+  const [cells, setCells] = useState(null);
+  const [users, setUsers] = useState(null);
+  const [room, setRoom] = useState(null);
+  const [trains, setTrains] = useState(null);
   const webSocket = useRef(null);
 
   useEffect(() => {
@@ -21,38 +25,34 @@ const App = () => {
       if (webSocket.current) { webSocket.current.close(); }
       return;
     }
-    const connectionString = `ws://localhost:8000/ws/play/${roomData.room.id}/${token}`;
+    const connectionString = `ws://localhost:8000/ws/play/${room.id}/${token}`;
     webSocket.current = new WebSocket(connectionString);
     webSocket.current.onmessage = (evt) => {
       const message = JSON.parse(evt.data);
       const {
-        event, cell, users: inc_users, trains: inc_trains, guests,
+        event,
+        cells: inc_cells,
+        users: inc_users,
+        trains: inc_trains,
+        guests,
+        sim: inc_sim,
       } = message;
-      let {
-        users, trains,
-      } = roomData;
-      const {
-        cells, room,
-      } = roomData;
       switch (event) {
         case 'cell_change':
-          cells[cell.y * roomData.room.width + cell.x] = cell;
+          setCells(inc_cells);
           break;
         case 'users':
-          users = inc_users;
-          room.guests = guests;
+          setUsers(inc_users);
+          setRoom({ ...room, guests });
           break;
         case 'trains':
-          trains = inc_trains;
+          setTrains(inc_trains);
+          break;
+        case 'sim_update':
+          setSim(inc_sim);
           break;
         default:
       }
-      setRoomData({
-        cells,
-        users,
-        room,
-        trains,
-      });
     };
     webSocket.current.onopen = () => {
       console.log('connected');
@@ -64,14 +64,22 @@ const App = () => {
 
   const goHome = () => {
     setPage('home');
-    setRoomData(null);
+    setRoom(null);
+    setCells(null);
+    setUsers(null);
+    setSim(null);
+    setTrains(null);
   };
 
-  const setRoom = (roomId) => {
+  const setRoomData = (roomId) => {
     setLoading(true);
     (new RequestHandler()).request(`room/${roomId}`, 'get')
       .then((response) => {
-        setRoomData(response);
+        setSim(response.sim);
+        setRoom(response.room);
+        setTrains(response.trains);
+        setUsers(response.users);
+        setCells(response.cells);
         setPage('room');
       })
       .catch(() => setFailed(true))
@@ -102,9 +110,16 @@ const App = () => {
     <Container className="mt-3">
       <Header token={token} setPage={setPage} />
       {page === 'home' && (
-      <Dashboard goRoom={setRoom} />
+      <Dashboard goRoom={setRoomData} />
       )}
-      {page === 'room' && <Room goHome={goHome} roomData={roomData} />}
+      {page === 'room' && (
+      <Room
+        goHome={goHome}
+        roomData={{
+          cells, users, room, trains, sim,
+        }}
+      />
+      )}
       {page === 'create' && <CreateRoom goHome={goHome} />}
     </Container>
   );

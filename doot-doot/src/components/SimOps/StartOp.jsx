@@ -5,6 +5,7 @@ import RequestHandler from '../../utils/RequestHandler';
 const StartOp = ({ room }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [period, setPeriod] = useState(1.0);
 
   return (
     <div>
@@ -16,12 +17,20 @@ const StartOp = ({ room }) => {
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
-          (new RequestHandler()).request(`room/${room.id}/start/`, 'post', {})
+          (new RequestHandler()).request(`room/${room.id}/start/`, 'post', { period })
             .then()
             .catch(() => setFailed(true))
             .finally(() => setLoading(false));
         }}
       >
+        <Form.Label>{`Period - ${period}`}</Form.Label>
+        <Form.Range
+          value={period}
+          onChange={(e) => { setPeriod(e.target.value); }}
+          min="0.5"
+          max="4"
+          step="0.5"
+        />
         {failed && (
           <p>
             Failed request.

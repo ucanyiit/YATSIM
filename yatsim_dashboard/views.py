@@ -6,11 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
-
 from yatsim.simulation import Simulation
 
 from .forms import RoomIdForm
@@ -28,6 +27,7 @@ from .serializers import (
     RoomData,
     RoomDataSerializer,
     RotateCellSerializer,
+    SimData,
     TrainSerializer,
     UserSerializer,
 )
@@ -76,12 +76,13 @@ def send_trains_data(room_id):
     )
 
 
-def send_cell_data(cell, room_id):
-    cell_data = CellSerializer(cell)
+def send_cells_data(room_id):
+    cells = Cell.objects.filter(room_id__exact=room_id)
+    cells_data = CellSerializer(cells, many=True)
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         str(room_id),
-        {"type": "send_message", "event": "cell_change", "cell": cell_data.data},
+        {"type": "send_message", "event": "cell_change", "cells": cells_data.data},
     )
 
 
@@ -139,8 +140,18 @@ class RoomAPIView(generics.RetrieveDestroyAPIView):
             id__in=[room.id for room in instance.guests.all()]
         )
         cell_objects = get_list_or_404(Cell, room_id__exact=instance.id)
+        alive = instance.id in simulations
+        sim = SimData(
+            (alive and simulations[instance.id].is_running),
+            alive,
+            (alive and simulations[instance.id].period),
+        )
         obj = RoomData(
-            instance, users, cell_objects, trains, instance.id in simulations
+            instance,
+            users,
+            cell_objects,
+            trains,
+            sim,
         )
 
         serializer = self.get_serializer(obj)
@@ -217,7 +228,7 @@ class PlaceCellAPIView(APIView):
             cell = Cell(room_id=room, **serializer.data)
             cell.save()
 
-        send_cell_data(cell, room_id)
+        send_cells_data(room_id)
         return Response({"response": "ok"})
 
 
@@ -234,7 +245,7 @@ class SwitchCellAPIView(APIView):
             raise Exception("The cell has a wagon on it")
         cell.switch_state()
 
-        send_cell_data(cell, room_id)
+        send_cells_data(room_id)
         return Response({"response": "ok"})
 
 
@@ -255,7 +266,7 @@ class RotateCellAPIView(APIView):
             raise Exception("The cell has a wagon on it")
         cell.rotate(str(direction))
 
-        send_cell_data(cell, room_id)
+        send_cells_data(room_id)
         return Response({"response": "ok"})
 
 
@@ -334,12 +345,13 @@ class StartSimulationAPIView(APIView):
         room = get_object_or_404(Room, pk=room_id)
         trains = get_list_or_404(Train, room_id=room.id)
         serializer = PeriodSerializer(data=request.data)
+        serializer.is_valid()
         with sLock:
             if simulations.get(room_id) is not None:
                 raise Exception("Simulation has already started")
             with transaction.atomic():
                 for train in trains:
-                    Wagon.objects.filter(train__id__in=trains).delete()
+                    Wagon.objects.filter(train__in=trains).delete()
                     source = train.source
                     wagon = Wagon(
                         x=source.x,
@@ -382,30 +394,13 @@ class SimulationPeriodAPIView(APIView):
     permission_classes = [IsRoomOwnerOrGuest]
 
     def post(self, request, room_id):
-        period = int(request.data["period"])
+        serializer = PeriodSerializer(data=request.data)
+        serializer.is_valid()
         with sLock:
             if simulations.get(room_id) is None:
                 raise Exception("No simulations running.")
-            simulations[room_id].set_period(period)
-
-
-@login_required
-def stop_simulation(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                trains = Train.objects.filter(room_id=room.id)
-                with transaction.atomic():
-                    for train in trains:
-                        Wagon.objects.filter(train=train.pk).delete()
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
+            simulations[room_id].set_period(serializer.data["period"])
+        return Response({"response": "ok"})
 
 
 @login_required
