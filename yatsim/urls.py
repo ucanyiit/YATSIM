@@ -73,18 +73,23 @@ urlpatterns = [
     ),
     path(
         "room/start/<int:room_id>/",
-        views.start_simulation,
+        views.StartSimulationAPIView.as_view(),
         name="start",
     ),
     path(
         "room/stop/<int:room_id>/",
-        views.stop_simulation,
+        views.StopSimulationAPIView.as_view(),
         name="stop",
     ),
     path(
-        "room/run/<int:room_id>/",
-        views.run_simulation,
-        name="run",
+        "room/toggle/<int:room_id>/",
+        views.ToggleSimulationAPIView.as_view(),
+        name="toggle",
+    ),
+    path(
+        "room/period/<int:room_id>/",
+        views.SimulationPeriodAPIView.as_view(),
+        name="period",
     ),
     path(
         "room/<int:room_id>/clone/", views.CloneRoomAPIView.as_view(), name="clone_room"

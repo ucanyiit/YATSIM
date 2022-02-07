@@ -75,10 +75,7 @@ const App = () => {
         setRoomData(response);
         setPage('room');
       })
-      .catch((e) => {
-        console.error(e);
-        setFailed(true);
-      })
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false));
   };
 

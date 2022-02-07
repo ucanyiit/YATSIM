@@ -77,7 +77,7 @@ const Room = ({
                     <OverlayTrigger trigger="click" placement="right" overlay={popover(cell)}>
                       <div className="cell">
                         <img
-                          alt="wow"
+                          alt="doot"
                           className={`direction${cell.direction}`}
                           width="48"
                           height="48"

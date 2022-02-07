@@ -1,3 +1,5 @@
+from threading import Lock
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.contrib.auth.decorators import login_required
@@ -8,7 +10,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
-from threading import Lock
+from yatsim.simulation import Simulation
 
 from .forms import RoomIdForm
 from .models import Cell, Room, Train, Wagon
@@ -28,8 +30,6 @@ from .serializers import (
     UserSerializer,
 )
 
-from yatsim.simulation import Simulation
-
 # TODO: There are some empty control flow branches (else: pass). Let's have
 # a look at them.
 
@@ -40,7 +40,6 @@ from yatsim.simulation import Simulation
 
 sLock = Lock()
 simulations = {}
-
 
 
 def send_user_data(guests, room_id, user):
@@ -319,8 +318,6 @@ class CloneRoomAPIView(APIView):
         return Response({"response": "ok"})
 
 
-
-
 # pylint:disable=w0613
 
 
@@ -382,9 +379,6 @@ class SimulationPeriodAPIView(APIView):
             if simulations.get("room_id") is None:
                 raise Exception("No simulations running.")
             simulations["room_id"].set_period(period)
-
-
-
 
 
 @login_required

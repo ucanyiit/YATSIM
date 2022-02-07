@@ -1,9 +1,14 @@
 import threading
+import time
+from threading import Lock
+
+from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+
+from yatsim_dashboard.models import Room
 
 
 class Simulation(threading.Thread):
-
     def __init__(self, room: Room):
         self.lock = Lock()
         self.room = room
@@ -31,8 +36,17 @@ class Simulation(threading.Thread):
         next_time = time.time()
         while self.is_alive:
             while self.is_running:
+                # update wagons
+                async_to_sync(self.channel_layer.group_send)(
+                    str(self.room.id),
+                    {
+                        "type": "send_message",
+                        "event": "wagons_update",
+                        "period": self.period,
+                        "wagons": "blabla",
+                    },
+                )
                 # wait for next interval
                 next_time += 1
                 time.sleep(max(0, next_time - time.time()))
             time.sleep(self.period)  # TODO: Can be improved with condition variable
-
