@@ -1,21 +1,16 @@
 from threading import Lock
 
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.shortcuts import get_list_or_404, get_object_or_404, redirect
+from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
 from yatsim.simulation import Simulation
 
-from .forms import RoomIdForm
+from .communication import send_cells_data, send_trains_data, send_user_data
 from .models import Cell, Room, Train, Wagon
 from .serializers import (
-    CellSerializer,
     CloneRoomSerializer,
     CreateCellSerializer,
     CreateRoomSerializer,
@@ -28,7 +23,6 @@ from .serializers import (
     RoomDataSerializer,
     RotateCellSerializer,
     SimData,
-    TrainSerializer,
     UserSerializer,
 )
 
@@ -42,48 +36,6 @@ from .serializers import (
 
 sLock = Lock()
 simulations = {}
-
-
-def send_user_data(guests, room_id, user):
-    users = User.objects.exclude(id__exact=user.id).exclude(
-        id__in=[user.id for user in guests.all()]
-    )
-    users_data = UserSerializer(users, many=True)
-    guests_data = UserSerializer(guests, many=True)
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        str(room_id),
-        {
-            "type": "send_message",
-            "event": "users",
-            "users": users_data.data,
-            "guests": guests_data.data,
-        },
-    )
-
-
-def send_trains_data(room_id):
-    trains = Train.objects.filter(room_id__exact=room_id)
-    trains_data = TrainSerializer(trains, many=True)
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        str(room_id),
-        {
-            "type": "send_message",
-            "event": "trains",
-            "trains": trains_data.data,
-        },
-    )
-
-
-def send_cells_data(room_id):
-    cells = Cell.objects.filter(room_id__exact=room_id)
-    cells_data = CellSerializer(cells, many=True)
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        str(room_id),
-        {"type": "send_message", "event": "cell_change", "cells": cells_data.data},
-    )
 
 
 class IsRoomOwner(permissions.BasePermission):
@@ -220,7 +172,7 @@ class PlaceCellAPIView(APIView):
         )
         room = get_object_or_404(Room, pk=room_id)
 
-        if cell.has_wagon():
+        if cell.has_wagon() and room_id in simulations:
             raise Exception("Cell has a wagon on it.")
 
         with transaction.atomic():
@@ -350,8 +302,8 @@ class StartSimulationAPIView(APIView):
             if simulations.get(room_id) is not None:
                 raise Exception("Simulation has already started")
             with transaction.atomic():
+                Wagon.objects.filter(train__in=trains).delete()
                 for train in trains:
-                    Wagon.objects.filter(train__in=trains).delete()
                     source = train.source
                     wagon = Wagon(
                         x=source.x,
@@ -401,78 +353,3 @@ class SimulationPeriodAPIView(APIView):
                 raise Exception("No simulations running.")
             simulations[room_id].set_period(serializer.data["period"])
         return Response({"response": "ok"})
-
-
-@login_required
-def run_simulation(request, room_id):
-    if request.method == "POST":
-        user = request.user
-        room_form = RoomIdForm(request.POST, request.FILES)
-        if room_form.is_valid():
-            room = get_object_or_404(Room, pk=room_id)
-            if user in room.guests.all() or user == room.owner:
-                step_count = request.POST["step_count"]
-                with transaction.atomic():
-                    for _ in range(0, int(step_count)):
-                        trains = Train.objects.filter(room_id=room.id)
-                        for train in trains:
-                            wagons = Wagon.objects.filter(train=train.pk)
-
-                            first_wagon = wagons[0]
-                            new_x, new_y = get_new_coord(
-                                first_wagon.x, first_wagon.y, first_wagon.direction
-                            )
-                            cell = (
-                                Cell.objects.filter(room_id=room.id)
-                                .filter(x=new_x)
-                                .filter(y=new_y)
-                            )
-
-                            if not cell:
-                                continue
-                            try:
-                                next_direction = cell[0].next_cell(
-                                    str((int(first_wagon.direction) + 2) % 4)
-                                )
-
-                                for i in range(len(wagons) - 1, 0, -1):
-                                    wagon = wagons[i]
-                                    front_wagon = wagons[i - 1]
-                                    wagon.x = front_wagon.x
-                                    wagon.y = front_wagon.y
-                                    wagon.direction = front_wagon.direction
-                                    wagon.save()
-
-                                if train.length > len(wagons):
-                                    source = train.source
-                                    wagon = Wagon(
-                                        x=source.x,
-                                        y=source.y,
-                                        direction=source.direction,
-                                        train=train,
-                                    )
-                                    wagon.save()
-
-                                first_wagon.x = new_x
-                                first_wagon.y = new_y
-                                first_wagon.direction = next_direction
-                                first_wagon.save()
-                            except:
-                                pass
-            else:
-                raise PermissionDenied
-        else:  # TODO: Empty control flow.
-            pass
-    return redirect(f"/room/{room_id}")
-
-
-def get_new_coord(x, y, direction):
-    if direction == "0":
-        return (x, y - 1)
-    if direction == "1":
-        return (x + 1, y)
-    if direction == "2":
-        return (x, y + 1)
-    if direction == "3":
-        return (x - 1, y)
-    raise Exception("Direction is not defined")

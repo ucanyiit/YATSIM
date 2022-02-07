@@ -81,7 +81,7 @@ const Room = ({
                           height="48"
                           src={getCellImage(cell.type, cell.state)}
                         />
-                        {cell.wagons.map((wagon) => (
+                        {sim.alive && cell.wagons.map((wagon) => (
                           <img
                             key={`${wagon.type}`}
                             alt="doot-doot"
