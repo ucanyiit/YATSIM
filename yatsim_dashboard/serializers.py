@@ -199,3 +199,7 @@ class CloneRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ["room_name"]
+
+
+class PeriodSerializer(serializers.Serializer):
+    period = serializers.FloatField(min_value=0.5, max_value=4)

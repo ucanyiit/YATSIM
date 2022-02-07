@@ -9,14 +9,14 @@ from yatsim_dashboard.models import Room
 
 
 class Simulation(threading.Thread):
-    def __init__(self, room: Room):
+    def __init__(self, room: Room, period: float = 1.0):
         self.lock = Lock()
         self.cv = Condition(self.lock)
         self.room = room
         self.is_sim_alive = True
         self.is_running = False
         self.channel_layer = get_channel_layer()
-        self.period = 1
+        self.period = period
         super().__init__()
 
     # PERIODT

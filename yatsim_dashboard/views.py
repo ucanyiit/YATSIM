@@ -24,6 +24,7 @@ from .serializers import (
     DashboardData,
     DashboardRoomSerializer,
     DashboardSerializer,
+    PeriodSerializer,
     RoomData,
     RoomDataSerializer,
     RotateCellSerializer,
@@ -332,12 +333,13 @@ class StartSimulationAPIView(APIView):
     def post(self, request, room_id):
         room = get_object_or_404(Room, pk=room_id)
         trains = get_list_or_404(Train, room_id=room.id)
+        serializer = PeriodSerializer(data=request.data)
         with sLock:
-            print("\n\nsims", simulations)
             if simulations.get(room_id) is not None:
-                raise Exception("Simulation is already started")
+                raise Exception("Simulation has already started")
             with transaction.atomic():
                 for train in trains:
+                    Wagon.objects.filter(train__id__in=trains).delete()
                     source = train.source
                     wagon = Wagon(
                         x=source.x,
@@ -346,7 +348,7 @@ class StartSimulationAPIView(APIView):
                         train=train,
                     )
                     wagon.save()
-                t = Simulation(room)
+                t = Simulation(room, serializer.data["period"])
                 simulations[room.id] = t
                 t.start()
 
