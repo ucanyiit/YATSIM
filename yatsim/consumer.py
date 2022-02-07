@@ -8,8 +8,6 @@ from yatsim_dashboard.models import Room
 
 
 class RoomConsumer(JsonWebsocketConsumer):
-    groups = [str(room.id) for room in Room.objects.all()]
-
     def connect(self):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         token = self.scope["url_route"]["kwargs"]["token"]
