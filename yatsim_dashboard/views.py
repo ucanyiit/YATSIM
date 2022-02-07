@@ -10,6 +10,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
+
 from yatsim.simulation import Simulation
 
 from .forms import RoomIdForm
@@ -137,8 +138,12 @@ class RoomAPIView(generics.RetrieveDestroyAPIView):
             id__in=[room.id for room in instance.guests.all()]
         )
         cell_objects = get_list_or_404(Cell, room_id__exact=instance.id)
-        obj = RoomData(instance, users, cell_objects, trains)
+        obj = RoomData(
+            instance, users, cell_objects, trains, instance.id in simulations
+        )
+
         serializer = self.get_serializer(obj)
+
         return Response(serializer.data)
 
 

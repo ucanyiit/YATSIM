@@ -146,9 +146,10 @@ class RoomDataSerializer(serializers.Serializer):
     users = UserSerializer(many=True)
     cells = CellSerializer(many=True)
     trains = TrainSerializer(many=True)
+    running = serializers.BooleanField()
 
     class Meta:
-        fields = ("room", "cells", "trains")
+        fields = ("room", "cells", "trains", "users", "running")
 
 
 class RoomData:
@@ -158,11 +159,13 @@ class RoomData:
         users: Iterable[User],
         cells: Iterable[Cell],
         trains: Iterable[Train],
+        running: bool,
     ) -> None:
         self.room = room
         self.users = users
         self.cells = cells
         self.trains = trains
+        self.running = running
 
 
 class BasicCellSerializer(serializers.ModelSerializer):
