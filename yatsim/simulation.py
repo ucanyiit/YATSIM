@@ -86,10 +86,8 @@ class Simulation(threading.Thread):
                 time.sleep(max(0, next_time - time.time()))
 
             with self.cv:
-                print("run aqc stop_sim")
                 self.cv.wait()
                 next_time = time.time()
-                print("run continuing")
 
     def simulation_step(self):
         with transaction.atomic():

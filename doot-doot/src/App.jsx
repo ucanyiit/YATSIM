@@ -19,8 +19,26 @@ const App = () => {
   const [room, setRoom] = useState(null);
   const [trains, setTrains] = useState(null);
   const webSocket = useRef(null);
+  const [dashboard, setDashboard] = useState(null);
+
+  const loadDashboard = () => {
+    setLoading(true);
+    (new RequestHandler()).request('dashboard', 'get')
+      .then((response) => {
+        setDashboard(response);
+      })
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false));
+  };
+
+  if (!loading && !failedToLoad && !dashboard) {
+    loadDashboard();
+  }
 
   useEffect(() => {
+    if (page === 'home') {
+      loadDashboard();
+    }
     if (page !== 'room') {
       if (webSocket.current) { webSocket.current.close(); }
       return;
@@ -110,10 +128,11 @@ const App = () => {
     <Container className="mt-3">
       <Header token={token} setPage={setPage} />
       {page === 'home' && (
-      <Dashboard goRoom={setRoomData} />
+      <Dashboard goRoom={setRoomData} dashboard={dashboard} />
       )}
       {page === 'room' && (
       <Room
+        user={dashboard.user}
         goHome={goHome}
         roomData={{
           cells, users, room, trains, sim,

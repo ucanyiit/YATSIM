@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
-const LeaveOrDeleteOp = ({ room, goHome }) => {
+const LeaveOrDeleteOp = ({ room, goHome, user }) => {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  const isOwner = room.owner.username === user.username;
 
   return (
     <div>
@@ -28,7 +30,8 @@ const LeaveOrDeleteOp = ({ room, goHome }) => {
           </p>
         )}
         <Button loading={loading} disabled={loading} variant="primary" type="submit">
-          Leave
+          {!isOwner && 'Leave'}
+          {isOwner && 'Delete'}
         </Button>
       </Form>
     </div>

@@ -8,7 +8,7 @@ import { getCellImage, getWagonImage } from './RoomHelper';
 const Room = ({
   roomData: {
     room, cells, trains, users, sim,
-  }, goHome,
+  }, goHome, user,
 }) => {
   const popover = (cell) => (
     <Popover id="popover-basic">
@@ -102,7 +102,7 @@ const Room = ({
         </table>
       </center>
       <SimOps room={room} alive={sim.alive} running={sim.running} period={sim.period} />
-      <GuestOps room={room} users={users} goHome={goHome} />
+      <GuestOps room={room} users={users} goHome={goHome} user={user} />
     </div>
   );
 };
