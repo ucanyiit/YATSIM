@@ -104,6 +104,7 @@ class Cell(models.Model):
             Cell.objects.filter(
                 models.Q(room_id__train__wagon__x=self.x)
                 & models.Q(room_id__train__wagon__y=self.y)
+                & models.Q(room_id__train__room_id=self.room_id)
             ).count()
             != 0
         )

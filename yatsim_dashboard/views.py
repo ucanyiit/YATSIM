@@ -10,7 +10,6 @@ from django.shortcuts import get_list_or_404, get_object_or_404, redirect, rende
 from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView, Response
-
 from yatsim.simulation import Simulation
 
 from .forms import RoomIdForm
@@ -329,7 +328,8 @@ class StartSimulationAPIView(APIView):
         room = get_object_or_404(Room, pk=room_id)
         trains = get_list_or_404(Train, room_id=room.id)
         with sLock:
-            if simulations.get("room.id") is not None:
+            print("\n\nsims", simulations)
+            if simulations.get(room_id) is not None:
                 raise Exception("Simulation is already started")
             with transaction.atomic():
                 for train in trains:
@@ -353,10 +353,10 @@ class StopSimulationAPIView(APIView):
 
     def post(self, request, room_id):
         with sLock:
-            if simulations.get("room_id") is None:
+            if simulations.get(room_id) is None:
                 raise Exception("No simulations running.")
-            simulations["room_id"].stop_sim()
-            simulations.pop("room_id")
+            simulations[room_id].stop_sim()
+            simulations.pop(room_id)
         return Response({"response": "ok"})
 
 
@@ -365,9 +365,9 @@ class ToggleSimulationAPIView(APIView):
 
     def post(self, request, room_id):
         with sLock:
-            if simulations.get("room_id") is None:
+            if simulations.get(room_id) is None:
                 raise Exception("No simulations running.")
-            simulations["room_id"].toggle_sim()
+            simulations[room_id].toggle_sim()
         return Response({"response": "ok"})
 
 
@@ -377,9 +377,9 @@ class SimulationPeriodAPIView(APIView):
     def post(self, request, room_id):
         period = int(request.data["period"])
         with sLock:
-            if simulations.get("room_id") is None:
+            if simulations.get(room_id) is None:
                 raise Exception("No simulations running.")
-            simulations["room_id"].set_period(period)
+            simulations[room_id].set_period(period)
 
 
 @login_required

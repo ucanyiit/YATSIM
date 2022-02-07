@@ -28,13 +28,12 @@ const App = () => {
       const {
         event, cell, users: inc_users, trains: inc_trains, guests,
       } = message;
-      const r = JSON.parse(JSON.stringify(roomData));
       let {
         users, trains,
-      } = r;
+      } = roomData;
       const {
         cells, room,
-      } = r;
+      } = roomData;
       switch (event) {
         case 'cell_change':
           cells[cell.y * roomData.room.width + cell.x] = cell;

@@ -72,22 +72,22 @@ urlpatterns = [
         name="train add/remove",
     ),
     path(
-        "room/start/<int:room_id>/",
+        "room/<int:room_id>/start/",
         views.StartSimulationAPIView.as_view(),
         name="start",
     ),
     path(
-        "room/stop/<int:room_id>/",
+        "room/<int:room_id>/stop/",
         views.StopSimulationAPIView.as_view(),
         name="stop",
     ),
     path(
-        "room/toggle/<int:room_id>/",
+        "room/<int:room_id>/toggle/",
         views.ToggleSimulationAPIView.as_view(),
         name="toggle",
     ),
     path(
-        "room/period/<int:room_id>/",
+        "room/<int:room_id>/period/",
         views.SimulationPeriodAPIView.as_view(),
         name="period",
     ),

@@ -34,8 +34,11 @@ class Simulation(threading.Thread):
 
     def stop_sim(self):
         with self.cv:
+            print("stop_sim aqc stop_sim")
             self.is_sim_alive = False
+            self.is_running = False
             self.cv.notify()
+            print("stop_sim finished")
 
     def run(self):
         self.is_running = True
@@ -56,4 +59,7 @@ class Simulation(threading.Thread):
                 next_time += 1
                 time.sleep(max(0, next_time - time.time()))
             with self.cv:
+                print("run aqc stop_sim")
                 self.cv.wait()
+                next_time = time.time()
+                print("run continuing")

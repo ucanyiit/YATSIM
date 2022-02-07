@@ -1,6 +1,7 @@
 import { OverlayTrigger, Popover } from 'react-bootstrap';
 import CellOps from '../components/CellOps/CellOps';
 import GuestOps from '../components/GuestOps/GuestOps';
+import SimOps from '../components/SimOps/SimOps';
 import './room.css';
 import { getCellImage, getWagonImage } from './RoomHelper';
 
@@ -103,6 +104,7 @@ const Room = ({
           </tbody>
         </table>
       </center>
+      <SimOps room={room} />
       <GuestOps room={room} users={users} goHome={goHome} />
     </div>
   );
