@@ -31,11 +31,13 @@ const App = () => {
       .finally(() => setLoading(false));
   };
 
-  if (!loading && !failedToLoad && !dashboard) {
+  if (!loading && !failedToLoad && !dashboard && page === 'home') {
     loadDashboard();
   }
 
   useEffect(() => {
+    setFailed(false);
+    setLoading(false);
     if (page === 'home') {
       loadDashboard();
     }
