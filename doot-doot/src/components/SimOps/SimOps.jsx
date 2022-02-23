@@ -1,4 +1,4 @@
-import { Container, Row } from 'react-bootstrap';
+import { Container, Grid, Typography } from '@mui/material';
 import StartOp from './StartOp';
 import StopOp from './StopOp';
 import ToggleOp from './ToggleOp';
@@ -8,30 +8,35 @@ const SimOps = ({
   room, alive, period, running,
 }) => (
   <Container>
-    <h4>
+    <Typography mt={2} variant="h5" component="h5">
       Simulation Operations
-    </h4>
-    {!alive && (
-    <Row className="my-2">
-      <StartOp room={room} />
-    </Row>
-    )}
-    {alive && (
-    <Row className="my-2">
-      <StopOp room={room} />
-    </Row>
-    )}
-    {alive && (
-    <Row className="my-2">
-      <ToggleOp room={room} running={running} />
-    </Row>
-    )}
-    {alive && (
-    <Row className="my-2">
-      <PeriodOp room={room} period={period} />
-    </Row>
-    )}
+    </Typography>
+    <Grid
+      container
+      spacing={2}
+      direction="row"
+    >
+      {!alive && (
+        <Grid item xs={6} md={3}>
+          <StartOp room={room} />
+        </Grid>
+      )}
+      {alive && (
+        <>
+          <Grid item xs={6} md={3}>
+            <PeriodOp room={room} period={period} />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <StopOp room={room} />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <ToggleOp room={room} running={running} />
+          </Grid>
+        </>
+      )}
+    </Grid>
   </Container>
+
 );
 
 export default SimOps;

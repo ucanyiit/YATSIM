@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import {
+  Button, FormGroup, TextField, Typography,
+} from '@mui/material';
 import RequestHandler from '../utils/RequestHandler';
 
 const CloneOp = ({ room, goHome }) => {
@@ -9,11 +11,11 @@ const CloneOp = ({ room, goHome }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Clone
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -23,19 +25,18 @@ const CloneOp = ({ room, goHome }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="name">
-          <Form.Label>Room Name</Form.Label>
-          <Form.Control type="text" placeholder="Room Name" onChange={(e) => setRoomName(e.target.value)} required />
-        </Form.Group>
-        {failed && (
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField type="text" label="Room Name" onChange={(e) => setRoomName(e.target.value)} required />
+          {failed && (
           <p>
             Failed request.
           </p>
-        )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+          )}
+        </FormGroup>
+        <Button variant="contained" loading={loading} disabled={loading} type="submit">
           Clone
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

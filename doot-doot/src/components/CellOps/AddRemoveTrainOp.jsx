@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, MenuItem, Select, TextField, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const types = [
@@ -17,11 +19,11 @@ const AddRemoveTrainOp = ({ room, cell }) => {
   if (cell.train) {
     return (
       <div>
-        <p className="lead">
+        <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
           {`Remove ${type_name}`}
-        </p>
+        </Typography>
 
-        <Form
+        <form
           onSubmit={(e) => {
             e.preventDefault();
             setLoading(true);
@@ -36,18 +38,18 @@ const AddRemoveTrainOp = ({ room, cell }) => {
               Failed request.
             </p>
           )}
-          <Button loading={loading} disabled={loading} variant="primary" type="submit">Remove</Button>
-        </Form>
+          <Button size="small" loading={loading} disabled={loading} variant="contained" type="submit">Remove</Button>
+        </form>
       </div>
     );
   }
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Add Train
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -57,27 +59,25 @@ const AddRemoveTrainOp = ({ room, cell }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="type">
-          <Form.Label>Type</Form.Label>
-          <Form.Select className="mb-3" value={type} onChange={(e) => setType(e.target.value)}>
+        <FormGroup sx={{ mb: 2 }}>
+          <Select sx={{ mb: 2 }} value={type} onChange={(e) => setType(e.target.value)}>
             {types.map((train_type) => (
-              <option key={train_type.value} value={train_type.value}>
+              <MenuItem key={train_type.value} value={train_type.value}>
                 {train_type.name}
-              </option>
+              </MenuItem>
             ))}
-          </Form.Select>
-          <Form.Group className="mb-3" controlId="length">
-            <Form.Label>Length</Form.Label>
-            <Form.Control type="number" placeholder="Length" onChange={(e) => setLength(e.target.value)} min={1} max={20} required />
-          </Form.Group>
-        </Form.Group>
+          </Select>
+        </FormGroup>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="Length" type="number" placeholder="Length" onChange={(e) => setLength(e.target.value)} min={1} max={20} required />
+        </FormGroup>
         {failed && (
           <p>
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">Add</Button>
-      </Form>
+        <Button size="small" loading={loading} disabled={loading} variant="contained" type="submit">Add</Button>
+      </form>
     </div>
   );
 };

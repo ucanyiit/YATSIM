@@ -1,5 +1,5 @@
+import { Button, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const ToggleOp = ({ room, running }) => {
@@ -8,11 +8,11 @@ const ToggleOp = ({ room, running }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Toggle Simulation
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -27,11 +27,11 @@ const ToggleOp = ({ room, running }) => {
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           {!running && 'Continue'}
           {running && 'Stop'}
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

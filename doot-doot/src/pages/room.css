@@ -36,3 +36,18 @@
 .form-inline {
   margin-bottom: 1rem;
 }
+
+.cell {
+  margin: 0;
+  padding: 0;
+}
+
+.cell-button {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}

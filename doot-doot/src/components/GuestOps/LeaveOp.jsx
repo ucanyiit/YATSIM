@@ -1,5 +1,5 @@
+import { Button, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const LeaveOrDeleteOp = ({ room, goHome, user }) => {
@@ -10,11 +10,11 @@ const LeaveOrDeleteOp = ({ room, goHome, user }) => {
 
   return (
     <div>
-      <p className="lead">
-        Leave
-      </p>
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
+        Leave Room
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -29,11 +29,11 @@ const LeaveOrDeleteOp = ({ room, goHome, user }) => {
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           {!isOwner && 'Leave'}
           {isOwner && 'Delete'}
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

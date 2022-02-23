@@ -1,5 +1,5 @@
+import { Button, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const SwitchOp = ({ room, cell }) => {
@@ -8,11 +8,11 @@ const SwitchOp = ({ room, cell }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Switch State
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -27,8 +27,8 @@ const SwitchOp = ({ room, cell }) => {
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">Switch</Button>
-      </Form>
+        <Button size="small" loading={loading} disabled={loading} variant="contained" type="submit">Switch</Button>
+      </form>
     </div>
   );
 };

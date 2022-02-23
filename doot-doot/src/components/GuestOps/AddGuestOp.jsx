@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, MenuItem, Select, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const AddGuestOp = ({ room, users }) => {
@@ -9,11 +11,11 @@ const AddGuestOp = ({ room, users }) => {
 
   return (
     <div>
-      <p className="lead">
-        Add
-      </p>
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
+        Add User
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -23,29 +25,29 @@ const AddGuestOp = ({ room, users }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="guest">
-          <Form.Label>Guest</Form.Label>
-          <Form.Select
+        <FormGroup sx={{ mb: 2 }}>
+          <Select
+            label="Gutest"
             value={guest}
             onChange={(e) => setGuest(e.target.value)}
             required
           >
             {users.map((user) => (
-              <option key={user.username} value={user.username}>
+              <MenuItem key={user.username} value={user.username}>
                 {user.username}
-              </option>
+              </MenuItem>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </Select>
+        </FormGroup>
         {failed && (
           <p>
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           Add
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

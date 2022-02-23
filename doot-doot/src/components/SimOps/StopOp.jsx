@@ -1,5 +1,5 @@
+import { Button, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const StopOp = ({ room }) => {
@@ -8,11 +8,11 @@ const StopOp = ({ room }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Stop Simulation
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -27,10 +27,10 @@ const StopOp = ({ room }) => {
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           Stop
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

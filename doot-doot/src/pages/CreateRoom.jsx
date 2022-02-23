@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, TextField, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
 const CreateRoom = ({ goHome }) => {
@@ -11,10 +13,10 @@ const CreateRoom = ({ goHome }) => {
 
   return (
     <div>
-      <h2>
+      <Typography variant="h4" component="h1" mt={2} mb={2}>
         Create Room
-      </h2>
-      <Form
+      </Typography>
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -24,29 +26,26 @@ const CreateRoom = ({ goHome }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="name">
-          <Form.Label>Room Name</Form.Label>
-          <Form.Control type="text" placeholder="Name" onChange={(e) => setRoomName(e.target.value)} required maxLength={150} />
-        </Form.Group>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="Room Name" type="text" placeholder="Name" onChange={(e) => setRoomName(e.target.value)} required maxLength={150} />
+        </FormGroup>
 
-        <Form.Group className="mb-3" controlId="width">
-          <Form.Label>Width</Form.Label>
-          <Form.Control type="number" placeholder="Width" onChange={(e) => setWidth(e.target.value)} min={2} max={16} required />
-        </Form.Group>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="Width" type="number" placeholder="Width" onChange={(e) => setWidth(e.target.value)} min={2} max={16} required />
+        </FormGroup>
 
-        <Form.Group className="mb-3" controlId="height">
-          <Form.Label>Height</Form.Label>
-          <Form.Control type="number" placeholder="Height" onChange={(e) => setHeight(e.target.value)} min={2} max={16} required />
-        </Form.Group>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="Height" type="number" placeholder="Height" onChange={(e) => setHeight(e.target.value)} min={2} max={16} required />
+        </FormGroup>
         {failed && (
         <p>
           Failed to create a room.
         </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           Create
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

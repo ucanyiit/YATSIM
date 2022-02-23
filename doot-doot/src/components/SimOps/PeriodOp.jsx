@@ -1,5 +1,5 @@
+import { Button, Slider, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const PeriodOp = ({ room, period: simPeriod = 1.0 }) => {
@@ -9,11 +9,11 @@ const PeriodOp = ({ room, period: simPeriod = 1.0 }) => {
 
   return (
     <div>
-      <p className="lead">
-        Period
-      </p>
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
+        {`Change Period - ${simPeriod}`}
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -23,27 +23,24 @@ const PeriodOp = ({ room, period: simPeriod = 1.0 }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <p>
-          {`Current Period - ${simPeriod}`}
-        </p>
-        <Form.Label>{`Set Period - ${period}`}</Form.Label>
-        <Form.Range
+        <Slider
+          marks
           value={period}
           onChange={(e) => { setPeriod(e.target.value); }}
-          min="0.5"
-          max="4"
-          step="0.5"
+          min={0.5}
+          max={4}
+          step={0.5}
+          valueLabelDisplay="auto"
         />
-        {' '}
         {failed && (
         <p>
           Failed request.
         </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
-          Change Period
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
+          Change
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

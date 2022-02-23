@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, TextField, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../utils/RequestHandler';
 
 const Login = ({ goHome }) => {
@@ -10,10 +12,10 @@ const Login = ({ goHome }) => {
 
   return (
     <div>
-      <h2>
+      <Typography variant="h4" component="h1" mt={2} mb={2}>
         Login
-      </h2>
-      <Form
+      </Typography>
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -26,25 +28,23 @@ const Login = ({ goHome }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="name">
-          <Form.Label>User Name</Form.Label>
-          <Form.Control type="text" placeholder="User Name" onChange={(e) => setUsername(e.target.value)} required />
-        </Form.Group>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="User Name" type="text" placeholder="User Name" onChange={(e) => setUsername(e.target.value)} required />
+        </FormGroup>
 
-        <Form.Group className="mb-3" controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
-        </Form.Group>
+        <FormGroup sx={{ mb: 2 }}>
+          <TextField label="Password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
+        </FormGroup>
 
         {failed && (
         <p>
           Failed to login.
         </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button size="large" loading={loading} disabled={loading} variant="contained" type="submit">
           Login
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

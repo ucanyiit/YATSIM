@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, MenuItem, Select, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const types = [
@@ -21,11 +23,11 @@ const PlaceOp = ({ room, cell }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Place
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -35,27 +37,28 @@ const PlaceOp = ({ room, cell }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="type">
-          <Form.Label>Type</Form.Label>
-          <Form.Select
+        <FormGroup sx={{ mb: 2 }}>
+          <Select
+            size="small"
+            label="Type"
             value={type}
             onChange={(e) => setType(e.target.value)}
             required
           >
             {types.map((cell_type) => (
-              <option key={cell_type.value} value={cell_type.value}>
+              <MenuItem key={cell_type.value} value={cell_type.value}>
                 {cell_type.name}
-              </option>
+              </MenuItem>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </Select>
+        </FormGroup>
         {failed && (
           <p>
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">Place</Button>
-      </Form>
+        <Button size="small" loading={loading} disabled={loading} variant="contained" type="submit">Place</Button>
+      </form>
     </div>
   );
 };

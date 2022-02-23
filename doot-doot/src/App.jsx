@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
+import { Container, Typography } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
-import { Container } from 'react-bootstrap';
 import Header from './components/Header';
 import CreateRoom from './pages/CreateRoom';
 import Dashboard from './pages/Dashboard';
@@ -106,28 +106,32 @@ const App = () => {
       .finally(() => setLoading(false));
   };
 
-  if (loading || failedToLoad) {
+  if (!token) {
     return (
-      <Container className="mt-3">
+      <Container sx={{ mt: 3 }}>
         <Header token={token} setPage={setPage} />
-        {failedToLoad && 'Failed to load, please refresh.'}
-        {loading && 'Loading..'}
+        <Typography mt={3}>
+          {page === 'login' && <Login goHome={goHome} />}
+          {page !== 'login' && 'Please login to see dashboard.'}
+        </Typography>
       </Container>
     );
   }
 
-  if (!token) {
+  if (loading || failedToLoad) {
     return (
-      <Container className="mt-3">
+      <Container sx={{ mt: 3 }}>
         <Header token={token} setPage={setPage} />
-        {page === 'login' && <Login goHome={goHome} />}
-        {page !== 'login' && <p>Please login to see dashboard.</p>}
+        <Typography mt={3}>
+          {failedToLoad && 'Failed to load, please refresh.'}
+          {loading && 'Loading..'}
+        </Typography>
       </Container>
     );
   }
 
   return (
-    <Container className="mt-3">
+    <Container sx={{ mt: 3 }}>
       <Header token={token} setPage={setPage} />
       {page === 'home' && (
       <Dashboard goRoom={setRoomData} dashboard={dashboard} />

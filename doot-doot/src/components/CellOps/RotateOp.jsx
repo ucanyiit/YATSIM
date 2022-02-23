@@ -1,5 +1,7 @@
+import {
+  Button, FormGroup, MenuItem, Select, Typography,
+} from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const directions = [
@@ -16,11 +18,11 @@ const RotateOp = ({ room, cell }) => {
 
   return (
     <div>
-      <p className="lead">
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
         Rotate
-      </p>
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -30,27 +32,28 @@ const RotateOp = ({ room, cell }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Group className="mb-3" controlId="direction">
-          <Form.Label>Direction</Form.Label>
-          <Form.Select
+        <FormGroup sx={{ mb: 2 }}>
+          <Select
+            size="small"
+            label="Direction"
             value={direction}
             onChange={(e) => setDirection(e.target.value)}
             required
           >
             {directions.map((cell_direction) => (
-              <option key={cell_direction.value} value={cell_direction.value}>
+              <MenuItem key={cell_direction.value} value={cell_direction.value}>
                 {cell_direction.name}
-              </option>
+              </MenuItem>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </Select>
+        </FormGroup>
         {failed && (
           <p>
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">Rotate</Button>
-      </Form>
+        <Button size="small" loading={loading} disabled={loading} variant="contained" type="submit">Rotate</Button>
+      </form>
     </div>
   );
 };

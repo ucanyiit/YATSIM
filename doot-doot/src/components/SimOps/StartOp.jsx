@@ -1,5 +1,5 @@
+import { Button, Slider, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
 import RequestHandler from '../../utils/RequestHandler';
 
 const StartOp = ({ room }) => {
@@ -9,11 +9,11 @@ const StartOp = ({ room }) => {
 
   return (
     <div>
-      <p className="lead">
-        Start Simulation
-      </p>
+      <Typography variant="subtitle1" component="h6" mt={1} mb={1}>
+        {`Start Simulation (Period - ${period})`}
+      </Typography>
 
-      <Form
+      <form
         onSubmit={(e) => {
           e.preventDefault();
           setLoading(true);
@@ -23,23 +23,24 @@ const StartOp = ({ room }) => {
             .finally(() => setLoading(false));
         }}
       >
-        <Form.Label>{`Period - ${period}`}</Form.Label>
-        <Form.Range
+        <Slider
+          marks
           value={period}
           onChange={(e) => { setPeriod(e.target.value); }}
-          min="0.5"
-          max="4"
-          step="0.5"
+          min={0.5}
+          max={4}
+          step={0.5}
+          valueLabelDisplay="auto"
         />
         {failed && (
           <p>
             Failed request.
           </p>
         )}
-        <Button loading={loading} disabled={loading} variant="primary" type="submit">
+        <Button loading={loading} disabled={loading} variant="contained" type="submit">
           Start
         </Button>
-      </Form>
+      </form>
     </div>
   );
 };

@@ -1,23 +1,62 @@
-import { OverlayTrigger, Popover } from 'react-bootstrap';
+/* eslint-disable react/jsx-props-no-spreading */
+import { Popover, Typography } from '@mui/material';
+import { useState } from 'react';
 import CellOps from '../components/CellOps/CellOps';
 import GuestOps from '../components/GuestOps/GuestOps';
 import SimOps from '../components/SimOps/SimOps';
 import './room.css';
 import { getCellImage, getWagonImage } from './RoomHelper';
 
+const Popup = ({ sim, cell, room }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ height: '64px' }}>
+      <Popover
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'center',
+        }}
+        open={open}
+        onClose={() => setOpen(false)}
+      >
+        <div style={{ padding: '1.5rem' }}>
+          <CellOps cell={cell} room={room} />
+        </div>
+      </Popover>
+      <button type="button" className="cell-button" onClick={() => setOpen(!open)}>
+        <div className="cell">
+          <img
+            alt="doot"
+            className={`direction${cell.direction}`}
+            width="64"
+            height="64"
+            src={getCellImage(cell.type, cell.state)}
+          />
+          {sim.alive && cell.wagons.map((wagon) => (
+            <img
+              key={`${wagon.type}`}
+              alt="doot-doot"
+              className={`train direction${wagon.direction}`}
+              width="48"
+              height="48"
+              src={getWagonImage(wagon.type)}
+            />
+          ))}
+        </div>
+      </button>
+    </div>
+  );
+};
+
 const Room = ({
   roomData: {
     room, cells, trains, users, sim,
   }, goHome, user,
 }) => {
-  const popover = (cell) => (
-    <Popover id="popover-basic">
-      <Popover.Body>
-        <CellOps cell={cell} room={room} />
-      </Popover.Body>
-    </Popover>
-  );
-
   const grid = [];
   const newCells = cells.sort((a, b) => {
     if (a.y < b.y) return -1;
@@ -45,14 +84,14 @@ const Room = ({
 
   return (
     <div>
-      <h5>
+      <Typography mt={3} mb={1} variant="h5" component="h1">
         {`${room.id}: `}
         <b>{room.owner.username}</b>
         {`/${room.room_name}, height: ${room.height}, width: ${room.width}, `}
         {sim.running && 'Simulation is running 🚀'}
         {!sim.running && 'Simulation is stopped 🌱'}
-      </h5>
-      <div>
+      </Typography>
+      <Typography variant="subtitle2" component="h2">
         Guests:
         {room.guests.map((u) => (
           <span key={u}>
@@ -64,36 +103,15 @@ const Room = ({
           {' No guests :('}
         </span>
         )}
-      </div>
+      </Typography>
       <center>
-        <table>
+        <table cellSpacing="0">
           <tbody>
             {grid.map((row) => (
               <tr key={row[0].y}>
                 {row.map((cell) => (
-                  <td key={cell.x}>
-                    <OverlayTrigger trigger="click" placement="right" overlay={popover(cell)}>
-                      <div className="cell">
-                        <img
-                          alt="doot"
-                          className={`direction${cell.direction}`}
-                          width="48"
-                          height="48"
-                          src={getCellImage(cell.type, cell.state)}
-                        />
-                        {sim.alive && cell.wagons.map((wagon) => (
-                          <img
-                            key={`${wagon.type}`}
-                            alt="doot-doot"
-                            className={`train direction${wagon.direction}`}
-                            width="48"
-                            height="48"
-                            src={getWagonImage(wagon.type)}
-                          />
-                        ))}
-                      </div>
-                    </OverlayTrigger>
-
+                  <td key={cell.x} className="cell">
+                    <Popup sim={sim} cell={cell} room={room} />
                   </td>
                 ))}
               </tr>
