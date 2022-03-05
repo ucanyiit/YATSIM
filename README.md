@@ -1,6 +1,6 @@
 # 🚂 Yet Another Train Simulator! 🚂
 
-YATSIM is a collaborative train simulator developed as a course project by @koluacik and @ucanyiit. In this web application, users can create multiple rooms, edit the game grid in a room, run the train simulation and share their grid with others. Users' operations are handled by a backend application and sent to other users so users can receive others' changes instantly.
+YATSIM is a collaborative train simulator developed as a course project by [@koluacik](https://github.com/koluacik) and [@ucanyiit](https://github.com/ucanyiit). In this web application, users can create multiple rooms, edit the game grid in a room, run the train simulation and share their grid with others. Users' operations are handled by a backend application and sent to other users so users can receive others' changes instantly.
 
 ## General Architecture
 
